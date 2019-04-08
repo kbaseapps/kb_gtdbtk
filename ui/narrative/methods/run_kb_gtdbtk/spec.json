@@ -9,16 +9,20 @@
         "input": null,
         "output": null
     },
-    "parameters": [ 
+    "parameters": [
         {
-            "id": "parameter_1",
-            "optional": true,
+            "id": "inputObjectRef",
+            "optional": false,
             "advanced": false,
             "allow_multiple": false,
             "default_values": [ "" ],
             "field_type": "text",
             "text_options": {
-                "valid_ws_types": [ ]
+                "valid_ws_types": ["KBaseGenomes.ContigSet",
+                                   "KBaseGenomeAnnotations.Assembly",
+                                   "KBaseGenomes.Genome",
+                                   "KBaseSets.GenomeSet",
+                                   "KBaseSearch.GenomeSet" ]
             }
         }
     ],
@@ -35,8 +39,8 @@
                     "narrative_system_variable": "workspace_id",
                     "target_property": "workspace_id"
                 },{
-                    "input_parameter": "parameter_1",
-                    "target_property": "parameter_1"
+                    "input_parameter": "inputObjectRef",
+                    "target_property": "inputObjectRef"
                 }
             ],
             "output_mapping": [
