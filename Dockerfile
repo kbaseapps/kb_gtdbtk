@@ -11,8 +11,8 @@ RUN conda create --name py2 python=2.7 --yes
 RUN echo "source activate py2" > ~/.bashrc &&\
     /bin/bash -c "source activate py2"
 ENV PATH /miniconda/envs/py2/bin:$PATH
-RUN conda install -c bioconda gtdbtk -n py2 --yes
-ENV GTDBTK_DATA_PATH /kb/module/test/data/
+RUN conda install -c bioconda gtdbtk -n py2 --yes &&\
+    /bin/bash -c "export GTDBTK_DATA_PATH=/data/"
 
 
 
