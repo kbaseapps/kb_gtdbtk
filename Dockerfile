@@ -6,7 +6,14 @@ MAINTAINER KBase Developer
 # install line here, a git checkout to download code, or run any other
 # installation scripts.
 
-# RUN apt-get update
+RUN apt-get update
+RUN conda create --name py2 python=2.7 --yes
+RUN echo "source activate py2" > ~/.bashrc &&\
+    /bin/bash -c "source activate py2"
+ENV PATH /miniconda/envs/py2/bin:$PATH
+RUN conda install -c bioconda gtdbtk -n py2 --yes
+ENV GTDBTK_DATA_PATH /kb/module/test/data/
+
 
 
 # -----------------------------------------

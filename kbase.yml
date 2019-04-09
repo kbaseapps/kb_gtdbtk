@@ -13,3 +13,5 @@ module-version:
 owners:
     [psdehal]
 
+data-version:
+    0.0.1
