@@ -4,6 +4,8 @@ import logging
 import os
 
 from installed_clients.KBaseReportClient import KBaseReport
+from .utils.misc_utils import load_fastas
+from .utils.gtdbtk_utils import GTDBTkUtils
 #END_HEADER
 
 
@@ -35,6 +37,7 @@ class kb_gtdbtk:
         #BEGIN_CONSTRUCTOR
         self.callback_url = os.environ['SDK_CALLBACK_URL']
         self.shared_folder = config['scratch']
+        self.config = config
         logging.basicConfig(format='%(created)s %(levelname)s: %(message)s',
                             level=logging.INFO)
         #END_CONSTRUCTOR
@@ -51,8 +54,29 @@ class kb_gtdbtk:
         # ctx is the context object
         # return variables are: output
         #BEGIN run_kb_gtdbtk
+
+        # TODO: some parameter checking
+        try:
+            ref = params.get('inputObjectRef')
+        except KeyError:
+            print("Must provide a ws reference to object with sequences")
+
+        try:
+            workspace_id = params.get('workspace_id')
+        except KeyError:
+            print("Must provide a workspace id")
+
+        # get the fasta file from the input ref
+        # TODO: handle sets
+        print("Get Genome Seqs\n")
+        fasta_paths = load_fastas(self.callback_url, self.shared_folder, ref)
+        print(fasta_paths)
+
+        print("Run gtdbtk classifywf\n")
+        gtdbtku = GTDBTkUtils(self.config, self.callback_url, workspace_id)
+        results = gtdbtku.gtdbtk_classifywf(fasta_paths)
         report = KBaseReport(self.callback_url)
-        report_info = report.create({'report': {'objects_created':[],
+        report_info = report.create({'report': {'objects_created': [],
                                                 'text_message': params['parameter_1']},
                                                 'workspace_name': params['workspace_name']})
         output = {
