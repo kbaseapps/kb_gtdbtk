@@ -17,6 +17,7 @@ class GTDBTkUtils():
         Run the classify workflow on the fasta files
         '''
         gtdbtk_cmd = [self.gtdbtk, "test"]
+        print("Starting Command:\n", gtdbtk_cmd)
         pipe = subprocess.Popen(gtdbtk_cmd, stdout=subprocess.PIPE, shell=True)
         output = pipe.communicate()[0]
         print(output)
