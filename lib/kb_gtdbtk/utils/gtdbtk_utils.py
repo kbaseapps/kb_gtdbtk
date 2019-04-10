@@ -19,6 +19,6 @@ class GTDBTkUtils():
         out_dir = os.path.join(self.shared_folder, "output")
         gtdbtk_cmd = " ".join([self.gtdbtk, "classify_wf", "--out_dir", out_dir, "--genome_dir", self.shared_folder, "-x", "fa", "--cpus", "12", '"'])
         print("Starting Command:\n", gtdbtk_cmd)
-        output = subprocess.check_output(gtdbtk_cmd, shell=True)
+        output = subprocess.check_output(gtdbtk_cmd, shell=True).decode('utf-8')
         print(output)
         return output
