@@ -16,7 +16,7 @@ class GTDBTkUtils():
         '''
         Run the classify workflow on the fasta files
         '''
-        gtdbtk_cmd = " ".join(self.gtdbtk, "test", "-h", '"')
+        gtdbtk_cmd = " ".join([self.gtdbtk, "test", "-h", '"'])
         print("Starting Command:\n", gtdbtk_cmd)
         output = subprocess.run(gtdbtk_cmd, stdout=subprocess.PIPE, shell=True)
         print(output)
