@@ -21,3 +21,4 @@ class GTDBTkUtils():
         print("Starting Command:\n", gtdbtk_cmd)
         output = subprocess.check_output(gtdbtk_cmd, shell=True)
         print(output)
+        return output
