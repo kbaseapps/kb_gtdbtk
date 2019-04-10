@@ -19,5 +19,5 @@ class GTDBTkUtils():
         out_dir = os.path.join(self.shared_folder, "output")
         gtdbtk_cmd = " ".join([self.gtdbtk, "classifywf", "--out_dir", out_dir, "--genome_dir", self.shared_folder, '"'])
         print("Starting Command:\n", gtdbtk_cmd)
-        output = subprocess.run(gtdbtk_cmd, stdout=subprocess.PIPE, shell=True)
+        output = subprocess.check_output(gtdbtk_cmd, stdout=subprocess.PIPE, shell=True)
         print(output)

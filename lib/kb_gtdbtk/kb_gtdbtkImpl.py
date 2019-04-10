@@ -81,8 +81,8 @@ class kb_gtdbtk:
         #                                        'text_message': results},
         #                                        'workspace_name': params['workspace_name']})
         output = {
-            'report_name': report_info['name'],
-            'report_ref': report_info['ref'],
+            'report_name': '',# report_info['name'],
+            'report_ref': ''# report_info['ref'],
         }
         #END run_kb_gtdbtk
 
