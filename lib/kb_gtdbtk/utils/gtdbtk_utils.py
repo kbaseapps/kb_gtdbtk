@@ -10,14 +10,14 @@ class GTDBTkUtils():
     def __init__(self, config, callback_url, workspace_id):
         self.shared_folder = config['scratch']
         self.callback_url = callback_url
-        self.gtdbtk = '/bin/bash -c "source activate py2 && gtdbtk'
+        self.gtdbtk = '/bin/bash -c "source activate py2 && GTDBTK_DATA_PATH=/data gtdbtk'
 
     def gtdbtk_classifywf(self, fasta_paths):
         '''
         Run the classify workflow on the fasta files
         '''
         out_dir = os.path.join(self.shared_folder, "output")
-        gtdbtk_cmd = " ".join([self.gtdbtk, "classifywf", "--out_dir", out_dir, "--genome_dir", self.shared_folder, '"'])
+        gtdbtk_cmd = " ".join([self.gtdbtk, "classify_wf", "--out_dir", out_dir, "--genome_dir", self.shared_folder, '"'])
         print("Starting Command:\n", gtdbtk_cmd)
         output = subprocess.check_output(gtdbtk_cmd, shell=True)
         print(output)
