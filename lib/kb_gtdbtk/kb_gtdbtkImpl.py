@@ -77,7 +77,7 @@ class kb_gtdbtk:
         results = gtdbtku.gtdbtk_classifywf(fasta_paths)
         report = KBaseReport(self.callback_url)
         report_info = report.create({'report': {'objects_created': [],
-                                                'text_message': params['parameter_1']},
+                                                'text_message': results]},
                                                 'workspace_name': params['workspace_name']})
         output = {
             'report_name': report_info['name'],
