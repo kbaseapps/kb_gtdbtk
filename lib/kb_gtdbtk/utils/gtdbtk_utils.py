@@ -10,7 +10,6 @@ class GTDBTkUtils():
     def __init__(self, config, callback_url, workspace_id):
         self.shared_folder = config['scratch']
         self.callback_url = callback_url
-        self.workspace_url = config['workspace_url']
         self.gtdbtk = 'gtdbtk'
 
     def gtdbtk_classifywf(self, fasta_paths):
