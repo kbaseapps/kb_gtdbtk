@@ -40,7 +40,8 @@
                     "target_property": "workspace_id"
                 },{
                     "input_parameter": "inputObjectRef",
-                    "target_property": "inputObjectRef"
+                    "target_property": "inputObjectRef",
+                    "target_type_transform":"ref"
                 }
             ],
             "output_mapping": [
