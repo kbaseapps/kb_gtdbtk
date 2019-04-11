@@ -38,6 +38,7 @@ class kb_gtdbtk:
         self.callback_url = os.environ['SDK_CALLBACK_URL']
         self.shared_folder = config['scratch']
         self.config = config
+        self.cpus = 32  # bigmem 32 cpus & 90,000MB RAM
         logging.basicConfig(format='%(created)s %(levelname)s: %(message)s',
                             level=logging.INFO)
         #END_CONSTRUCTOR
@@ -73,7 +74,7 @@ class kb_gtdbtk:
         print(fasta_paths)
 
         print("Run gtdbtk classifywf\n")
-        gtdbtku = GTDBTkUtils(self.config, self.callback_url, workspace_id)
+        gtdbtku = GTDBTkUtils(self.config, self.callback_url, workspace_id, self.cpus)
         results = gtdbtku.gtdbtk_classifywf(fasta_paths)
         report = KBaseReport(self.callback_url)
 
