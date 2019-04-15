@@ -69,11 +69,11 @@ class kb_gtdbtk:
 
         # get the fasta file from the input ref
         # TODO: handle sets
-        print("Get Genome Seqs\n")
+        logging.info("Get Genome Seqs\n")
         fasta_paths = load_fastas(self.callback_url, self.shared_folder, ref)
         print(fasta_paths)
 
-        print("Run gtdbtk classifywf\n")
+        logging.info("Run gtdbtk classifywf\n")
         gtdbtku = GTDBTkUtils(self.config, self.callback_url, workspace_id, self.cpus)
         results = gtdbtku.gtdbtk_classifywf(fasta_paths)
         report = KBaseReport(self.callback_url)

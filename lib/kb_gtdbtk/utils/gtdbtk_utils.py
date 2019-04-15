@@ -25,12 +25,13 @@ class GTDBTkUtils():
         output = subprocess.check_output(gtdbtk_cmd, shell=True).decode('utf-8')
         print(output)
 
-        for path in (os.path.join(out_dir, 'gtdbtk.ar122.summary.tsv'), os.path.join(out_dir, 'gtdbtk.bact120.summary.tsv')):
+        for path in (os.path.join(out_dir, 'gtdbtk.ar122.summary.tsv'),
+                     os.path.join(out_dir, 'gtdbtk.bact120.summary.tsv')):
             try:
                 summary_file = open(path, 'r')
                 output = output + summary_file.read()
                 summary_file.close()
-            except:
-                pass
+            except Exception as exc:
+                logging.info(exc)
 
         return output
