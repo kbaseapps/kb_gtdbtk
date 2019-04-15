@@ -25,7 +25,7 @@ class GTDBTkUtils():
         output = subprocess.check_output(gtdbtk_cmd, shell=True).decode('utf-8')
         print(output)
 
-        for path in ('gtdbtk.ar122.summary.tsv', 'gtdbtk.bact120.summary.tsv'):
+        for path in ('output/gtdbtk.ar122.summary.tsv', 'output/gtdbtk.bact120.summary.tsv'):
             try:
                 summary_file = open(path, 'r')
                 output.append(summary_file.read())
