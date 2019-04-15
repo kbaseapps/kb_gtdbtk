@@ -24,4 +24,13 @@ class GTDBTkUtils():
         print("Starting Command:\n", gtdbtk_cmd)
         output = subprocess.check_output(gtdbtk_cmd, shell=True).decode('utf-8')
         print(output)
+
+        for path in ('gtdbtk.ar122.summary.tsv', 'gtdbtk.bact120.summary.tsv'):
+            try:
+                summary_file = open(path, 'r')
+                output.append(summary_file.read())
+                summary_file.close()
+            except:
+                pass
+
         return output
