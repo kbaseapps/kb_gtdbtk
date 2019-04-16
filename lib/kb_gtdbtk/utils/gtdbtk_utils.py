@@ -29,7 +29,7 @@ class GTDBTkUtils():
         logging.info(output)
 
         for path in (os.path.join(out_dir, 'gtdbtk.ar122.summary.tsv'),
-                     os.path.join(out_dir, 'gtdbtk.bact120.summary.tsv')):
+                     os.path.join(out_dir, 'gtdbtk.bac120.summary.tsv')):
             try:
                 summary_file = open(path, 'r')
                 output = output + summary_file.read()
