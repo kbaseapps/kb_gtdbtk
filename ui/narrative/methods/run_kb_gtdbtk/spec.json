@@ -22,7 +22,8 @@
                                    "KBaseGenomeAnnotations.Assembly",
                                    "KBaseGenomes.Genome",
                                    "KBaseSets.GenomeSet",
-                                   "KBaseSearch.GenomeSet" ]
+                                   "KBaseSearch.GenomeSet",
+                                   "KBaseSets.AssemblySet" ]
             }
         }
     ],
