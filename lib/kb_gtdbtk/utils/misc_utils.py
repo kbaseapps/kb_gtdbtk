@@ -12,7 +12,7 @@ def load_fastas(callback_url, scratch, upa):
     obj_data = dfu.get_objects({"object_refs": [upa]})['data'][0]
     obj_type = obj_data['info'][2]
 
-    if 'KBaseSets.GenomeSet' in obj_type or "KBaseSets.AssemblySet" in obj_type:
+    if 'KBaseSets.GenomeSet' in obj_type:
         upas = [gsi['ref'] for gsi in obj_data['data']['items']]
     elif 'KBaseSearch.GenomeSet' in obj_type:
         upas = [gse['ref'] for gse in obj_data['data']['elements'].values()]
@@ -23,6 +23,13 @@ def load_fastas(callback_url, scratch, upa):
         # file_output = os.path.join(scratch, "input_fasta.fa")
         faf = au.get_assembly_as_fasta({"ref": upa})
         return [(faf['path'], upa)]
+    elif "KBaseSets.AssemblySet" in obj_type:
+        fasta_paths = []
+        for item_upa in obj_data['data']['items']:
+            faf = au.get_assembly_as_fasta({"ref": item_upa})
+            fasta_paths.append((faf['path'], item_upa))
+        return fasta_paths
+
         
 
     data_objs = dfu.get_objects({"object_refs": upas})['data']
