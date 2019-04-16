@@ -26,11 +26,9 @@ def load_fastas(callback_url, scratch, upa):
     elif "KBaseSets.AssemblySet" in obj_type:
         fasta_paths = []
         for item_upa in obj_data['data']['items']:
-            faf = au.get_assembly_as_fasta({"ref": item_upa})
-            fasta_paths.append((faf['path'], item_upa))
+            faf = au.get_assembly_as_fasta({"ref": item_upa['ref']})
+            fasta_paths.append((faf['path'], item_upa['ref']))
         return fasta_paths
-
-        
 
     data_objs = dfu.get_objects({"object_refs": upas})['data']
     assembly_upas = [d['data']['assembly_ref'] for d in data_objs]
