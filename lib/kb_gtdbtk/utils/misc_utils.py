@@ -12,7 +12,7 @@ def load_fastas(callback_url, scratch, upa):
     obj_data = dfu.get_objects({"object_refs": [upa]})['data'][0]
     obj_type = obj_data['info'][2]
 
-    if 'KBaseSets.GenomeSet' in obj_type or "KBaseSets.AssemblySet":
+    if 'KBaseSets.GenomeSet' in obj_type or "KBaseSets.AssemblySet" in obj_type:
         upas = [gsi['ref'] for gsi in obj_data['data']['items']]
     elif 'KBaseSearch.GenomeSet' in obj_type:
         upas = [gse['ref'] for gse in obj_data['data']['elements'].values()]
