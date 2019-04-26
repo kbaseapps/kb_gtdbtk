@@ -12,7 +12,7 @@ RUN echo "source activate py2" > ~/.bashrc
 ENV PATH /miniconda/envs/py2/bin:$PATH
 RUN conda install -c bioconda gtdbtk -n py2 --yes
 ENV GTDBTK_DATA_PATH=/data
-
+RUN conda install pandas
 
 
 # -----------------------------------------

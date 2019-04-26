@@ -38,8 +38,6 @@ class GTDBTkUtils():
                 summary_file.close()
                 summary_df = pd.read_csv(path, sep='\t', encoding='utf-8')
                 summary_df.to_json(join(path, 'json'), orient='records')
-                with open(os.path.join(path, '.json'), w) as f:
-                    f.write(summary_df.to_json)
             except Exception as exc:
                 logging.info(exc)
 
