@@ -1,10 +1,13 @@
+import uuid
+import os
 from installed_clients.AssemblyUtilClient import AssemblyUtil
 from installed_clients.DataFileUtilClient import DataFileUtil
 from installed_clients.KBaseReportClient import KBaseReport
 from shutil import copyfile
-import os
+
 
 # copied from https://github.com/kbaseapps/kb_cmash/blob/master/lib/kb_cmash/utils/misc_utils.py
+# small modifications
 
 
 def load_fastas(callback_url, scratch, upa):
@@ -49,6 +52,7 @@ def create_html_report(callback_url, scratch, workspace_name):
     '''
     output_dir = os.path.join(scratch, 'output')
     dfu = DataFileUtil(callback_url)
+    report_name = 'GTDBTk_report_' + str(uuid.uuid4())
     report = KBaseReport(callback_url)
     copyfile(os.path.join(os.path.dirname(__file__), 'index.html'), 
              os.path.join(output_dir, 'index.html'))
