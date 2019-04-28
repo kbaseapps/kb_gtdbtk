@@ -50,7 +50,8 @@ def create_html_report(callback_url, scratch, workspace_name):
     output_dir = os.path.join(scratch, 'output')
     dfu = DataFileUtil(callback_url)
     report = KBaseReport(callback_url)
-    copyfile(os.path.join(os.path.dirname(__file__), 'index.html'), output_dir)
+    copyfile(os.path.join(os.path.dirname(__file__), 'index.html'), 
+             os.path.join(output_dir, 'index.html'))
 
     report_shock_id = dfu.file_to_shock({'file_path': output_dir,
                                         'pack': 'zip'})['shock_id']
