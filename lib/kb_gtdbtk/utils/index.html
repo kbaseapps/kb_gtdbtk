@@ -89,12 +89,12 @@
                     if($(this).hasClass('inactive')){
                         $('#tabs li a').addClass('inactive');
                         $(this).removeClass('inactive');
-
+                        var dataFile =  ( t === 'Bacteria') ? "gtdbtk.ar122.summary.tsv.json" : "gtdbtk.bac120.summary.tsv.json"
                         $('.container').hide();
                         $('#'+ t + 'C').fadeIn('slow');
                         if ( ! $.fn.DataTable.isDataTable('#'+ t + 'Table')) {
                             $('#'+ t + 'Table').DataTable( {
-                                "ajax": "gtdbtk.ar122.summary.tsv.json",
+                                "ajax": dataFile,
                                 "columns": [
                                     {"data": "user_genome"},
                                     {"data": "classification"},
