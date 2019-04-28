@@ -5,6 +5,7 @@ import os
 
 from installed_clients.KBaseReportClient import KBaseReport
 from .utils.misc_utils import load_fastas
+from .utils.misc_utils import create_html_report
 from .utils.gtdbtk_utils import GTDBTkUtils
 #END_HEADER
 
@@ -76,15 +77,9 @@ class kb_gtdbtk:
         logging.info("Run gtdbtk classifywf\n")
         gtdbtku = GTDBTkUtils(self.config, self.callback_url, workspace_id, self.cpus)
         results = gtdbtku.gtdbtk_classifywf(fasta_paths)
-        report = KBaseReport(self.callback_url)
-
-        report_info = report.create({'report': {'objects_created': [],
-                                                'text_message': results},
-                                                'workspace_name': params['workspace_name']})
-        output = {
-            'report_name': report_info['name'],
-            'report_ref': report_info['ref'],
-        }
+        logging.info(results)
+        output = create_html_report(self.callback_url, self.shared_folder, params['workspace_name'])
+        
         #END run_kb_gtdbtk
 
         # At some point might do deeper type checking...
