@@ -64,7 +64,7 @@ def create_html_report(callback_url, scratch, workspace_name):
         'shock_id': report_shock_id,
         'name': 'index.html',
         'label': 'index.html',
-        'description': 'HTML report for GTDBTk'
+        'description': 'HTML report for GTDBTk Classify'
         }
     
     report_info = report.create_extended_report({
