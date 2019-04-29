@@ -97,14 +97,32 @@
                                 "ajax": dataFile,
                                 "columns": [
                                     {"data": "user_genome"},
-                                    {"data": "classification"},
+                                    {"data": "classification", "render": function(data,type,row, meta) {
+                                        return type === 'display' ?
+                                                (data == null) ? 
+                                                    data : 
+                                                    data.replace(/;/g, ';<br>') :
+                                                data;
+                                    }},
                                     {"data": "fastani_reference"},
                                     {"data": "fastani_reference_radius"},
-                                    {"data": "fastani_taxonomy"},
+                                    {"data": "fastani_taxonomy", "render": function(data,type,row, meta) {
+                                        return type === 'display' ?
+                                                (data == null) ? 
+                                                    data : 
+                                                    data.replace(/;/g, ';<br>') :
+                                                data;
+                                    }},
                                     {"data": "fastani_ani"},
                                     {"data": "fastani_af"},
                                     {"data": "closest_placement_reference"},
-                                    {"data": "closest_placement_taxonomy"},
+                                    {"data": "closest_placement_taxonomy", "render": function(data,type,row, meta) {
+                                        return type === 'display' ?
+                                                (data == null) ? 
+                                                    data : 
+                                                    data.replace(/;/g, ';<br>') :
+                                                data;
+                                    }},
                                     {"data": "closest_placement_ani"},
                                     {"data": "closest_placement_af"},
                                     {"data": "classification_method"},
