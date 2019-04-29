@@ -127,7 +127,13 @@
                                     {"data": "closest_placement_af"},
                                     {"data": "classification_method"},
                                     {"data": "note"},
-                                    {"data": "other_related_references(genome_id,species_name,radius,ANI,AF)"},
+                                    {"data": "other_related_references(genome_id,species_name,radius,ANI,AF)", "render": function ( data, type, row, meta ) {
+                                        return type === 'display' && data.length > 40 ?
+                                                (data === null) ?
+                                                    data :
+                                                    '<span title="'+data+'">'+data.substr( 0, 38 )+'...</span>' :
+                                                data;
+                                    }},
                                     {"data": "aa_percent"},
                                     {"data": "red_value"},
                                     {"data": "warnings"}
