@@ -80,7 +80,7 @@
         <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
         <script>
             $(document).ready(function() {
-                $('#tabs li a:not(:first)').addClass('inactive');
+                $('#tabs li a').addClass('inactive');
                 $('.container').hide();
                 $('.container:first').show();
 
@@ -143,6 +143,7 @@
                     }
                 
                 });
+                $('#tabs li a:first').click();
             });
         </script>
     </head>
