@@ -12,13 +12,13 @@ from shutil import copyfile
 # small modifications
 
 
-def load_fastas(callback_url, scratch, upa):
+def load_fastas(config, scratch, upa):
     '''
     '''
-    dfu = DataFileUtil(callback_url)
-    au = AssemblyUtil(callback_url)
-    mgu = MetagenomeUtils(callback_url)
-    ws = Workspace(callback_url)
+    dfu = DataFileUtil(config['callback_url'])
+    au = AssemblyUtil(config['callback_url'])
+    mgu = MetagenomeUtils(config['callback_url'])
+    ws = Workspace(config['callback_url'], token=config['KB_AUTH_TOKEN'])
 
     obj_data = dfu.get_objects({"object_refs": [upa]})['data'][0]
     obj_type = obj_data['info'][2]

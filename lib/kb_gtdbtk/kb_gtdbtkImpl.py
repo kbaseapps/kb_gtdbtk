@@ -71,7 +71,7 @@ class kb_gtdbtk:
         # get the fasta file from the input ref
         # TODO: handle sets
         logging.info("Get Genome Seqs\n")
-        fasta_paths = load_fastas(self.callback_url, self.shared_folder, ref)
+        fasta_paths = load_fastas(self.config, self.shared_folder, ref)
         print(fasta_paths)
 
         logging.info("Run gtdbtk classifywf\n")
