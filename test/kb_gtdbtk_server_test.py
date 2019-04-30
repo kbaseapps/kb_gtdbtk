@@ -65,4 +65,4 @@ class kb_gtdbtkTest(unittest.TestCase):
         # self.assertEqual(ret[...], ...) or other unittest methods
         print("START TEST 1\n")
         ret = self.serviceImpl.run_kb_gtdbtk(self.ctx, {'workspace_name': self.wsName,
-                                                             'inputObjectRef': '23254/4/1'})
+                                                             'inputObjectRef': '27079/17/1'})
