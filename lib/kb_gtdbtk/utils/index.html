@@ -94,6 +94,7 @@
                         $('#'+ t + 'C').fadeIn('slow');
                         if ( ! $.fn.DataTable.isDataTable('#'+ t + 'Table')) {
                             $('#'+ t + 'Table').DataTable( {
+                                //"fixedHeader": true, this doesn't work inside a container
                                 "ajax": dataFile,
                                 "columns": [
                                     {"data": "user_genome"},
