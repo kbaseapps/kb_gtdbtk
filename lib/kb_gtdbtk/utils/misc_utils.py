@@ -4,6 +4,7 @@ from installed_clients.AssemblyUtilClient import AssemblyUtil
 from installed_clients.DataFileUtilClient import DataFileUtil
 from installed_clients.KBaseReportClient import KBaseReport
 from installed_clients.MetagenomeUtilsClient import MetagenomeUtils
+from installed_clients.WorkspaceClient import Workspace
 from shutil import copyfile
 
 
@@ -17,6 +18,7 @@ def load_fastas(callback_url, scratch, upa):
     dfu = DataFileUtil(callback_url)
     au = AssemblyUtil(callback_url)
     mgu = MetagenomeUtils(callback_url)
+    ws = Workspace(callback_url)
 
     obj_data = dfu.get_objects({"object_refs": [upa]})['data'][0]
     obj_type = obj_data['info'][2]
@@ -50,16 +52,14 @@ def load_fastas(callback_url, scratch, upa):
                 fasta_paths.append((fasta_path, upa))
             break
         return fasta_paths
-
-    data_objs = dfu.get_objects({"object_refs": upas})['data']
-    assembly_upas = [d['data']['assembly_ref'] for d in data_objs]
+    
     fasta_paths = []
+    for genome_upa in upas:
+        genome_data = ws.get_objects2( {'objects':[{"ref": genome_upa}]})['data']
+        assembly_upa = genome_data.get('contigset_ref') or genome_data.get('assembly_ref')
+        faf = au.get_assembly_as_fasta({'ref': assembly_upa})
+        fasta_paths.append((faf['path'], assembly_upa))
 
-    for upa in assembly_upas:
-        # first we want to ge the associated assemblies.
-        faf = au.get_assembly_as_fasta({"ref": upa})
-        # faf = gfu.genome_features_to_fasta({"genome_ref": upa})
-        fasta_paths.append((faf['path'], upa))
     return fasta_paths
 
 def create_html_report(callback_url, scratch, workspace_name):
