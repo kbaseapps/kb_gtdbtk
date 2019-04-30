@@ -45,7 +45,11 @@ def load_fastas(callback_url, scratch, upa):
             for fasta_file in filenames:
                 fasta_path = os.path.join(scratch, fasta_file)
                 copyfile(os.path.join(bin_file_dir, fasta_file), fasta_path)
+                # Should I verify that the bins have contigs?
+                # is it possible to have empty bins?
+                fasta_paths.append((fasta_path, upa))
             break
+        return fasta_paths
 
     data_objs = dfu.get_objects({"object_refs": upas})['data']
     assembly_upas = [d['data']['assembly_ref'] for d in data_objs]
