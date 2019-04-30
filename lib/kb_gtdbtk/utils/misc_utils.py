@@ -18,7 +18,7 @@ def load_fastas(config, scratch, upa):
     dfu = DataFileUtil(config['callback_url'])
     au = AssemblyUtil(config['callback_url'])
     mgu = MetagenomeUtils(config['callback_url'])
-    ws = Workspace(config['callback_url'], token=config['KB_AUTH_TOKEN'])
+    ws = Workspace(config['workspace-url'])
 
     obj_data = dfu.get_objects({"object_refs": [upa]})['data'][0]
     obj_type = obj_data['info'][2]
