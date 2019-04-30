@@ -56,7 +56,7 @@ def load_fastas(config, scratch, upa):
     fasta_paths = []
     for genome_upa in upas:
         genome_data = ws.get_objects2( {'objects':[{"ref": genome_upa}]})['data'][0]['data']
-        assembly_upa = genome_data + ';' + genome_data.get('contigset_ref') or genome_data.get('assembly_ref')
+        assembly_upa = genome_upa + ';' + genome_data.get('contigset_ref') or genome_data.get('assembly_ref')
         faf = au.get_assembly_as_fasta({'ref': assembly_upa})
         fasta_paths.append((faf['path'], assembly_upa))
 
