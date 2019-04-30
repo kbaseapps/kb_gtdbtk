@@ -39,6 +39,7 @@ class kb_gtdbtk:
         self.callback_url = os.environ['SDK_CALLBACK_URL']
         self.shared_folder = config['scratch']
         self.config = config
+        self.config['callback_url'] = self.callback_url
         self.cpus = 32  # bigmem 32 cpus & 90,000MB RAM
         logging.basicConfig(format='%(created)s %(levelname)s: %(message)s',
                             level=logging.INFO)
