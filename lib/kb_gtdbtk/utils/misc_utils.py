@@ -3,6 +3,7 @@ import os
 from installed_clients.AssemblyUtilClient import AssemblyUtil
 from installed_clients.DataFileUtilClient import DataFileUtil
 from installed_clients.KBaseReportClient import KBaseReport
+from installed_clients.MetagenomeUtilsClient import MetagenomeUtils
 from shutil import copyfile
 
 
@@ -15,6 +16,8 @@ def load_fastas(callback_url, scratch, upa):
     '''
     dfu = DataFileUtil(callback_url)
     au = AssemblyUtil(callback_url)
+    mgu = MetagenomeUtils(callback_url)
+
     obj_data = dfu.get_objects({"object_refs": [upa]})['data'][0]
     obj_type = obj_data['info'][2]
 
@@ -35,6 +38,14 @@ def load_fastas(callback_url, scratch, upa):
             faf = au.get_assembly_as_fasta({"ref": item_upa['ref']})
             fasta_paths.append((faf['path'], item_upa['ref']))
         return fasta_paths
+    elif 'KBaseMetagenomes.BinnedContigs' in obj_type:
+        fasta_paths = []
+        bin_file_dir = mgu.binned_contigs_to_file({'input_ref': upa, 'save_to_shock': 0})['bin_file_directory']
+        for (dirpath, dirnames, filenames) in os.walk(bin_file_dir):
+            for fasta_file in filenames:
+                fasta_path = os.path.join(scratch, fasta_file)
+                copyfile(os.path.join(bin_file_dir, fasta_file), fasta_path)
+            break
 
     data_objs = dfu.get_objects({"object_refs": upas})['data']
     assembly_upas = [d['data']['assembly_ref'] for d in data_objs]

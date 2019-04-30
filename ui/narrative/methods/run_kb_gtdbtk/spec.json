@@ -23,7 +23,8 @@
                                    "KBaseGenomes.Genome",
                                    "KBaseSets.GenomeSet",
                                    "KBaseSearch.GenomeSet",
-                                   "KBaseSets.AssemblySet" ]
+                                   "KBaseSets.AssemblySet",
+                                   "KBaseMetagenomes.BinnedContigs" ]
             }
         }
     ],
