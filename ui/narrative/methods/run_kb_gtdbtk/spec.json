@@ -26,6 +26,19 @@
                                    "KBaseSets.AssemblySet",
                                    "KBaseMetagenomes.BinnedContigs" ]
             }
+        },
+        {
+            "id": "min_perc_aa",
+            "optional": true,
+            "advanced": true,
+            "allow_multiple": false,
+            "default_values": ["10"],
+            "field_type": "text",
+            "text_options": {
+                "validate_as": "int",
+                "min_int": 1,
+                "max_int": 100
+            }
         }
     ],
     "behavior": {
@@ -44,6 +57,9 @@
                     "input_parameter": "inputObjectRef",
                     "target_property": "inputObjectRef",
                     "target_type_transform":"ref"
+                },{
+                    "input_parameter": "min_perc_aa",
+                    "target_property": "min_perc_aa"
                 }
             ],
             "output_mapping": [

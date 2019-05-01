@@ -18,14 +18,15 @@ class GTDBTkUtils():
         logging.basicConfig(format='%(created)s %(levelname)s: %(message)s',
                             level=logging.INFO)
 
-    def gtdbtk_classifywf(self, fasta_paths):
+    def gtdbtk_classifywf(self, fasta_paths, min_perc_aa):
         '''
         Run the classify workflow on the fasta files
         '''
         out_dir = os.path.join(self.shared_folder, "output")
         gtdbtk_cmd = " ".join([self.gtdbtk, "classify_wf", "--out_dir", out_dir,
                               "--genome_dir", self.shared_folder, "-x", "fa",
-                               "--cpus", str(self.cpus), '"'])
+                               "--cpus", str(self.cpus), 
+                               "--min_perc_aa", str(min_perc_aa), '"'])
         logging.info("Starting Command:\n" + gtdbtk_cmd)
         output = subprocess.check_output(gtdbtk_cmd, shell=True).decode('utf-8')
         logging.info(output)

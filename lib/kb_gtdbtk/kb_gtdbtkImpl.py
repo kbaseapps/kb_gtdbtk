@@ -64,6 +64,8 @@ class kb_gtdbtk:
         except KeyError:
             print("Must provide a ws reference to object with sequences")
 
+        min_perc_aa = params.get('min_perc_aa', 10)
+
         try:
             workspace_id = params.get('workspace_id')
         except KeyError:
@@ -77,7 +79,7 @@ class kb_gtdbtk:
 
         logging.info("Run gtdbtk classifywf\n")
         gtdbtku = GTDBTkUtils(self.config, self.callback_url, workspace_id, self.cpus)
-        results = gtdbtku.gtdbtk_classifywf(fasta_paths)
+        results = gtdbtku.gtdbtk_classifywf(fasta_paths, min_perc_aa)
         logging.info(results)
         output = create_html_report(self.callback_url, self.shared_folder, params['workspace_name'])
         
