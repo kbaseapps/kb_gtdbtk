@@ -31,6 +31,12 @@ parameters :
             An assembly, genome or set
         long-hint  : |
             A single assembly or genome object or an assembly set or genome set.
+    min_perc_aa :
+        ui-name : |
+            Minimum Alignment Percent
+        short-hint : |
+            Filter out genomes with an insufficient percentage of AAs in the MSA (default: 10)
+
 
 description : |
     <h3>Description</h3>
