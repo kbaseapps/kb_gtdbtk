@@ -130,10 +130,12 @@
                                             {"data": "classification_method"},
                                             {"data": "note"},
                                             {"data": "other_related_references(genome_id,species_name,radius,ANI,AF)", "render": function ( data, type, row, meta ) {
-                                                return type === 'display' && data.length > 40 ?
+                                                return type === 'display' ?
                                                         (data === null) ?
-                                                            data :
+                                                            data : 
+                                                            (data.length > 40) ?
                                                             '<span title="'+data+'">'+data.substr( 0, 38 )+'...</span>' :
+                                                            data :
                                                         data;
                                             }},
                                             {"data": "aa_percent"},
