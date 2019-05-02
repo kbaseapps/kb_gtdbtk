@@ -31,7 +31,7 @@ class GTDBTkUtils():
         output = subprocess.check_output(gtdbtk_cmd, shell=True).decode('utf-8')
         logging.info(output)
 
-        output = output + self._process_output_files(out_dir)
+        self._process_output_files(out_dir)
         return output
     
     def _process_output_files(self, out_dir):
