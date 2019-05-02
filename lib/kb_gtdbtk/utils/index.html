@@ -168,9 +168,27 @@
                                                 {"data": "number_unique_genes"},
                                                 {"data": "number_multiple_genes"},
                                                 {"data": "number_missing_genes"},
-                                                {"data": "list_unique_genes"},
-                                                {"data": "list_multiple_genes"},
-                                                {"data": "list_missing_genes"}
+                                                {"data": "list_unique_genes", "render": function(data,type,row, meta) {
+                                                    return type === 'display' ?
+                                                            (data == null) ? 
+                                                                data : 
+                                                                data.replace(/,/g, ', ') :
+                                                            data;
+                                                }},
+                                                {"data": "list_multiple_genes", "render": function(data,type,row, meta) {
+                                                    return type === 'display' ?
+                                                            (data == null) ? 
+                                                                data : 
+                                                                data.replace(/,/g, ', ') :
+                                                            data;
+                                                }},
+                                                {"data": "list_missing_genes", "render": function(data,type,row, meta) {
+                                                    return type === 'display' ?
+                                                            (data == null) ? 
+                                                                data : 
+                                                                data.replace(/,/g, ', ') :
+                                                            data;
+                                                }}
                                             ],
                                             dom: 'Bfrtip',
                                             buttons: [
