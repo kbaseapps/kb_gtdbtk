@@ -88,65 +88,96 @@
                     if($(this).hasClass('inactive')){
                         $('#tabs li a').addClass('inactive');
                         $(this).removeClass('inactive');
-                        var dataFile =  ( t === 'BacteriaTab') ? "gtdbtk.bac120.summary.tsv.json" : "gtdbtk.ar122.summary.tsv.json"
+
+                        var dataFile =  "";
+                        if ( t === 'BacteriaTab') {
+                            dataFile = "gtdbtk.bac120.summary.tsv.json"
+                        } else if ( t === 'ArchaeaTab') {
+                            dataFile = "gtdbtk.ar122.summary.tsv.json"
+                        } else if ( t === 'BacteriaMarkerSummaryTab') {
+                            dataFile = "gtdbtk_bac120_markers_summary.tsv.json"
+                        } else if ( t === 'ArchaeaMarkerSummaryTab') {
+                            dataFile = "gtdbtk_ar122_markers_summary.tsv.json"
+                        }
+
                         $('.container').hide();
                         $('#'+ t + 'C').fadeIn('slow');
+
                         $.get(dataFile)
                             .done(function() {
                                 if ( ! $.fn.DataTable.isDataTable('#'+ t + 'Table')) {
-                                    $('#'+ t + 'Table').DataTable( {
-                                        //"fixedHeader": true, this doesn't work inside a container
-                                        "ajax": dataFile,
-                                        "columns": [
-                                            {"data": "user_genome"},
-                                            {"data": "classification", "render": function(data,type,row, meta) {
-                                                return type === 'display' ?
-                                                        (data == null) ? 
-                                                            data : 
-                                                            data.replace(/;/g, ';<br>') :
-                                                        data;
-                                            }},
-                                            {"data": "fastani_reference"},
-                                            {"data": "fastani_reference_radius"},
-                                            {"data": "fastani_taxonomy", "render": function(data,type,row, meta) {
-                                                return type === 'display' ?
-                                                        (data == null) ? 
-                                                            data : 
-                                                            data.replace(/;/g, ';<br>') :
-                                                        data;
-                                            }},
-                                            {"data": "fastani_ani"},
-                                            {"data": "fastani_af"},
-                                            {"data": "closest_placement_reference"},
-                                            {"data": "closest_placement_taxonomy", "render": function(data,type,row, meta) {
-                                                return type === 'display' ?
-                                                        (data == null) ? 
-                                                            data : 
-                                                            data.replace(/;/g, ';<br>') :
-                                                        data;
-                                            }},
-                                            {"data": "closest_placement_ani"},
-                                            {"data": "closest_placement_af"},
-                                            {"data": "classification_method"},
-                                            {"data": "note"},
-                                            {"data": "other_related_references(genome_id,species_name,radius,ANI,AF)", "render": function ( data, type, row, meta ) {
-                                                return type === 'display' ?
-                                                        (data === null) ?
-                                                            data : 
-                                                            (data.length > 40) ?
-                                                            '<span title="'+data+'">'+data.substr( 0, 38 )+'...</span>' :
-                                                            data :
-                                                        data;
-                                            }},
-                                            {"data": "aa_percent"},
-                                            {"data": "red_value"},
-                                            {"data": "warnings"}
-                                        ],
-                                        dom: 'Bfrtip',
-                                        buttons: [
-                                            'csvHtml5', 'colvis'
-                                        ]
-                                    } );
+                                    if ( t === 'BacteriaTab' || t === 'ArchaeaTab') {
+                                        $('#'+ t + 'Table').DataTable( {
+                                            //"fixedHeader": true, this doesn't work inside a container
+                                            "ajax": dataFile,
+                                            "columns": [
+                                                {"data": "user_genome"},
+                                                {"data": "classification", "render": function(data,type,row, meta) {
+                                                    return type === 'display' ?
+                                                            (data == null) ? 
+                                                                data : 
+                                                                data.replace(/;/g, ';<br>') :
+                                                            data;
+                                                }},
+                                                {"data": "fastani_reference"},
+                                                {"data": "fastani_reference_radius"},
+                                                {"data": "fastani_taxonomy", "render": function(data,type,row, meta) {
+                                                    return type === 'display' ?
+                                                            (data == null) ? 
+                                                                data : 
+                                                                data.replace(/;/g, ';<br>') :
+                                                            data;
+                                                }},
+                                                {"data": "fastani_ani"},
+                                                {"data": "fastani_af"},
+                                                {"data": "closest_placement_reference"},
+                                                {"data": "closest_placement_taxonomy", "render": function(data,type,row, meta) {
+                                                    return type === 'display' ?
+                                                            (data == null) ? 
+                                                                data : 
+                                                                data.replace(/;/g, ';<br>') :
+                                                            data;
+                                                }},
+                                                {"data": "closest_placement_ani"},
+                                                {"data": "closest_placement_af"},
+                                                {"data": "classification_method"},
+                                                {"data": "note"},
+                                                {"data": "other_related_references(genome_id,species_name,radius,ANI,AF)", "render": function ( data, type, row, meta ) {
+                                                    return type === 'display' ?
+                                                            (data === null) ?
+                                                                data : 
+                                                                (data.length > 40) ?
+                                                                '<span title="'+data+'">'+data.substr( 0, 38 )+'...</span>' :
+                                                                data :
+                                                            data;
+                                                }},
+                                                {"data": "aa_percent"},
+                                                {"data": "red_value"},
+                                                {"data": "warnings"}
+                                            ],
+                                            dom: 'Bfrtip',
+                                            buttons: [
+                                                'csvHtml5', 'colvis'
+                                            ]
+                                        });
+                                    } else if ( t === 'BacteriaMarkerSummaryTab' || t === 'ArchaeaMarkerSummaryTab') {
+                                        $('#'+ t + 'Table').DataTable( {
+                                            "ajax": dataFile,
+                                            "columns": [
+                                                {"data": "Name"},
+                                                {"data": "number_unique_genes"},
+                                                {"data": "number_multiple_genes"},
+                                                {"data": "number_missing_genes"},
+                                                {"data": "list_unique_genes"},
+                                                {"data": "list_multiple_genes"},
+                                                {"data": "list_missing_genes"}
+                                            ],
+                                            dom: 'Bfrtip',
+                                            buttons: [
+                                                'csvHtml5', 'colvis'
+                                            ]
+                                        });
+                                    }
                                 }
                             }).fail(function(){
                                 $('#'+ t + 'Table').remove();
@@ -164,6 +195,8 @@
             <ul>
                 <li><a id="BacteriaTab">Bacteria</a></li>
                 <li><a id="ArchaeaTab">Archaea</a></li>
+                <li><a id="BacteriaMarkerSummaryTab">Bacteria Marker Summary</a></li>
+                <li><a id="ArchaeaMarkerSummaryTab">Archaea Marker Summary</a></li>
             </ul>
             <div id="ArchaeaTabC" class="container">
                 <table id="ArchaeaTabTable" class="display" styles="width:100%">
@@ -211,6 +244,36 @@
                             <th>AA Percent</th>
                             <th>RED Value</th>
                             <th>Warnings</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+            <div id="BacteriaMarkerSummaryTabC" class="container">
+                <table id="BacteriaMarkerSummaryTable" class="display">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Unique Gene Count</th>
+                            <th>Multiple Gene Count</th>
+                            <th>Missing Gene Count</th>
+                            <th>Unique Gene List</th>
+                            <th>Multiple Gene List</th>
+                            <th>Missing Gene List</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+            <div id="ArchaeaMarkerSummaryTabC" class="container">
+                <table id="ArchaeaMarkerSummaryTable" class="display">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Unique Gene Count</th>
+                            <th>Multiple Gene Count</th>
+                            <th>Missing Gene Count</th>
+                            <th>Unique Gene List</th>
+                            <th>Multiple Gene List</th>
+                            <th>Missing Gene List</th>
                         </tr>
                     </thead>
                 </table>

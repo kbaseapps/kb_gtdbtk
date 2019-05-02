@@ -37,11 +37,11 @@ class GTDBTkUtils():
     def _process_output_files(self, out_dir):
 
         for path in (os.path.join(out_dir, 'gtdbtk.ar122.summary.tsv'),
-                     os.path.join(out_dir, 'gtdbtk.bac120.summary.tsv')):
+                     os.path.join(out_dir, 'gtdbtk.bac120.summary.tsv'),
+                     os.path.join(out_dir, 'gtdbtk_bac120_markers_summary.tsv'),
+                     os.path.join(out_dir, 'gtdbtk_ar122_markers_summary.tsv'),
+                     os.path.join(out_dir, 'gtdbtk.filtered.tsv')):
             try:
-                summary_file = open(path, 'r')
-                file_content = summary_file.read()
-                summary_file.close()
                 summary_df = pd.read_csv(path, sep='\t', encoding='utf-8')
                 outfile = path + '.json'
                 summary_json = '{"data": ' + summary_df.to_json(orient='records') + '}'
@@ -50,4 +50,4 @@ class GTDBTkUtils():
             except Exception as exc:
                 logging.info(exc)
 
-        return file_content
+        return
