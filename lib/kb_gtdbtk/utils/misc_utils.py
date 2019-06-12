@@ -46,6 +46,7 @@ def load_fastas(config, scratch, upa):
         for (dirpath, dirnames, filenames) in os.walk(bin_file_dir):
             for fasta_file in filenames:
                 fasta_path = os.path.join(scratch, fasta_file)
+                fasta_path = os.path.splitext(fasta_path)[0] + ".fa"
                 copyfile(os.path.join(bin_file_dir, fasta_file), fasta_path)
                 # Should I verify that the bins have contigs?
                 # is it possible to have empty bins?
