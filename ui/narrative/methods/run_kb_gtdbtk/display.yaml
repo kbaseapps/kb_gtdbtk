@@ -43,8 +43,8 @@ description : |
     <p><b>GTDB-Tk</b> is a software toolkit for assigning objective taxonomic classifications to bacterial and archaeal genomes. It is designed to work with recent advances that allow hundreds or thousands of metagenome-assembled genomes (MAGs) to be obtained directly from environmental samples. It can also be applied to isolate and single-cell genomes.</p>
 
     <h4>Data</h4>
-    <p>This app is using gtdbtk release 89 data <a href="https://data.ace.uq.edu.au/public/gtdbtk/release_86/gtdbtk.r86_v3_data.tar.gz">https://data.ace.uq.edu.au/public/gtdbtk/release_86/gtdbtk.r86_v3_data.tar.gz</a></p>
-    <p><a href="https://data.ace.uq.edu.au/public/gtdb/data/releases/release89/89.0/RELEASE_NOTES">Data Release Notes</a></p>
+    <p>This app is using gtdbtk release 89 data <a href="https://data.ace.uq.edu.au/public/gtdb/data/releases/release89/89.0/gtdbtk_r89_data.tar.gz">https://data.ace.uq.edu.au/public/gtdb/data/releases/release89/89.0/gtdbtk_r89_data.tar.gz</a></p>
+    <p><a href="https://data.ace.uq.edu.au/public/gtdb/data/releases/release89/89.0/gtdbtk_r89_data.tar.gz">Data Release Notes</a></p>
 
     <h3>References</h3>
     <p>A manuscript describing the GTDB-Tk is currently being prepared:</p>
