@@ -1,6 +1,10 @@
 # kb_gtdbtk release notes
 =========================================
 
+0.0.2
+-----
+* minor change
+
 0.0.1
 -----
 * Initial dev release
