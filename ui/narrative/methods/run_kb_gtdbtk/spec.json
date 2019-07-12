@@ -4,7 +4,7 @@
         "psdehal"
     ],
     "contact": "",
-    "categories": ["active"],
+    "categories": ["active", "communities", "annotation"],
     "widgets": {
         "input": null,
         "output": "no-display"
