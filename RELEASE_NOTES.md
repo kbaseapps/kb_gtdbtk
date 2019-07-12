@@ -5,7 +5,7 @@
 -----
 * Initial dev release
 * data version 89
-* gtdbtk version 0.3.0
+* gtdbtk version 0.3.2
 
 0.0.0
 -----
