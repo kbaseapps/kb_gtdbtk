@@ -38,8 +38,8 @@ class GTDBTkUtils():
 
         for path in (os.path.join(out_dir, 'gtdbtk.ar122.summary.tsv'),
                      os.path.join(out_dir, 'gtdbtk.bac120.summary.tsv'),
-                     os.path.join(out_dir, 'gtdbtk.bac120_markers_summary.tsv'),
-                     os.path.join(out_dir, 'gtdbtk.ar122_markers_summary.tsv'),
+                     os.path.join(out_dir, 'gtdbtk.bac120.markers_summary.tsv'),
+                     os.path.join(out_dir, 'gtdbtk.ar122.markers_summary.tsv'),
                      os.path.join(out_dir, 'gtdbtk.filtered.tsv')):
             try:
                 summary_df = pd.read_csv(path, sep='\t', encoding='utf-8')
