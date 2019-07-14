@@ -6,7 +6,6 @@
 * fixed output display, file name scheme changed in new version of gtdbtk
 * updated author list of GTDB-Tk manuscript
 
-
 0.0.2
 -----
 * minor change
