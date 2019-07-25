@@ -1,6 +1,11 @@
 # kb_gtdbtk release notes
 =========================================
 
+0.0.4
+-----
+* update app description
+* added Donavan Parks as author & owner
+
 0.0.3
 -----
 * fixed output display, file name scheme changed in new version of gtdbtk

@@ -4,7 +4,7 @@
 name: GTDB-Tk classify
 
 tooltip: |
-    Insert your genomes or assemblies into the GTDB species tree
+    Obtain objective taxonomic assignments for bacterial and archaeal genomes based on the Genome Taxonomy Database (GTDB)
 
 screenshots: []
 
