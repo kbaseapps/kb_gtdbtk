@@ -11,7 +11,7 @@ module-version:
     0.0.4
 
 owners:
-    [psdehal, donovan_parks]
+    [psdehal, donovan_parks, Aaron, pchaumeil]
 
 data-version:
     0.0.3
