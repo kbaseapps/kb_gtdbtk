@@ -3,6 +3,9 @@ import subprocess
 import logging
 import pandas as pd
 import json
+import tempfile
+
+from from .misc_utils import mkdir_p
 
 
 class GTDBTkUtils():
@@ -18,20 +21,37 @@ class GTDBTkUtils():
         logging.basicConfig(format='%(created)s %(levelname)s: %(message)s',
                             level=logging.INFO)
 
-    def gtdbtk_classifywf(self, fasta_paths, min_perc_aa):
+    def gtdbtk_classifywf(self, output_path, min_perc_aa, upa_to_obj_info):
         '''
         Run the classify workflow on the fasta files
         '''
-        out_dir = os.path.join(self.shared_folder, "output")
-        gtdbtk_cmd = " ".join([self.gtdbtk, "classify_wf", "--out_dir", out_dir,
-                              "--genome_dir", self.shared_folder, "-x", "fa",
-                               "--cpus", str(self.cpus), 
-                               "--min_perc_aa", str(min_perc_aa), '"'])
+        with tempfile.NamedTemporaryFile(
+                prefix='gtdb_tk_file_input',
+                suffix='tmp',
+                delete=False,
+                dir=self.shared_folder) as tf:
+            for val in upa_to_obj_info.values():
+                tf.write(val['path'] + '\t' + val['assembly_name'] + '\n')
+
+        gtdbtk_cmd = " ".join(
+            [self.gtdbtk,
+             "classify_wf",
+             "--out_dir", output_path,
+             "--batchfile", tf.name,
+             "-x", "fa",
+             "--cpus", str(self.cpus), 
+             "--min_perc_aa", str(min_perc_aa), '"'])
         logging.info("Starting Command:\n" + gtdbtk_cmd)
-        output = subprocess.check_output(gtdbtk_cmd, shell=True).decode('utf-8')
+
+        env = dict(os.environ)
+        env['TMPDIR'] = os.paths.join(self.shared_folder, 'tmp')
+        mkdir_p(env['TMPDIR'])
+        # should figure a way of getting this to run without shell=True, security risk
+        # https://docs.python.org/3.7/library/subprocess.html#security-considerations
+        output = subprocess.check_output(gtdbtk_cmd, shell=True, env=env).decode('utf-8')
         logging.info(output)
 
-        self._process_output_files(out_dir)
+        self._process_output_files(output_path)
         return output
     
     def _process_output_files(self, out_dir):
@@ -48,6 +68,7 @@ class GTDBTkUtils():
                 with open(outfile, 'w') as out:
                     out.write(summary_json)
             except Exception as exc:
+                # should throw an exception rather than continuing
                 logging.info(exc)
 
         return
