@@ -38,7 +38,6 @@ class GTDBTkUtils():
              "classify_wf",
              "--out_dir", output_path,
              "--batchfile", tf.name,
-             "-x", "fa",
              "--cpus", str(self.cpus), 
              "--min_perc_aa", str(min_perc_aa), '"'])
         logging.info("Starting Command:\n" + gtdbtk_cmd)
