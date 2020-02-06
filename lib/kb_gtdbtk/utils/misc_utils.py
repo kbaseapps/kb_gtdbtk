@@ -1,5 +1,7 @@
 import uuid
+import errno
 import os
+
 from installed_clients.AssemblyUtilClient import AssemblyUtil
 from installed_clients.DataFileUtilClient import DataFileUtil
 from installed_clients.KBaseReportClient import KBaseReport
@@ -21,8 +23,11 @@ def load_fastas(config, scratch, upa):
     ws = Workspace(config['workspace-url'])
 
     obj_data = dfu.get_objects({"object_refs": [upa]})['data'][0]
+    upa = str(obj_data['info'][6]) + '/' + str(obj_data['info'][0]) + '/' + str(
+        obj_data['info'][3]))
     obj_type = obj_data['info'][2]
 
+    upa_to_assy_out = {}
     if 'KBaseSets.GenomeSet' in obj_type:
         upas = [gsi['ref'] for gsi in obj_data['data']['items']]
     elif 'KBaseSearch.GenomeSet' in obj_type:
@@ -32,15 +37,17 @@ def load_fastas(config, scratch, upa):
     elif "KBaseGenomes.ContigSet" in obj_type or "KBaseGenomeAnnotations.Assembly" in obj_type:
         # in this case we use the assembly file util to get the fasta file
         # file_output = os.path.join(scratch, "input_fasta.fa")
-        faf = au.get_assembly_as_fasta({"ref": upa})
-        return [(faf['path'], upa)]
+        faf = au.get_assembly_as_fasta({"ref": upa, 'filename': upa_to_path(scratch, upa)})
+        return {upa: faf}
     elif "KBaseSets.AssemblySet" in obj_type:
-        fasta_paths = []
         for item_upa in obj_data['data']['items']:
-            faf = au.get_assembly_as_fasta({"ref": item_upa['ref']})
-            fasta_paths.append((faf['path'], item_upa['ref']))
-        return fasta_paths
+            faf = au.get_assembly_as_fasta(
+                {"ref": item_upa['ref'],  # copy of copy issue here
+                 'filename': upa_to_path(scratch, item_upa['ref'])})
+            upa_to_assy_out[upa] = faf
+        return upa_to_assy_out
     elif 'KBaseMetagenomes.BinnedContigs' in obj_type:
+        # TODO fix this like the other types once we know they work
         fasta_paths = []
         bin_file_dir = mgu.binned_contigs_to_file({'input_ref': upa, 'save_to_shock': 0})['bin_file_directory']
         for (dirpath, dirnames, filenames) in os.walk(bin_file_dir):
@@ -54,26 +61,46 @@ def load_fastas(config, scratch, upa):
             break
         return fasta_paths
     
-    fasta_paths = []
     for genome_upa in upas:
+        # TODO have seen copy of a copy issues here although the code seems right
         genome_data = ws.get_objects2( {'objects':[{"ref": genome_upa}]})['data'][0]['data']
-        assembly_upa = genome_upa + ';' + str(genome_data.get('contigset_ref') or genome_data.get('assembly_ref'))
-        faf = au.get_assembly_as_fasta({'ref': assembly_upa})
-        fasta_paths.append((faf['path'], assembly_upa))
+        target_upa = genome_data.get('contigset_ref') or genome_data.get('assembly_ref')
+        assembly_upa = genome_upa + ';' + target_upa
+        faf = au.get_assembly_as_fasta({
+            'ref': assembly_upa,
+            'filename': upa_to_path(scratch, target_upa)
+            })
+        upa_to_assy_out[upa] = faf
 
-    return fasta_paths
+    return upa_to_assy_out
 
-def create_html_report(callback_url, scratch, workspace_name):
+
+def upa_to_path(scratch, upa):
+    return os.join(scratch, upa.replace('/', '_'))
+
+
+# 3.2 and 3.5 have much improved options
+# https://stackoverflow.com/questions/600268/mkdir-p-functionality-in-python
+def mkdir_p(path):
+    try:
+        os.makedirs(path)
+    except OSError as exc:  # Python ≥ 2.5
+        if exc.errno == errno.EEXIST and os.path.isdir(path):
+            pass
+        else:
+            raise
+
+
+def create_html_report(callback_url, output_path, workspace_name):
     '''
     '''
-    output_dir = os.path.join(scratch, 'output')
     dfu = DataFileUtil(callback_url)
     report_name = 'GTDBTk_report_' + str(uuid.uuid4())
     report = KBaseReport(callback_url)
     copyfile(os.path.join(os.path.dirname(__file__), 'index.html'), 
-             os.path.join(output_dir, 'index.html'))
+             os.path.join(output_path, 'index.html'))
 
-    report_shock_id = dfu.file_to_shock({'file_path': output_dir,
+    report_shock_id = dfu.file_to_shock({'file_path': output_path,
                                         'pack': 'zip'})['shock_id']
 
     html_file = {
