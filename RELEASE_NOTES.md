@@ -1,6 +1,10 @@
 # kb_gtdbtk release notes
 =========================================
 
+0.0.6
+_____
+* Fix failing build
+
 0.0.5
 _____
 * Updated to GTDB-Tk v0.3.3
