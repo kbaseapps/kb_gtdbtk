@@ -5,7 +5,7 @@ import pandas as pd
 import json
 import tempfile
 
-from from .misc_utils import mkdir_p
+from .misc_utils import mkdir_p
 
 
 class GTDBTkUtils():
