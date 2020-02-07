@@ -86,7 +86,8 @@ def handle_binned_contigs(upa, mgu, target_dir):
             # is it possible to have empty bins?
             # assume here that there aren't duplicate bin IDs in a set of binned contigs
             ret[fasta_fixed_ext] = {'path': fasta_path, 'assembly_name': fasta_fixed_ext}
-        break
+        break  # not sure why this is here?
+    return ret
 
 
 def upa_to_path(scratch, upa):
