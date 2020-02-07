@@ -24,7 +24,7 @@ def load_fastas(config, scratch, upa):
 
     obj_data = dfu.get_objects({"object_refs": [upa]})['data'][0]
     upa = str(obj_data['info'][6]) + '/' + str(obj_data['info'][0]) + '/' + str(
-        obj_data['info'][3]))
+        obj_data['info'][3])
     obj_type = obj_data['info'][2]
 
     upa_to_assy_out = {}
