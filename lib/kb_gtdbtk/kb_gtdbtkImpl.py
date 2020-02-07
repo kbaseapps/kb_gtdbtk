@@ -4,7 +4,7 @@ import logging
 import os
 
 from installed_clients.KBaseReportClient import KBaseReport
-from .utils.misc_utils import load_fastas
+from .utils.misc_utils import load_fastas, mkdir_p
 from .utils.misc_utils import create_html_report
 from .utils.gtdbtk_utils import GTDBTkUtils
 #END_HEADER
@@ -63,6 +63,7 @@ class kb_gtdbtk:
             ref = params.get('inputObjectRef')
         except KeyError:
             print("Must provide a ws reference to object with sequences")
+            # this should throw an exception, not keep going
 
         min_perc_aa = params.get('min_perc_aa', 10)
 
@@ -70,18 +71,28 @@ class kb_gtdbtk:
             workspace_id = params.get('workspace_id')
         except KeyError:
             print("Must provide a workspace id")
+            # this should throw an exception, not keep going
 
         # get the fasta file from the input ref
         # TODO: handle sets
         logging.info("Get Genome Seqs\n")
-        fasta_paths = load_fastas(self.config, self.shared_folder, ref)
-        print(fasta_paths)
+        fasta_path = os.join(self.shared_folder, 'fastas')
+        mkdir_p(fasta_path)
+        upa_to_obj_info = load_fastas(self.config, fasta_path, ref)
+        for upa, val in upa_to_obj_info.items():
+            print(upa, val['assembly_name'], val['path'])
 
         logging.info("Run gtdbtk classifywf\n")
+        output_path = os.join(self.shared_folder, 'output')
+        mkdir_p(output_path)
         gtdbtku = GTDBTkUtils(self.config, self.callback_url, workspace_id, self.cpus)
-        results = gtdbtku.gtdbtk_classifywf(fasta_paths, min_perc_aa)
+        results = gtdbtku.gtdbtk_classifywf(output_path, min_perc_aa, upa_to_obj_info)
         logging.info(results)
-        output = create_html_report(self.callback_url, self.shared_folder, params['workspace_name'])
+       
+        output = create_html_report(
+            self.callback_url,
+            output_path,
+            params['workspace_name'])
         
         #END run_kb_gtdbtk
 

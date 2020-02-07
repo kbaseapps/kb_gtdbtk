@@ -1,6 +1,10 @@
 # kb_gtdbtk release notes
 =========================================
 
+0.1.0
+_____
+* Fixed a bug where workspace objects with pipe in the name would cause GTDB-Tk to fail.
+
 0.0.6
 _____
 * Fix failing build
