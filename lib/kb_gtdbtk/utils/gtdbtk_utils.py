@@ -21,7 +21,7 @@ class GTDBTkUtils():
         logging.basicConfig(format='%(created)s %(levelname)s: %(message)s',
                             level=logging.INFO)
 
-    def gtdbtk_classifywf(self, output_path, min_perc_aa, upa_to_obj_info):
+    def gtdbtk_classifywf(self, output_path, min_perc_aa, id_to_assy_info):
         '''
         Run the classify workflow on the fasta files
         '''
@@ -30,7 +30,7 @@ class GTDBTkUtils():
                 suffix='tmp',
                 delete=False,
                 dir=self.shared_folder) as tf:
-            for val in upa_to_obj_info.values():
+            for val in id_to_assy_info.values():
                 tf.write(val['path'] + '\t' + val['assembly_name'] + '\n')
 
         gtdbtk_cmd = " ".join(

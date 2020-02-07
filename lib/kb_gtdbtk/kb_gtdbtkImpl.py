@@ -78,15 +78,15 @@ class kb_gtdbtk:
         logging.info("Get Genome Seqs\n")
         fasta_path = os.join(self.shared_folder, 'fastas')
         mkdir_p(fasta_path)
-        upa_to_obj_info = load_fastas(self.config, fasta_path, ref)
-        for upa, val in upa_to_obj_info.items():
-            print(upa, val['assembly_name'], val['path'])
+        id_to_assy_info = load_fastas(self.config, fasta_path, ref)
+        for id_, val in id_to_assy_info.items():
+            print(id_, val['assembly_name'], val['path'])
 
         logging.info("Run gtdbtk classifywf\n")
         output_path = os.join(self.shared_folder, 'output')
         mkdir_p(output_path)
         gtdbtku = GTDBTkUtils(self.config, self.callback_url, workspace_id, self.cpus)
-        results = gtdbtku.gtdbtk_classifywf(output_path, min_perc_aa, upa_to_obj_info)
+        results = gtdbtku.gtdbtk_classifywf(output_path, min_perc_aa, id_to_assy_info)
         logging.info(results)
        
         output = create_html_report(
