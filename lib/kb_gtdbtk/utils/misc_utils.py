@@ -76,7 +76,7 @@ def load_fastas(config, scratch, upa):
 
 
 def upa_to_path(scratch, upa):
-    return os.join(scratch, upa.replace('/', '_'))
+    return os.path.join(scratch, upa.replace('/', '_'))
 
 
 # 3.2 and 3.5 have much improved options

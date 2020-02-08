@@ -43,7 +43,7 @@ class GTDBTkUtils():
         logging.info("Starting Command:\n" + gtdbtk_cmd)
 
         env = dict(os.environ)
-        env['TMPDIR'] = os.paths.join(self.shared_folder, 'tmp')
+        env['TMPDIR'] = os.path.join(self.shared_folder, 'tmp')
         mkdir_p(env['TMPDIR'])
         # should figure a way of getting this to run without shell=True, security risk
         # https://docs.python.org/3.7/library/subprocess.html#security-considerations
