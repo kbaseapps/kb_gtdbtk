@@ -45,7 +45,7 @@ def load_fastas(config, scratch, upa):
             faf = au.get_assembly_as_fasta(
                 {"ref": upa + ';' + item_upa['ref'],  # TODO TEST fix for CoaC issue
                  'filename': upa_to_path(scratch, item_upa['ref'])})
-            upa_to_assy_out[upa] = faf
+            upa_to_assy_out[item_upa] = faf
         return upa_to_assy_out
     elif 'KBaseMetagenomes.BinnedContigs' in obj_type:
         # TODO fix this like the other types once we know they work.
@@ -77,7 +77,7 @@ def load_fastas(config, scratch, upa):
             'ref': assembly_upa,
             'filename': upa_to_path(scratch, target_upa)
             })
-        upa_to_assy_out[upa] = faf
+        upa_to_assy_out[target_upa] = faf
 
     return upa_to_assy_out
 
