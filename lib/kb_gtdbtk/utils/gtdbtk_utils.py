@@ -26,6 +26,7 @@ class GTDBTkUtils():
         Run the classify workflow on the fasta files
         '''
         with tempfile.NamedTemporaryFile(
+                mode='w',
                 prefix='gtdb_tk_file_input',
                 suffix='tmp',
                 delete=False,
