@@ -37,17 +37,20 @@ def load_fastas(config, scratch, upa):
     elif "KBaseGenomes.ContigSet" in obj_type or "KBaseGenomeAnnotations.Assembly" in obj_type:
         # in this case we use the assembly file util to get the fasta file
         # file_output = os.path.join(scratch, "input_fasta.fa")
+        # TODO TEST
         faf = au.get_assembly_as_fasta({"ref": upa, 'filename': upa_to_path(scratch, upa)})
         return {upa: faf}
     elif "KBaseSets.AssemblySet" in obj_type:
         for item_upa in obj_data['data']['items']:
             faf = au.get_assembly_as_fasta(
-                {"ref": item_upa['ref'],  # copy of copy issue here
+                {"ref": upa + ';' + item_upa['ref'],  # TODO TEST fix for CoaC issue
                  'filename': upa_to_path(scratch, item_upa['ref'])})
             upa_to_assy_out[upa] = faf
         return upa_to_assy_out
     elif 'KBaseMetagenomes.BinnedContigs' in obj_type:
-        # TODO fix this like the other types once we know they work
+        # TODO fix this like the other types once we know they work.
+        # filenames can be basically anything. rename to UUID and return mapping
+        # any CoaC issues here are in MetagenomeUtils
         fasta_paths = []
         bin_file_dir = mgu.binned_contigs_to_file({'input_ref': upa, 'save_to_shock': 0})['bin_file_directory']
         for (dirpath, dirnames, filenames) in os.walk(bin_file_dir):
@@ -62,7 +65,11 @@ def load_fastas(config, scratch, upa):
         return fasta_paths
     
     for genome_upa in upas:
-        # TODO have seen copy of a copy issues here although the code seems right
+        # TODO TEST fix for CoaC issue
+        # this could be sped up by batching the get_objects call
+        # does assy file util not take bulk calls?
+        # maybe doesn't matter since Shock doesn't handle bulk calls
+        genome_upa = upa + ';' + genome_upa
         genome_data = ws.get_objects2( {'objects':[{"ref": genome_upa}]})['data'][0]['data']
         target_upa = genome_data.get('contigset_ref') or genome_data.get('assembly_ref')
         assembly_upa = genome_upa + ';' + target_upa
