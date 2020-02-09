@@ -39,13 +39,13 @@ def load_fastas(config, scratch, upa):
         # file_output = os.path.join(scratch, "input_fasta.fa")
         # TODO TEST
         faf = au.get_assembly_as_fasta({"ref": upa, 'filename': upa_to_path(scratch, upa)})
-        return {upa: faf}
+        return {file_safe_upa(upa): faf}
     elif "KBaseSets.AssemblySet" in obj_type:
         for item_upa in obj_data['data']['items']:
             faf = au.get_assembly_as_fasta(
                 {"ref": upa + ';' + item_upa['ref'],  # TODO TEST fix for CoaC issue
                  'filename': upa_to_path(scratch, item_upa['ref'])})
-            upa_to_assy_out[item_upa] = faf
+            upa_to_assy_out[file_safe_upa(item_upa)] = faf
         return upa_to_assy_out
     elif 'KBaseMetagenomes.BinnedContigs' in obj_type:
         # TODO fix this like the other types once we know they work.
@@ -77,13 +77,17 @@ def load_fastas(config, scratch, upa):
             'ref': assembly_upa,
             'filename': upa_to_path(scratch, target_upa)
             })
-        upa_to_assy_out[target_upa] = faf
+        upa_to_assy_out[file_safe_upa(target_upa)] = faf
 
     return upa_to_assy_out
 
 
 def upa_to_path(scratch, upa):
-    return os.path.join(scratch, upa.replace('/', '_'))
+    return os.path.join(scratch, file_safe_upa(upa))
+
+
+def file_safe_upa(upa):
+    return upa.replace('/', '_')
 
 
 # 3.2 and 3.5 have much improved options
