@@ -56,7 +56,7 @@ class GTDBTkUtils():
         self._process_output_files(output_path, id_to_obj_info)
         return output
     
-    def _process_output_files(self, out_dir):
+    def _process_output_files(self, out_dir, id_to_obj_info):
 
         for path in (os.path.join(out_dir, 'gtdbtk.ar122.summary.tsv'),
                      os.path.join(out_dir, 'gtdbtk.bac120.summary.tsv'),
