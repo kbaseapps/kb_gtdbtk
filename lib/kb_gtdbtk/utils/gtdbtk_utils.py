@@ -25,10 +25,11 @@ class GTDBTkUtils():
         '''
         Run the classify workflow on the fasta files
         '''
+        # TODO only use upas for data, update output to include names
         with tempfile.NamedTemporaryFile(
                 mode='w',
-                prefix='gtdb_tk_file_input',
-                suffix='tmp',
+                prefix='gtdb_tk_file_input_',
+                suffix='.tmp',
                 delete=False,
                 dir=self.shared_folder) as tf:
             for val in upa_to_obj_info.values():
@@ -65,10 +66,14 @@ class GTDBTkUtils():
                 summary_df = pd.read_csv(path, sep='\t', encoding='utf-8')
                 outfile = path + '.json'
                 summary_json = '{"data": ' + summary_df.to_json(orient='records') + '}'
+                print('------', path, '-------')
+                print(summary_df)
+                print(summary_json)
                 with open(outfile, 'w') as out:
                     out.write(summary_json)
             except Exception as exc:
                 # should throw an exception rather than continuing
+                # also some exceptions are expected depending on whether bac or arch
                 logging.info(exc)
 
         return
