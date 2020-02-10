@@ -26,7 +26,6 @@ class GTDBTkUtils():
         '''
         Run the classify workflow on the fasta files
         '''
-        # TODO only use upas for data, update output to include names
         with tempfile.NamedTemporaryFile(
                 mode='w',
                 prefix='gtdb_tk_file_input_',
