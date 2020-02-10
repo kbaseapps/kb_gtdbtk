@@ -63,8 +63,10 @@ class GTDBTkUtils():
                      os.path.join(out_dir, 'gtdbtk.bac120.markers_summary.tsv'),
                      os.path.join(out_dir, 'gtdbtk.ar122.markers_summary.tsv'),
                      os.path.join(out_dir, 'gtdbtk.filtered.tsv')):
-            try:
-                print('------' + path + '-------')
+            print('------' + path + '-------')
+            if not os.path.isfile(path):
+                logging.info('No such file, skipping: ' + path)
+            else:
                 summary_df = pd.read_csv(path, sep='\t', encoding='utf-8')
                 outfile = path + '.json'
                 summary_json = '{"data": ' + summary_df.to_json(orient='records') + '}'
@@ -75,9 +77,5 @@ class GTDBTkUtils():
 
                 with open(outfile, 'w') as out:
                     out.write(json.dumps(sj))
-            except Exception as exc:
-                # should throw an exception rather than continuing
-                # also some exceptions are expected depending on whether bac or arch
-                logging.info(exc)
 
         return
