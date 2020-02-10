@@ -72,7 +72,8 @@ class GTDBTkUtils():
                 sj = json.loads(summary_json)
                 for item in sj['data']:
                     print(json.dumps(item, indent=4))
-                    item['Name'] = id_to_obj_info[item['Name']]['assembly_name']
+                    key = 'Name' if 'Name' in item else 'user_genome'
+                    item[key] = id_to_obj_info[item[key]]['assembly_name']
 
                 with open(outfile, 'w') as out:
                     out.write(json.dumps(sj))
