@@ -64,11 +64,13 @@ class GTDBTkUtils():
                      os.path.join(out_dir, 'gtdbtk.ar122.markers_summary.tsv'),
                      os.path.join(out_dir, 'gtdbtk.filtered.tsv')):
             try:
+                print('------' + path + '-------')
                 summary_df = pd.read_csv(path, sep='\t', encoding='utf-8')
                 outfile = path + '.json'
                 summary_json = '{"data": ' + summary_df.to_json(orient='records') + '}'
                 sj = json.loads(summary_json)
                 for item in sj['data']:
+                    print(json.dumps(item, indent=4))
                     item['Name'] = id_to_obj_info[item['Name']]['assembly_name']
 
                 with open(outfile, 'w') as out:
