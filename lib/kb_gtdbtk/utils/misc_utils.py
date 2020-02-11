@@ -37,7 +37,6 @@ def load_fastas(config, scratch, upa):
     elif "KBaseGenomes.ContigSet" in obj_type or "KBaseGenomeAnnotations.Assembly" in obj_type:
         # in this case we use the assembly file util to get the fasta file
         # file_output = os.path.join(scratch, "input_fasta.fa")
-        # TODO TEST
         faf = au.get_assembly_as_fasta({"ref": upa, 'filename': upa_to_path(scratch, upa)})
         return {file_safe_upa(upa): faf}
     elif "KBaseSets.AssemblySet" in obj_type:
@@ -45,7 +44,7 @@ def load_fastas(config, scratch, upa):
             faf = au.get_assembly_as_fasta(
                 {"ref": upa + ';' + item_upa['ref'],  # TODO TEST fix for CoaC issue
                  'filename': upa_to_path(scratch, item_upa['ref'])})
-            upa_to_assy_out[file_safe_upa(item_upa)] = faf
+            upa_to_assy_out[file_safe_upa(item_upa['ref'])] = faf
         return upa_to_assy_out
     elif 'KBaseMetagenomes.BinnedContigs' in obj_type:
         # TODO fix this like the other types once we know they work.
@@ -65,7 +64,7 @@ def load_fastas(config, scratch, upa):
         return fasta_paths
     
     for genome_upa in upas:
-        # TODO TEST fix for CoaC issue
+        # TODO individual genome
         # this could be sped up by batching the get_objects call
         # does assy file util not take bulk calls?
         # maybe doesn't matter since Shock doesn't handle bulk calls
