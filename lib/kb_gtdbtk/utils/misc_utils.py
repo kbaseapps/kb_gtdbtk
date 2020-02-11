@@ -43,7 +43,7 @@ def load_fastas(config, scratch, upa):
     elif "KBaseSets.AssemblySet" in obj_type:
         for item_upa in obj_data['data']['items']:
             faf = au.get_assembly_as_fasta(
-                {"ref": upa + ';' + item_upa['ref'],  # TODO TEST fix for CoaC issue
+                {"ref": upa + ';' + item_upa['ref'],
                  'filename': upa_to_path(scratch, item_upa['ref'])})
             id_to_assy_info[file_safe_upa(item_upa['ref'])] = faf
         return id_to_assy_info
@@ -69,7 +69,6 @@ def load_fastas(config, scratch, upa):
 
 
 def handle_binned_contigs(upa, mgu, target_dir):
-    # TODO TEST
     # any CoaC issues here are in MetagenomeUtils
     ret = {}
     bin_file_dir = mgu.binned_contigs_to_file(
