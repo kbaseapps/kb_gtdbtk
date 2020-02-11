@@ -60,8 +60,9 @@ class GTDBTkUtils():
         for path in (os.path.join(out_dir, 'gtdbtk.ar122.summary.tsv'),
                      os.path.join(out_dir, 'gtdbtk.bac120.summary.tsv'),
                      os.path.join(out_dir, 'gtdbtk.bac120.markers_summary.tsv'),
-                     os.path.join(out_dir, 'gtdbtk.ar122.markers_summary.tsv'),
-                     os.path.join(out_dir, 'gtdbtk.filtered.tsv')):
+                     os.path.join(out_dir, 'gtdbtk.ar122.markers_summary.tsv')): #),
+                     # skip filtered for now, unused, not clear how to test
+                     #os.path.join(out_dir, 'gtdbtk.filtered.tsv')):
             print('------' + path + '-------')
             if not os.path.isfile(path):
                 logging.info('No such file, skipping: ' + path)
