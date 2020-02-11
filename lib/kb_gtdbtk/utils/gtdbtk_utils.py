@@ -49,8 +49,7 @@ class GTDBTkUtils():
         mkdir_p(env['TMPDIR'])
         # should figure a way of getting this to run without shell=True, security risk
         # https://docs.python.org/3.7/library/subprocess.html#security-considerations
-        output = subprocess.check_output(gtdbtk_cmd, shell=True, env=env).decode('utf-8')
-        # logging.info(output)  # not necessary, output goes to logs in any case
+        subprocess.check_output(gtdbtk_cmd, shell=True, env=env).decode('utf-8')
 
         self._process_output_files(output_path, id_to_obj_info)
         return output
