@@ -4,6 +4,9 @@
 0.1.0
 _____
 * Fixed a bug where workspace objects with pipe in the name would cause GTDB-Tk to fail.
+* Fixed a bug where binned contigs with arbitrary characters in the name could cause GTDB-Tk to
+  fail.
+* Fixed copy of a copy / lost permissions issues.
 
 0.0.6
 _____

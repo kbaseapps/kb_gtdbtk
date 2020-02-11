@@ -13,7 +13,8 @@ from shutil import copyfile
 # copied from https://github.com/kbaseapps/kb_cmash/blob/master/lib/kb_cmash/utils/misc_utils.py
 # small modifications
 
-
+# key of the returned map is a unique ID for the assembly data, not specified but usually
+# the santitized UPA of the assembly object or a UUID
 def load_fastas(config, scratch, upa):
     '''
     '''
@@ -27,7 +28,7 @@ def load_fastas(config, scratch, upa):
         obj_data['info'][4])
     obj_type = obj_data['info'][2]
 
-    upa_to_assy_out = {}
+    id_to_assy_info = {}
     if 'KBaseSets.GenomeSet' in obj_type:
         upas = [gsi['ref'] for gsi in obj_data['data']['items']]
     elif 'KBaseSearch.GenomeSet' in obj_type:
@@ -44,24 +45,10 @@ def load_fastas(config, scratch, upa):
             faf = au.get_assembly_as_fasta(
                 {"ref": upa + ';' + item_upa['ref'],  # TODO TEST fix for CoaC issue
                  'filename': upa_to_path(scratch, item_upa['ref'])})
-            upa_to_assy_out[file_safe_upa(item_upa['ref'])] = faf
-        return upa_to_assy_out
+            id_to_assy_info[file_safe_upa(item_upa['ref'])] = faf
+        return id_to_assy_info
     elif 'KBaseMetagenomes.BinnedContigs' in obj_type:
-        # TODO fix this like the other types once we know they work.
-        # filenames can be basically anything. rename to UUID and return mapping
-        # any CoaC issues here are in MetagenomeUtils
-        fasta_paths = []
-        bin_file_dir = mgu.binned_contigs_to_file({'input_ref': upa, 'save_to_shock': 0})['bin_file_directory']
-        for (dirpath, dirnames, filenames) in os.walk(bin_file_dir):
-            for fasta_file in filenames:
-                fasta_path = os.path.join(scratch, fasta_file)
-                fasta_path = os.path.splitext(fasta_path)[0] + ".fa"
-                copyfile(os.path.join(bin_file_dir, fasta_file), fasta_path)
-                # Should I verify that the bins have contigs?
-                # is it possible to have empty bins?
-                fasta_paths.append((fasta_path, upa))
-            break
-        return fasta_paths
+        return handle_binned_contigs(upa, mgu, scratch)
     
     for genome_upa in upas:
         # this could be sped up by batching the get_objects call
@@ -76,9 +63,31 @@ def load_fastas(config, scratch, upa):
             'ref': assembly_upa,
             'filename': upa_to_path(scratch, target_upa)
             })
-        upa_to_assy_out[file_safe_upa(target_upa)] = faf
+        id_to_assy_info[file_safe_upa(target_upa)] = faf
 
-    return upa_to_assy_out
+    return id_to_assy_info
+
+
+def handle_binned_contigs(upa, mgu, target_dir):
+    # TODO TEST
+    # any CoaC issues here are in MetagenomeUtils
+    ret = {}
+    bin_file_dir = mgu.binned_contigs_to_file(
+        {'input_ref': upa, 'save_to_shock': 0})['bin_file_directory']
+    for (dirpath, dirnames, filenames) in os.walk(bin_file_dir):
+        for fasta_file in filenames:
+            # not sure why we're normalizing the extension, but that's how the old code did it
+            # *shrug*
+            fasta_fixed_ext = os.path.splitext(fasta_file)[0] + '.fa'
+            # bin filenames can be basically anything. rename to UUID and return mapping
+            id_ = str(uuid.uuid4())
+            fasta_path = os.path.join(target_dir, id_)
+            copyfile(os.path.join(bin_file_dir, fasta_file), fasta_path)
+            # Should I verify that the bins have contigs?
+            # is it possible to have empty bins?
+            ret[id_] = {'path': fasta_path, 'assembly_name': fasta_fixed_ext}
+        break  # not sure why this is necessary
+    return ret
 
 
 def upa_to_path(scratch, upa):

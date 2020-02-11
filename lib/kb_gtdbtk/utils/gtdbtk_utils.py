@@ -22,7 +22,7 @@ class GTDBTkUtils():
         logging.basicConfig(format='%(created)s %(levelname)s: %(message)s',
                             level=logging.INFO)
 
-    def gtdbtk_classifywf(self, output_path, min_perc_aa, id_to_obj_info):
+    def gtdbtk_classifywf(self, output_path, min_perc_aa, id_to_assy_info):
         '''
         Run the classify workflow on the fasta files
         '''
@@ -32,7 +32,7 @@ class GTDBTkUtils():
                 suffix='.tmp',
                 delete=False,
                 dir=self.shared_folder) as tf:
-            for id_, val in id_to_obj_info.items():
+            for id_, val in id_to_assy_info.items():
                 tf.write(val['path'] + '\t' + id_ + '\n')
 
         gtdbtk_cmd = " ".join(
@@ -53,10 +53,10 @@ class GTDBTkUtils():
         # all at once at the end
         output = subprocess.check_output(gtdbtk_cmd, shell=True, env=env).decode('utf-8')
 
-        self._process_output_files(output_path, id_to_obj_info)
+        self._process_output_files(output_path, id_to_assy_info)
         return output
     
-    def _process_output_files(self, out_dir, id_to_obj_info):
+    def _process_output_files(self, out_dir, id_to_assy_info):
 
         for path in (os.path.join(out_dir, 'gtdbtk.ar122.summary.tsv'),
                      os.path.join(out_dir, 'gtdbtk.bac120.summary.tsv'),
@@ -73,7 +73,7 @@ class GTDBTkUtils():
                 sj = json.loads(summary_json)
                 for item in sj['data']:
                     key = 'Name' if 'Name' in item else 'user_genome'
-                    item[key] = id_to_obj_info[item[key]]['assembly_name']
+                    item[key] = id_to_assy_info[item[key]]['assembly_name']
 
                 with open(outfile, 'w') as out:
                     out.write(json.dumps(sj))
