@@ -25,7 +25,7 @@ def load_fastas(config, scratch, upa):
 
     obj_data = dfu.get_objects({"object_refs": [upa]})['data'][0]
     upa = str(obj_data['info'][6]) + '/' + str(obj_data['info'][0]) + '/' + str(
-        obj_data['info'][3]))
+        obj_data['info'][4])
     obj_type = obj_data['info'][2]
 
     id_to_assy_out = {}
@@ -40,14 +40,14 @@ def load_fastas(config, scratch, upa):
         # file_output = os.path.join(scratch, "input_fasta.fa")
         # TODO TEST
         faf = au.get_assembly_as_fasta({"ref": upa, 'filename': upa_to_path(scratch, upa)})
-        return {upa: faf}
+        return {file_safe_upa(upa): faf}
     elif "KBaseSets.AssemblySet" in obj_type:
         for item_upa in obj_data['data']['items']:
             faf = au.get_assembly_as_fasta(
                 {"ref": upa + ';' + item_upa['ref'],  # TODO TEST fix for CoaC issue
                  'filename': upa_to_path(scratch, item_upa['ref'])})
-            id_to_assy_out[upa] = faf
-        return id_to_assy_out
+            upa_to_assy_out[file_safe_upa(item_upa)] = faf
+        return upa_to_assy_out
     elif 'KBaseMetagenomes.BinnedContigs' in obj_type:
         return handle_binned_contigs(upa, mgu, scratch)
     
@@ -88,10 +88,17 @@ def handle_binned_contigs(upa, mgu, target_dir):
             ret[fasta_fixed_ext] = {'path': fasta_path, 'assembly_name': fasta_fixed_ext}
         break  # not sure why this is here?
     return ret
+        upa_to_assy_out[file_safe_upa(target_upa)] = faf
+
+    return upa_to_assy_out
 
 
 def upa_to_path(scratch, upa):
-    return os.join(scratch, upa.replace('/', '_'))
+    return os.path.join(scratch, file_safe_upa(upa))
+
+
+def file_safe_upa(upa):
+    return upa.replace('/', '_')
 
 
 # 3.2 and 3.5 have much improved options
