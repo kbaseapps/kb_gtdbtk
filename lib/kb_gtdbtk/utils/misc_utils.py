@@ -64,11 +64,11 @@ def load_fastas(config, scratch, upa):
         return fasta_paths
     
     for genome_upa in upas:
-        # TODO individual genome
         # this could be sped up by batching the get_objects call
         # does assy file util not take bulk calls?
         # maybe doesn't matter since Shock doesn't handle bulk calls
-        genome_upa = upa + ';' + genome_upa
+        if upa != genome_upa:  # for single genomes, upa and genome_upa will be the same
+            genome_upa = upa + ';' + genome_upa
         genome_data = ws.get_objects2( {'objects':[{"ref": genome_upa}]})['data'][0]['data']
         target_upa = genome_data.get('contigset_ref') or genome_data.get('assembly_ref')
         assembly_upa = genome_upa + ';' + target_upa
