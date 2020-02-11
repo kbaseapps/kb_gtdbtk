@@ -5,6 +5,10 @@
 _____
 * Fixed a bug where workspace objects with pipe in the name would cause GTDB-Tk to fail.
 
+0.0.6
+_____
+* Fix failing build
+
 0.0.5
 _____
 * Updated to GTDB-Tk v0.3.3
