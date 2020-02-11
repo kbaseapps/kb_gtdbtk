@@ -50,7 +50,7 @@ class GTDBTkUtils():
         # should figure a way of getting this to run without shell=True, security risk
         # https://docs.python.org/3.7/library/subprocess.html#security-considerations
         output = subprocess.check_output(gtdbtk_cmd, shell=True, env=env).decode('utf-8')
-        logging.info(output)
+        # logging.info(output)  # not necessary, output goes to logs in any case
 
         self._process_output_files(output_path, id_to_obj_info)
         return output
@@ -63,7 +63,6 @@ class GTDBTkUtils():
                      os.path.join(out_dir, 'gtdbtk.ar122.markers_summary.tsv')): #),
                      # skip filtered for now, unused, not clear how to test
                      #os.path.join(out_dir, 'gtdbtk.filtered.tsv')):
-            print('------' + path + '-------')
             if not os.path.isfile(path):
                 logging.info('No such file, skipping: ' + path)
             else:
@@ -72,7 +71,6 @@ class GTDBTkUtils():
                 summary_json = '{"data": ' + summary_df.to_json(orient='records') + '}'
                 sj = json.loads(summary_json)
                 for item in sj['data']:
-                    print(json.dumps(item, indent=4))
                     key = 'Name' if 'Name' in item else 'user_genome'
                     item[key] = id_to_obj_info[item[key]]['assembly_name']
 
