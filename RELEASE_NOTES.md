@@ -7,6 +7,8 @@ _____
 * Fixed a bug where binned contigs with arbitrary characters in the name could cause GTDB-Tk to
   fail.
 * Fixed copy of a copy / lost permissions issues.
+* Drastically reduced the size of the report zip file, which should speed up load time for
+  the HTML report's first load.
 
 0.0.6
 _____

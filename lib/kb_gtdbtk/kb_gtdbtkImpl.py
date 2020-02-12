@@ -84,9 +84,11 @@ class kb_gtdbtk:
 
         logging.info("Run gtdbtk classifywf\n")
         output_path = os.path.join(self.shared_folder, 'output')
+        temp_output = os.path.join(self.shared_folder, 'temp_output')
         mkdir_p(output_path)
+        mkdir_p(temp_output)
         gtdbtku = GTDBTkUtils(self.config, self.callback_url, workspace_id, self.cpus)
-        results = gtdbtku.gtdbtk_classifywf(output_path, min_perc_aa, id_to_assy_info)
+        results = gtdbtku.gtdbtk_classifywf(temp_output, output_path, min_perc_aa, id_to_assy_info)
         logging.info(results)
        
         output = create_html_report(
