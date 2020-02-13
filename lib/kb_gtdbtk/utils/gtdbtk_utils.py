@@ -19,7 +19,7 @@ class GTDBTkUtils():
         self.shared_folder = config['scratch']
         self.callback_url = callback_url
         self.cpus = cpus
-        self.gtdbtk = '/bin/bash -c "source activate py2 && GTDBTK_DATA_PATH=/data gtdbtk'
+        self.gtdbtk = 'gtdbtk'
         logging.basicConfig(format='%(created)s %(levelname)s: %(message)s',
                             level=logging.INFO)
 
@@ -42,7 +42,7 @@ class GTDBTkUtils():
              "--out_dir", temp_output,
              "--batchfile", tf.name,
              "--cpus", str(self.cpus), 
-             "--min_perc_aa", str(min_perc_aa), '"'])
+             "--min_perc_aa", str(min_perc_aa)])
         logging.info("Starting Command:\n" + gtdbtk_cmd)
 
         env = dict(os.environ)

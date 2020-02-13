@@ -8,14 +8,12 @@ MAINTAINER KBase Developer
 
 RUN apt-get update
 
-RUN conda create --name py2 python=2.7 --yes
-RUN echo "source activate py2" > ~/.bashrc
-RUN /bin/bash -c 'echo "installing gtdbtk v0.3.3"'
-RUN conda install -c bioconda gtdbtk -n py2 --yes
+RUN /bin/bash -c 'echo "installing gtdbtk v1.0.2"'
 ENV GTDBTK_DATA_PATH=/data
 # conda updates to py 3.8 and everything breaks
-RUN pip install pandas
-
+RUN pip install gtdbtk pandas
+RUN conda install -c bioconda hmmer prodigal pplacer fasttree --yes
+RUN apt-get install libgomp1  
 
 # -----------------------------------------
 
@@ -24,8 +22,12 @@ RUN mkdir -p /kb/module/work
 RUN chmod -R a+rw /kb/module
 
 WORKDIR /kb/module
+RUN curl -LJO https://github.com/ParBLiSS/FastANI/releases/download/v1.3/fastANI-Linux64-v1.3.zip \
+&& unzip fastANI-Linux64-v1.3.zip \
+&& mv fastANI /miniconda/bin/
 
 RUN make all
+
 
 ENTRYPOINT [ "./scripts/entrypoint.sh" ]
 
