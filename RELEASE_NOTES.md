@@ -1,6 +1,11 @@
 # kb_gtdbtk release notes
 =========================================
 
+0.1.1
+_____
+* Update GTDB-Tk version to 1.0.2
+* remove python 2.7 environment
+
 0.1.0
 _____
 * Fixed a bug where workspace objects with pipe in the name would cause GTDB-Tk to fail.
