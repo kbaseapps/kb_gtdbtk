@@ -68,6 +68,7 @@ test-sdkless:
 	# TODO flake8 and bandit
 	# TODO mypy
 	# TODO check tests run with kb-sdk test
+	# TODO document this test mode
 	# MYPYPATH=$(MAKEFILE_DIR)/$(LIB_DIR) mypy --namespace-packages $(LIB_DIR)/$(SERVICE_CAPS)/core
 	PYTHONPATH=$(PYPATH) pytest --verbose --cov $(LIB_DIR)/$(SERVICE_CAPS) --cov-config=$(TEST_DIR)/coveragerc $(TEST_DIR)
 

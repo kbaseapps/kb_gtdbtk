@@ -31,3 +31,4 @@ script:
   # TODO make tests for the full stack with local auth, w
 
 after_script:
+  - coveralls
