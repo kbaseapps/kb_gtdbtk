@@ -5,3 +5,5 @@ data/gtdbtk.ar122.summary.tsv
 data/test.tsv
 lib/kb_gtdbtk/utils/test.py
 .coverage
+.mypy_cache
+.pytest_cache

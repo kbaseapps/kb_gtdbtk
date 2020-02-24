@@ -2,7 +2,7 @@
 Functions to translate values between the SDK API and core app logic.
 '''
 
-from typing import Dict, NamedTuple as _NamedTuple
+from typing import Dict, NamedTuple as _NamedTuple, cast as _cast
 
 class GTDBTKParams(_NamedTuple):
     '''
@@ -48,7 +48,7 @@ def get_gtdbtk_params(input_params: Dict[str, object]) -> GTDBTKParams:
     # TODO check 0 <= min_perc_aa <= 1
     
     wsid = input_params.get('workspace_id')
-    if type(wsid) != int or wsid < 1:
+    if type(wsid) != int or _cast(int, wsid) < 1:
         raise ValueError('workspace_id is required and must be an integer > 0')
 
-    return GTDBTKParams(ref, wsid, min_perc_aa)
+    return GTDBTKParams(_cast(str, ref), _cast(int, wsid), _cast(int, min_perc_aa))
