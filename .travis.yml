@@ -29,7 +29,7 @@ install:
 script:
   - $KBSDK validate
   - make test-sdkless
-  # TODO make tests for the full stack with local auth, w
+  # TODO make tests for the full stack when mini kb is ready or the sdk is rewritten
 
 after_script:
   - coveralls

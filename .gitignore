@@ -7,3 +7,4 @@ lib/kb_gtdbtk/utils/test.py
 .coverage
 .mypy_cache
 .pytest_cache
+*.bak*
