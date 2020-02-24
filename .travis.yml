@@ -1,5 +1,5 @@
 language: python
-
+python: "3.6"  # same as SDK base
 sudo: required
 
 services:
@@ -15,17 +15,19 @@ before_install:
   - docker version
 
 install:
-  - pushd ..
-  - git clone https://github.com/kbase/jars
-  - git clone https://github.com/kbase/kb_sdk
-  - cd kb_sdk
-  - make bin
-  - make sdkbase
-  - export PATH=$(pwd)/bin:$PATH
-  - source src/sh/sdk-completion.sh
-  - popd
+  - pip install pipenv
+  - pipenv install --dev
+  - docker pull kbase/kb-sdk
+  - cd ..
+  - docker run kbase/kb-sdk genscript > kb-sdk
+  - export KBSDK=$(pwd)/kb-sdk
+  - chmod a+x $KBSDK
+  - cd -
+  - $KBSDK version
 
 script:
   - kb-sdk validate
+  - make test-sdkless
+  # TODO make tests for the full stack with local auth, w
 
 after_script:

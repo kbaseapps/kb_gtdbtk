@@ -109,6 +109,7 @@ def mkdir_p(path):
             raise
 
 
+# TODO switch ws name for ws id
 def create_html_report(callback_url, output_path, workspace_name):
     '''
     '''

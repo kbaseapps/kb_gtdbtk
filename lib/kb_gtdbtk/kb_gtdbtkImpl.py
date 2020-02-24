@@ -59,6 +59,7 @@ class kb_gtdbtk:
         #BEGIN run_kb_gtdbtk
 
         # TODO: some parameter checking
+        # TODO put actual params in spec
         try:
             ref = params.get('inputObjectRef')
         except KeyError:
@@ -68,6 +69,7 @@ class kb_gtdbtk:
         min_perc_aa = params.get('min_perc_aa', 10)
 
         try:
+            # workspace ID is unused, workspace_name is passed to create_html_report below
             workspace_id = params.get('workspace_id')
         except KeyError:
             print("Must provide a workspace id")

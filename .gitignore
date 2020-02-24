@@ -4,3 +4,4 @@ sdk.cfg
 data/gtdbtk.ar122.summary.tsv
 data/test.tsv
 lib/kb_gtdbtk/utils/test.py
+.coverage

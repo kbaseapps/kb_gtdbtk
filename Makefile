@@ -11,6 +11,9 @@ WORK_DIR = /kb/module/work/tmp
 EXECUTABLE_SCRIPT_NAME = run_$(SERVICE_CAPS)_async_job.sh
 STARTUP_SCRIPT_NAME = start_server.sh
 TEST_SCRIPT_NAME = run_tests.sh
+# see https://stackoverflow.com/a/23324703/643675
+MAKEFILE_DIR:=$(strip $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST)))))
+PYPATH=$(MAKEFILE_DIR)/$(LIB_DIR):$(MAKEFILE_DIR)/$(TEST_DIR)
 
 .PHONY: test
 
@@ -60,6 +63,13 @@ build-test-script:
 test:
 	if [ ! -f /kb/module/work/token ]; then echo -e '\nOutside a docker container please run "kb-sdk test" rather than "make test"\n' && exit 1; fi
 	bash $(TEST_DIR)/$(TEST_SCRIPT_NAME)
+
+test-sdkless:
+	# TODO flake8 and bandit
+	# TODO mypy
+	# TODO check tests run with kb-sdk test
+	# MYPYPATH=$(MAKEFILE_DIR)/$(LIB_DIR) mypy --namespace-packages $(LIB_DIR)/$(SERVICE_CAPS)/core
+	PYTHONPATH=$(PYPATH) pytest --verbose --cov $(LIB_DIR)/$(SERVICE_CAPS) --cov-config=$(TEST_DIR)/coveragerc $(TEST_DIR)
 
 clean:
 	rm -rfv $(LBIN_DIR)
