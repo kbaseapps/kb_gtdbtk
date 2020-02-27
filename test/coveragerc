@@ -1,0 +1,7 @@
+[run]
+omit =
+    */__init__.py
+    */kb_gtdbtkServer.py
+    */baseclient.py
+    */authclient.py
+    */installed_clients/*

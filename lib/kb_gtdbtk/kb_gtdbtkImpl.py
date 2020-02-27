@@ -25,9 +25,9 @@ class kb_gtdbtk:
     # state. A method could easily clobber the state set by another while
     # the latter method is running.
     ######################################### noqa
-    VERSION = "0.0.1"
-    GIT_URL = ""
-    GIT_COMMIT_HASH = ""
+    VERSION = "0.1.1"
+    GIT_URL = "https://github.com/mrcreosote/kb_gtdbtk.git"
+    GIT_COMMIT_HASH = "c3241b7286ad0047a114429f7b7c51c9442d92fe"
 
     #BEGIN_CLASS_HEADER
     #END_CLASS_HEADER
@@ -59,6 +59,7 @@ class kb_gtdbtk:
         #BEGIN run_kb_gtdbtk
 
         # TODO: some parameter checking
+        # TODO put actual params in spec
         try:
             ref = params.get('inputObjectRef')
         except KeyError:
@@ -68,6 +69,7 @@ class kb_gtdbtk:
         min_perc_aa = params.get('min_perc_aa', 10)
 
         try:
+            # workspace ID is unused, workspace_name is passed to create_html_report below
             workspace_id = params.get('workspace_id')
         except KeyError:
             print("Must provide a workspace id")
