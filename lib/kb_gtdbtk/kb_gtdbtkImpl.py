@@ -3,7 +3,6 @@
 import logging
 import os
 
-from installed_clients.KBaseReportClient import KBaseReport
 from .utils.misc_utils import load_fastas, mkdir_p
 from .utils.misc_utils import create_html_report
 from .utils.gtdbtk_utils import GTDBTkUtils
@@ -45,7 +44,6 @@ class kb_gtdbtk:
                             level=logging.INFO)
         #END_CONSTRUCTOR
         pass
-
 
     def run_kb_gtdbtk(self, ctx, params):
         """
@@ -92,12 +90,12 @@ class kb_gtdbtk:
         gtdbtku = GTDBTkUtils(self.config, self.callback_url, workspace_id, self.cpus)
         results = gtdbtku.gtdbtk_classifywf(temp_output, output_path, min_perc_aa, id_to_assy_info)
         logging.info(results)
-       
+
         output = create_html_report(
             self.callback_url,
             output_path,
             params['workspace_name'])
-        
+
         #END run_kb_gtdbtk
 
         # At some point might do deeper type checking...
@@ -106,6 +104,7 @@ class kb_gtdbtk:
                              'output is not type dict as required.')
         # return the results
         return [output]
+
     def status(self, ctx):
         #BEGIN_STATUS
         returnVal = {'state': "OK",
