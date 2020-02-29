@@ -4,7 +4,7 @@ Downloads sequence data from KBase services.
 
 import uuid
 import os
-from typing import Dict
+from typing import Dict, Callable
 from pathlib import Path
 from shutil import copyfile
 
@@ -13,11 +13,15 @@ from kb_gtdbtk.core.kb_client_set import KBClients
 # DEV NOTES: This is tested by mocks, and so type changes will not be detected by the tests.
 # Type changes should be tested manually.
 
-# TODO document the testing strategy, e.g. unit tests only for CI 
+# TODO document the testing strategy, e.g. unit tests only for CI
 
 
 def download_sequence(
-        upa: str, destination_dir: Path, clients: KBClients) -> Dict[str, Dict[str, str]]:
+        upa: str,
+        destination_dir: Path,
+        clients: KBClients,
+        uuid_gen: Callable[[], uuid.UUID] = uuid.uuid4,
+        ) -> Dict[str, Dict[str, str]]:
     '''
     Download sequence data from KBase.
 
@@ -33,12 +37,13 @@ def download_sequence(
 
     :param upa: The KBase UPA (e.g. X/Y/Z format) for the object from which sequence data will be
         downloaded.
-    :param destination_dir: Where to store the files.
+    :param destination_dir: Where to store the files; must be an extant directory.
     :param clients: The KBase clients to use for the download operation.
     :returns: A mapping from a unique, filename safe ID for the assembly data to a mapping with
         the keys 'path' for a file path for the assembly and 'assembly_name' for the name of the
         assembly.
     '''
+    # Don't document uuid_gen, meant for testing only
     # TODO check input args
     # TODO this code should be folded into AssemblyFileUtils. Similar code exists there but
     # apparently it has permission issues for reference paths.
@@ -75,7 +80,7 @@ def download_sequence(
             id_to_assy_info[_file_safe_upa(item_upa['ref'])] = faf
         return id_to_assy_info
     elif 'KBaseMetagenomes.BinnedContigs' == obj_type:
-        return _handle_binned_contigs(upa, clients, dd)
+        return _handle_binned_contigs(upa, clients, dd, uuid_gen)
     else:
         raise ValueError(f'{obj_type} type is not supported')
 
@@ -106,8 +111,7 @@ def _process_genomes(upa, upas, clients, dd):
     return id_to_assy_info
 
 
-# TODO TEST
-def _handle_binned_contigs(upa, clients, target_dir):
+def _handle_binned_contigs(upa, clients, target_dir, uuid_gen):
     # any CoaC issues here are in MetagenomeUtils
     ret = {}
     bin_file_dir = clients.mgu().binned_contigs_to_file(
@@ -118,7 +122,7 @@ def _handle_binned_contigs(upa, clients, target_dir):
             # *shrug*
             fasta_fixed_ext = os.path.splitext(fasta_file)[0] + '.fa'
             # bin filenames can be basically anything. rename to UUID and return mapping
-            id_ = str(uuid.uuid4())
+            id_ = str(uuid_gen())
             fasta_path = target_dir / id_
             copyfile(os.path.join(bin_file_dir, fasta_file), fasta_path)
             # Should I verify that the bins have contigs?

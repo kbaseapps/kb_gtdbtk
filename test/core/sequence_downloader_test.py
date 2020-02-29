@@ -1,7 +1,8 @@
-from pytest import raises
+import tempfile
 
-from unittest.mock import create_autospec
+from pytest import raises
 from pathlib import Path
+from unittest.mock import create_autospec
 
 from kb_gtdbtk.core.kb_client_set import KBClients
 from kb_gtdbtk.core.sequence_downloader import download_sequence
@@ -296,6 +297,68 @@ def test_with_assemblyset():
     assert clis.au().get_assembly_as_fasta.call_args_list == [
         (({'ref': '34567/3/7;1/2/3', 'filename': 'somepath/or/other/1_2_3'},), {}),
         (({'ref': '34567/3/7;4/5/6', 'filename': 'somepath/or/other/4_5_6'},), {})]
+
+
+def test_with_binnedcontigs():
+    clis = _client_mocks()
+
+    clis.dfu().get_objects.return_value = {
+        'data': [
+            {'info': [
+                3,
+                'myobj',
+                'KBaseMetagenomes.BinnedContigs-1.0',
+                'ignored time',
+                7,
+                'someuser',
+                34567,
+                'some_workspace',
+                'md5 here',
+                416467216,
+                {}
+                ],
+             'data': {'items': [{'ref': '1/2/3'}, {'ref': '4/5/6'}]}
+             }
+        ]
+    }
+
+    uuids = ['f2f17834-d2ed-4ec3-aedd-5f981ad3444f', 'd0a5665e-bd74-4f53-aedf-fc1f29d3f369']
+
+    def ugen():
+        return uuids.pop(0)
+
+    with tempfile.TemporaryDirectory(prefix='test_with_binned_contigs_') as td:
+        tempdir = Path(td) / 'temp'
+        tempdir.mkdir(parents=True, exist_ok=True)
+
+        (tempdir / 'file1.fasta').touch()
+        (tempdir / 'file2.fasta').touch()
+
+        outdir = Path(td) / 'out'
+        outdir.mkdir(parents=True, exist_ok=True)
+
+        clis.mgu().binned_contigs_to_file.return_value = {'bin_file_directory': tempdir}
+
+        ret = download_sequence('34567/3/7', outdir, clis, ugen)
+
+        # could put contents in file and check, but YAGNI. If things get more complicated do it
+        assert (outdir / 'f2f17834-d2ed-4ec3-aedd-5f981ad3444f').exists()
+        assert (outdir / 'd0a5665e-bd74-4f53-aedf-fc1f29d3f369').exists()
+
+    assert ret == {
+        'f2f17834-d2ed-4ec3-aedd-5f981ad3444f': {
+            'path': outdir / 'f2f17834-d2ed-4ec3-aedd-5f981ad3444f',
+            'assembly_name': 'file1.fa'
+            },
+        'd0a5665e-bd74-4f53-aedf-fc1f29d3f369': {
+            'path': outdir / 'd0a5665e-bd74-4f53-aedf-fc1f29d3f369',
+            'assembly_name': 'file2.fa'}
+    }
+
+    assert clis.dfu().get_objects.call_args_list == [(({'object_refs': ['34567/3/7']},), {})]
+
+    assert clis.mgu().binned_contigs_to_file.call_args_list == [
+        (({'input_ref': '34567/3/7', 'save_to_shock': 0},), {})]
 
 
 def test_fail_bad_type():
