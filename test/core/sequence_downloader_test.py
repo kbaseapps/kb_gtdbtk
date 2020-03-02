@@ -322,7 +322,9 @@ def test_with_binnedcontigs():
         ]
     }
 
-    uuids = ['f2f17834-d2ed-4ec3-aedd-5f981ad3444f', 'd0a5665e-bd74-4f53-aedf-fc1f29d3f369']
+    uuid1 = 'f2f17834-d2ed-4ec3-aedd-5f981ad3444f'
+    uuid2 = 'd0a5665e-bd74-4f53-aedf-fc1f29d3f369'
+    uuids = [uuid1, uuid2]
 
     def ugen():
         return uuids.pop(0)
@@ -342,18 +344,21 @@ def test_with_binnedcontigs():
         ret = download_sequence('34567/3/7', outdir, clis, ugen)
 
         # could put contents in file and check, but YAGNI. If things get more complicated do it
-        assert (outdir / 'f2f17834-d2ed-4ec3-aedd-5f981ad3444f').exists()
-        assert (outdir / 'd0a5665e-bd74-4f53-aedf-fc1f29d3f369').exists()
+        assert (outdir / uuid1).exists()
+        assert (outdir / uuid2).exists()
 
-    assert ret == {
-        'f2f17834-d2ed-4ec3-aedd-5f981ad3444f': {
-            'path': outdir / 'f2f17834-d2ed-4ec3-aedd-5f981ad3444f',
-            'assembly_name': 'file1.fa'
-            },
-        'd0a5665e-bd74-4f53-aedf-fc1f29d3f369': {
-            'path': outdir / 'd0a5665e-bd74-4f53-aedf-fc1f29d3f369',
-            'assembly_name': 'file2.fa'}
-    }
+    ret1 = {
+        uuid1: {'path': outdir / uuid1, 'assembly_name': 'file1.fa'},
+        uuid2: {'path': outdir / uuid2, 'assembly_name': 'file2.fa'}
+        }
+
+    ret2 = {
+        uuid1: {'path': outdir / uuid1, 'assembly_name': 'file2.fa'},
+        uuid2: {'path': outdir / uuid2, 'assembly_name': 'file1.fa'}
+        }
+
+    # os.walk doesn't seem to return the file names in any paticular order
+    assert ret == ret1 or ret == ret2
 
     assert clis.dfu().get_objects.call_args_list == [(({'object_refs': ['34567/3/7']},), {})]
 
