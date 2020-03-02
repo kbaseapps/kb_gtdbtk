@@ -8,3 +8,4 @@ lib/kb_gtdbtk/utils/test.py
 .mypy_cache
 .pytest_cache
 *.bak*
+.vscode/settings.json

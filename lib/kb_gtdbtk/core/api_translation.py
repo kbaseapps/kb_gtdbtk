@@ -4,6 +4,7 @@ Functions to translate values between the SDK API and core app logic.
 
 from typing import Dict, NamedTuple as _NamedTuple, cast as _cast
 
+
 class GTDBTKParams(_NamedTuple):
     '''
     Parameters for running GTDB-tk in the KBase environment.
@@ -17,7 +18,7 @@ class GTDBTKParams(_NamedTuple):
 
     min_perc_aa: int
     ''' The mimimum sequence alignment in percent. '''
-    
+
 
 def get_gtdbtk_params(input_params: Dict[str, object]) -> GTDBTKParams:
     '''
@@ -41,12 +42,12 @@ def get_gtdbtk_params(input_params: Dict[str, object]) -> GTDBTKParams:
     if type(ref) != str:
         raise ValueError('input_object_ref is required and must be a string')
     # could check ref format, but the ws will do that for us. YAGNI.
-    
+
     min_perc_aa = input_params.get('min_perc_aa', 10)
     if type(min_perc_aa) != int:
         raise ValueError('min_perc_aa must be an integer')
     # TODO check 0 <= min_perc_aa <= 1
-    
+
     wsid = input_params.get('workspace_id')
     if type(wsid) != int or _cast(int, wsid) < 1:
         raise ValueError('workspace_id is required and must be an integer > 0')

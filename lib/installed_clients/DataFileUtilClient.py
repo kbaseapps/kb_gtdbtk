@@ -7,15 +7,7 @@
 ############################################################
 
 from __future__ import print_function
-# the following is a hack to get the baseclient to import whether we're in a
-# package or not. This makes pep8 unhappy hence the annotations.
-try:
-    # baseclient and this client are in a package
-    from .baseclient import BaseClient as _BaseClient  # @UnusedImport
-except ImportError:
-    # no they aren't
-    from baseclient import BaseClient as _BaseClient  # @Reimport
-
+from .baseclient import BaseClient as _BaseClient
 
 class DataFileUtil(object):
 
@@ -365,7 +357,7 @@ class DataFileUtil(object):
            version. data - the object data. Optional parameters: One of an
            object name or id. If no name or id is provided the name will be
            set to 'auto' with the object id appended as a string, possibly
-           with -\d+ appended if that object id already exists as a name.
+           with -\\d+ appended if that object id already exists as a name.
            name - the name of the object. objid - the id of the object to
            save over. meta - arbitrary user-supplied metadata for the object,
            not to exceed 16kb; if the object type specifies automatic
