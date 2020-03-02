@@ -16,7 +16,7 @@ class GTDBTKParams(_NamedTuple):
     workspace_id: int
     ''' The ID of the KBase workspace where the report should be saved. '''
 
-    min_perc_aa: int
+    min_perc_aa: float
     ''' The mimimum sequence alignment in percent. '''
 
 
@@ -44,12 +44,12 @@ def get_gtdbtk_params(input_params: Dict[str, object]) -> GTDBTKParams:
     # could check ref format, but the ws will do that for us. YAGNI.
 
     min_perc_aa = input_params.get('min_perc_aa', 10)
-    if type(min_perc_aa) != int:
-        raise ValueError('min_perc_aa must be an integer')
+    if type(min_perc_aa) != float and type(min_perc_aa) != int:
+        raise ValueError('min_perc_aa must be a float')
     # TODO check 0 <= min_perc_aa <= 1
 
     wsid = input_params.get('workspace_id')
     if type(wsid) != int or _cast(int, wsid) < 1:
         raise ValueError('workspace_id is required and must be an integer > 0')
 
-    return GTDBTKParams(_cast(str, ref), _cast(int, wsid), _cast(int, min_perc_aa))
+    return GTDBTKParams(_cast(str, ref), _cast(int, wsid), _cast(float, min_perc_aa) * 1.0)

@@ -12,8 +12,8 @@ def test_get_gtdbtk_params():
     })
     assert p == ('5/6/7', 56, 10)
 
-    p = get_gtdbtk_params({'workspace_id': 92, 'input_object_ref': '104/67/3', 'min_perc_aa': 78})
-    assert p == ('104/67/3', 92, 78)
+    p = get_gtdbtk_params({'workspace_id': 92, 'input_object_ref': '104/67/3', 'min_perc_aa': 78.9})
+    assert p == ('104/67/3', 92, 78.9)
 
 
 def test_get_gtdbtk_params_backwards_compatibility():
@@ -30,7 +30,7 @@ def test_get_gtdbtk_params_fail_bad_args():
         'input_object_ref is required and must be a string'))
     _get_gtdbtk_params_fail(
         {'inputObjectRef': '1/1/1', 'min_perc_aa': 'foo', 'workspace_id': 7},
-        ValueError('min_perc_aa must be an integer'))
+        ValueError('min_perc_aa must be a float'))
     _get_gtdbtk_params_fail({'inputObjectRef': '1/1/1'}, ValueError(
         'workspace_id is required and must be an integer > 0'))
     _get_gtdbtk_params_fail({'inputObjectRef': '1/1/1', 'workspace_id': 'foo'}, ValueError(
