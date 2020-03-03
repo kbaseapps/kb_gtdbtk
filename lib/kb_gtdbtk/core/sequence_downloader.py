@@ -2,9 +2,8 @@
 Downloads sequence data from KBase services.
 '''
 
-import uuid
 import os
-from typing import Dict, Callable
+from typing import Dict
 from pathlib import Path
 from shutil import copyfile
 
@@ -20,8 +19,7 @@ def download_sequence(
         upa: str,
         destination_dir: Path,
         clients: KBClients,
-        uuid_gen: Callable[[], uuid.UUID] = uuid.uuid4,
-        ) -> Dict[str, Dict[str, str]]:
+        ) -> Dict[Path, str]:
     '''
     Download sequence data from KBase.
 
@@ -39,11 +37,9 @@ def download_sequence(
         downloaded.
     :param destination_dir: Where to store the files; must be an extant directory.
     :param clients: The KBase clients to use for the download operation.
-    :returns: A mapping from a unique, filename safe ID for the assembly data to a mapping with
-        the keys 'path' for a file path for the assembly and 'assembly_name' for the name of the
-        assembly.
+    :returns: A mapping from a file path to a display name for the file (often, but not always,
+        the filename).
     '''
-    # Don't document uuid_gen, meant for testing only
     # TODO check input args
     # TODO this code should be folded into AssemblyFileUtils. Similar code exists there but
     # apparently it has permission issues for reference paths.
@@ -70,17 +66,17 @@ def download_sequence(
         # could optimize out
         faf = clients.au().get_assembly_as_fasta(
             {'ref': upa, 'filename': str(_upa_to_path(dd, upa))})
-        return {_file_safe_upa(upa): faf}
+        return {Path(faf['path']): faf['assembly_name']}
     elif 'KBaseSets.AssemblySet' == obj_type:
         id_to_assy_info = {}
         for item_upa in obj_data['data']['items']:
             faf = clients.au().get_assembly_as_fasta(
                 {'ref': upa + ';' + item_upa['ref'],
                  'filename': str(_upa_to_path(dd, item_upa['ref']))})
-            id_to_assy_info[_file_safe_upa(item_upa['ref'])] = faf
+            id_to_assy_info[Path(faf['path'])] = faf['assembly_name']
         return id_to_assy_info
     elif 'KBaseMetagenomes.BinnedContigs' == obj_type:
-        return _handle_binned_contigs(upa, clients, dd, uuid_gen)
+        return _handle_binned_contigs(upa, clients, dd)
     else:
         raise ValueError(f'{obj_type} type is not supported')
 
@@ -106,12 +102,12 @@ def _process_genomes(upa, upas, clients, dd):
             'ref': genome_upa + ';' + target_upa,
             'filename': str(_upa_to_path(dd, target_upa))
             })
-        id_to_assy_info[_file_safe_upa(target_upa)] = faf
+        id_to_assy_info[Path(faf['path'])] = faf['assembly_name']
 
     return id_to_assy_info
 
 
-def _handle_binned_contigs(upa, clients, target_dir, uuid_gen):
+def _handle_binned_contigs(upa, clients, target_dir):
     # any CoaC issues here are in MetagenomeUtils
     ret = {}
     bin_file_dir = clients.mgu().binned_contigs_to_file(
@@ -121,13 +117,11 @@ def _handle_binned_contigs(upa, clients, target_dir, uuid_gen):
             # not sure why we're normalizing the extension, but that's how the old code did it
             # *shrug*
             fasta_fixed_ext = os.path.splitext(fasta_file)[0] + '.fa'
-            # bin filenames can be basically anything. rename to UUID and return mapping
-            id_ = str(uuid_gen())
-            fasta_path = target_dir / id_
+            fasta_path = target_dir / fasta_fixed_ext
             copyfile(os.path.join(bin_file_dir, fasta_file), fasta_path)
             # Should I verify that the bins have contigs?
             # is it possible to have empty bins?
-            ret[id_] = {'path': fasta_path, 'assembly_name': fasta_fixed_ext}
+            ret[Path(fasta_path)] = fasta_fixed_ext
         break  # not sure why this is necessary
     return ret
 

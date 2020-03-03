@@ -40,7 +40,6 @@ def run_gtdbtk(
     '''
     # TODO input checking
     # TODO test logging, need to install an interceptor. Tested manually for now
-    # TODO FOR REAL abstract the unique ID part here rather than in the downloader
 
     # all this complication is due to GTDB-tk choking on many legal, but uncommon, file name
     # characters such as |. Essentially here we provide safe file names and identitifers
