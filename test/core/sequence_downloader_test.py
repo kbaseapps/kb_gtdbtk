@@ -109,9 +109,7 @@ def _check_genomeset(type_, data):
 
     ret = download_sequence('34567/3/7', Path('somepath/or/other'), clis)
 
-    assert ret == {'45_21_89': {'path': '/path/to/file1', 'assembly_name': 'assyname1'},
-                   '7_8_9': {'path': '/path/to/file2', 'assembly_name': 'assyname2'}
-                   }
+    assert ret == {Path('/path/to/file1'): 'assyname1', Path('/path/to/file2'): 'assyname2'}
 
     assert clis.dfu().get_objects.call_args_list == [(({'object_refs': ['34567/3/7']},), {})]
 
@@ -162,8 +160,7 @@ def _check_genome(ref_key):
 
     ret = download_sequence('34567/3/7', Path('somepath/or/other'), clis)
 
-    assert ret == {'1_2_3': {'path': '/path/to/file3', 'assembly_name': 'assyname3'}
-                   }
+    assert ret == {Path('/path/to/file3'): 'assyname3'}
 
     assert clis.dfu().get_objects.call_args_list == [(({'object_refs': ['34567/3/7']},), {})]
 
@@ -208,8 +205,7 @@ def _check_assembly(type_):
 
     ret = download_sequence('34567/3/7', Path('somepath/or/other'), clis)
 
-    assert ret == {'34567_3_7': {'path': '/path/to/file4', 'assembly_name': 'assyname4'}
-                   }
+    assert ret == {Path('/path/to/file4'): 'assyname4'}
 
     assert clis.dfu().get_objects.call_args_list == [(({'object_refs': ['34567/3/7']},), {})]
 
@@ -288,9 +284,7 @@ def test_with_assemblyset():
 
     ret = download_sequence('34567/3/7', Path('somepath/or/other'), clis)
 
-    assert ret == {'1_2_3': {'path': '/path/to/file1', 'assembly_name': 'assyname1'},
-                   '4_5_6': {'path': '/path/to/file2', 'assembly_name': 'assyname2'}
-                   }
+    assert ret == {Path('/path/to/file1'): 'assyname1', Path('/path/to/file2'): 'assyname2'}
 
     assert clis.dfu().get_objects.call_args_list == [(({'object_refs': ['34567/3/7']},), {})]
 
@@ -322,13 +316,6 @@ def test_with_binnedcontigs():
         ]
     }
 
-    uuid1 = 'f2f17834-d2ed-4ec3-aedd-5f981ad3444f'
-    uuid2 = 'd0a5665e-bd74-4f53-aedf-fc1f29d3f369'
-    uuids = [uuid1, uuid2]
-
-    def ugen():
-        return uuids.pop(0)
-
     with tempfile.TemporaryDirectory(prefix='test_with_binned_contigs_') as td:
         tempdir = Path(td) / 'temp'
         tempdir.mkdir(parents=True, exist_ok=True)
@@ -341,24 +328,13 @@ def test_with_binnedcontigs():
 
         clis.mgu().binned_contigs_to_file.return_value = {'bin_file_directory': tempdir}
 
-        ret = download_sequence('34567/3/7', outdir, clis, ugen)
+        ret = download_sequence('34567/3/7', outdir, clis)
 
         # could put contents in file and check, but YAGNI. If things get more complicated do it
-        assert (outdir / uuid1).exists()
-        assert (outdir / uuid2).exists()
+        assert (outdir / 'file1.fa').exists()
+        assert (outdir / 'file2.fa').exists()
 
-    ret1 = {
-        uuid1: {'path': outdir / uuid1, 'assembly_name': 'file1.fa'},
-        uuid2: {'path': outdir / uuid2, 'assembly_name': 'file2.fa'}
-        }
-
-    ret2 = {
-        uuid1: {'path': outdir / uuid1, 'assembly_name': 'file2.fa'},
-        uuid2: {'path': outdir / uuid2, 'assembly_name': 'file1.fa'}
-        }
-
-    # os.walk doesn't seem to return the file names in any paticular order
-    assert ret == ret1 or ret == ret2
+    assert ret == {Path(outdir) / 'file1.fa': 'file1.fa', Path(outdir) / 'file2.fa': 'file2.fa'}
 
     assert clis.dfu().get_objects.call_args_list == [(({'object_refs': ['34567/3/7']},), {})]
 

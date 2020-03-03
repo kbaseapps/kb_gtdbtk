@@ -42,20 +42,20 @@ def test_gtdbtk_run():
 
             with open(temp_out / 'gtdbtk.ar122.summary.tsv', 'w') as t:
                 t.writelines(['\t'.join(['Name', 'field1', 'field2']) + '\n',
-                              '\t'.join(['a1', 'foo', 'bar']) + '\n',
-                              '\t'.join(['a2', 'baz', 'bat']) + '\n',
+                              '\t'.join(['id0', 'foo', 'bar']) + '\n',
+                              '\t'.join(['id1', 'baz', 'bat']) + '\n',
                               ])
 
             with open(temp_out / 'gtdbtk.bac120.summary.tsv', 'w') as t:
                 t.writelines(['\t'.join(['Name', 'field1', 'field2']) + '\n',
-                              '\t'.join(['a1', 'whoo', 'whee']) + '\n',
-                              '\t'.join(['a2', 'whoa', 'whump']) + '\n',
+                              '\t'.join(['id0', 'whoo', 'whee']) + '\n',
+                              '\t'.join(['id1', 'whoa', 'whump']) + '\n',
                               ])
 
             with open(temp_out / 'gtdbtk.bac120.markers_summary.tsv', 'w') as t:
                 t.writelines(['\t'.join(['user_genome', 'field1', 'field2']) + '\n',
-                              '\t'.join(['a1', 'fee', 'fie']) + '\n',
-                              '\t'.join(['a2', 'fo', 'fum']) + '\n',
+                              '\t'.join(['id0', 'fee', 'fie']) + '\n',
+                              '\t'.join(['id1', 'fo', 'fum']) + '\n',
                               ])
 
             # skip 'gtdbtk.ar122.markers_summary.tsv'
@@ -64,8 +64,8 @@ def test_gtdbtk_run():
 
         run_gtdbtk(
             runner,
-            {'a1': {'path': '/somepath1', 'assembly_name': 'somefile1.fasta'},
-             'a2': {'path': '/somepath2', 'assembly_name': 'somefile2.fasta'},
+            {Path('/somepath1'): 'somefile1.fasta',
+             Path('/somepath2'): 'somefile2.fasta',
              },
             out_dir,
             temp_dir,
@@ -76,8 +76,11 @@ def test_gtdbtk_run():
         with open(tf[0]) as bf:
             lines = bf.readlines()
             assert len(lines) == 2
-            assert lines[0] == '/somepath1\ta1\n'
-            assert lines[1] == '/somepath2\ta2\n'
+            assert lines[0] == f'{temp_dir}/links/id0\tid0\n'
+            assert lines[1] == f'{temp_dir}/links/id1\tid1\n'
+
+        assert os.readlink(temp_dir / 'links' / 'id0') == '/somepath1'
+        assert os.readlink(temp_dir / 'links' / 'id1') == '/somepath2'
 
         assert sorted(os.listdir(out_dir)) == [
             'gtdbtk.ar122.summary.tsv',
