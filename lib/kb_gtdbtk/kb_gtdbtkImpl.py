@@ -2,10 +2,15 @@
 #BEGIN_HEADER
 import logging
 import os
+import subprocess
 
-from .utils.misc_utils import load_fastas, mkdir_p
-from .utils.misc_utils import create_html_report
-from .utils.gtdbtk_utils import GTDBTkUtils
+from pathlib import Path
+
+from kb_gtdbtk.core.api_translation import get_gtdbtk_params
+from kb_gtdbtk.core.sequence_downloader import download_sequence
+from kb_gtdbtk.core.kb_client_set import KBClients
+from kb_gtdbtk.core.gtdbtk_runner import run_gtdbtk
+from kb_gtdbtk.core.kb_report_generation import generate_report
 #END_HEADER
 
 
@@ -36,9 +41,7 @@ class kb_gtdbtk:
     def __init__(self, config):
         #BEGIN_CONSTRUCTOR
         self.callback_url = os.environ['SDK_CALLBACK_URL']
-        self.shared_folder = config['scratch']
-        self.config = config
-        self.config['callback_url'] = self.callback_url
+        self.shared_folder = Path(config['scratch'])
         self.cpus = 32  # bigmem 32 cpus & 90,000MB RAM
         logging.basicConfig(format='%(created)s %(levelname)s: %(message)s',
                             level=logging.INFO)
@@ -56,45 +59,38 @@ class kb_gtdbtk:
         # return variables are: output
         #BEGIN run_kb_gtdbtk
 
-        # TODO: some parameter checking
         # TODO put actual params in spec
-        try:
-            ref = params.get('inputObjectRef')
-        except KeyError:
-            print("Must provide a ws reference to object with sequences")
-            # this should throw an exception, not keep going
-
-        min_perc_aa = params.get('min_perc_aa', 10)
-
-        try:
-            # workspace ID is unused, workspace_name is passed to create_html_report below
-            workspace_id = params.get('workspace_id')
-        except KeyError:
-            print("Must provide a workspace id")
-            # this should throw an exception, not keep going
+        params = get_gtdbtk_params(params)
 
         # get the fasta file from the input ref
         # TODO: handle sets
         logging.info("Get Genome Seqs\n")
-        fasta_path = os.path.join(self.shared_folder, 'fastas')
-        mkdir_p(fasta_path)
-        id_to_assy_info = load_fastas(self.config, fasta_path, ref)
-        for id_, val in id_to_assy_info.items():
-            print(id_, val['assembly_name'], val['path'])
+        fasta_path = self.shared_folder / 'fastas'
+        fasta_path.mkdirs(parent=True, exist_ok=True)
+
+        cli = KBClients(self.callback_url, ctx['token'])
+
+        path_to_filename = download_sequence(params.upa, fasta_path, cli)
+        for path, fn in path_to_filename.items():
+            print(fn, path)
 
         logging.info("Run gtdbtk classifywf\n")
-        output_path = os.path.join(self.shared_folder, 'output')
-        temp_output = os.path.join(self.shared_folder, 'temp_output')
-        mkdir_p(output_path)
-        mkdir_p(temp_output)
-        gtdbtku = GTDBTkUtils(self.config, self.callback_url, workspace_id, self.cpus)
-        results = gtdbtku.gtdbtk_classifywf(temp_output, output_path, min_perc_aa, id_to_assy_info)
-        logging.info(results)
 
-        output = create_html_report(
-            self.callback_url,
-            output_path,
-            params['workspace_name'])
+        output_path = Path(self.shared_folder) / 'output'
+        temp_output = Path(self.shared_folder) / 'temp_output'
+        output_path.mkdirs(parent=True, exist_ok=True)
+        temp_output.mkdirs(parent=True, exist_ok=True)
+
+        def runner(args):
+            env = dict(os.environ)
+            env['TEMP_DIR'] = self.shared_folder / 'tmp'
+            # should print to stdout/stderr
+            subprocess.run(args, check=True, env=env)
+
+        run_gtdbtk(
+            runner, path_to_filename, output_path, temp_output, params.min_perc_aa, self.cpus)
+
+        output = generate_report(cli, output_path, params.workspace_id)
 
         #END run_kb_gtdbtk
 
