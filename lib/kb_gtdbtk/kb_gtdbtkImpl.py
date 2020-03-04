@@ -69,7 +69,7 @@ class kb_gtdbtk:
 
         cli = KBClients(self.callback_url, ctx['token'])
 
-        path_to_filename = download_sequence(params.upa, fasta_path, cli)
+        path_to_filename = download_sequence(params.ref, fasta_path, cli)
         for path, fn in path_to_filename.items():
             print(fn, path)
 
