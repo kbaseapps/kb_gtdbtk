@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "b538dae02a14bf8454a062da6190916a824b0396f0a5e9a25d1d348a33fa2e4e"
+            "sha256": "ea60b472085c0a950e63c9927aa2fa054038d3f73ed09b4a1f949f859db537e6"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -29,6 +29,19 @@
                 "sha256:fc323ffcaeaed0e0a02bf4d117757b98aed530d9ed4531e3e15460124c106691"
             ],
             "version": "==3.0.4"
+        },
+        "dendropy": {
+            "hashes": [
+                "sha256:f0a0e2ce78b3ed213d6c1791332d57778b7f63d602430c1548a5d822acf2799c"
+            ],
+            "version": "==4.4.0"
+        },
+        "gtdbtk": {
+            "hashes": [
+                "sha256:b8fb65555d86301c55bef0f4722f6ae0d0bd974d2a04cbb71973b51dc0013655"
+            ],
+            "index": "pypi",
+            "version": "==1.0.2"
         },
         "idna": {
             "hashes": [
@@ -393,10 +406,10 @@
         },
         "zipp": {
             "hashes": [
-                "sha256:12248a63bbdf7548f89cb4c7cda4681e537031eda29c02ea29674bc6854460c2",
-                "sha256:7c0f8e91abc0dc07a5068f315c52cb30c66bfbc581e5b50704c8a2f6ebae794a"
+                "sha256:aa36550ff0c0b7ef7fa639055d797116ee891440eac1a56f378e2d3179e0320b",
+                "sha256:c599e4d75c98f6798c509911d08a22e6c021d074469042177c8c86fb92eefd96"
             ],
-            "version": "==3.0.0"
+            "version": "==3.1.0"
         }
     }
 }

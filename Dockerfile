@@ -7,13 +7,13 @@ MAINTAINER KBase Developer
 # installation scripts.
 
 RUN apt-get update
-
-RUN /bin/bash -c 'echo "installing gtdbtk v1.0.2"'
-ENV GTDBTK_DATA_PATH=/data
-# conda updates to py 3.8 and everything breaks
-RUN pip install gtdbtk pandas
-RUN conda install -c bioconda hmmer prodigal pplacer fasttree --yes
 RUN apt-get install libgomp1  
+
+RUN curl -LJO https://github.com/ParBLiSS/FastANI/releases/download/v1.3/fastANI-Linux64-v1.3.zip \
+&& unzip fastANI-Linux64-v1.3.zip \
+&& mv fastANI /miniconda/bin/
+
+RUN pip install pipenv==2018.11.26
 
 # -----------------------------------------
 
@@ -22,9 +22,16 @@ RUN mkdir -p /kb/module/work
 RUN chmod -R a+rw /kb/module
 
 WORKDIR /kb/module
-RUN curl -LJO https://github.com/ParBLiSS/FastANI/releases/download/v1.3/fastANI-Linux64-v1.3.zip \
-&& unzip fastANI-Linux64-v1.3.zip \
-&& mv fastANI /miniconda/bin/
+
+# This stuff has to come after the COPY since it uses the pipfile in the repo
+
+# really need a test build and a prod build. Not sure that's possible via sdk.
+RUN pipenv install --system --deploy --ignore-pipfile --dev
+
+RUN /bin/bash -c 'echo "installing gtdbtk v1.0.2"'
+ENV GTDBTK_DATA_PATH=/data
+# conda updates to py 3.8 and everything breaks
+RUN conda install -c bioconda hmmer prodigal pplacer fasttree --yes
 
 RUN make all
 
