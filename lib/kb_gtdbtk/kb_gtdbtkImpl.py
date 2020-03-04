@@ -65,7 +65,7 @@ class kb_gtdbtk:
 
         logging.info("Get Genome Seqs\n")
         fasta_path = self.shared_folder / 'fastas'
-        fasta_path.mkdir(parent=True, exist_ok=True)
+        fasta_path.mkdir(parents=True, exist_ok=True)
 
         cli = KBClients(self.callback_url, ctx['token'])
 
@@ -77,8 +77,8 @@ class kb_gtdbtk:
 
         output_path = Path(self.shared_folder) / 'output'
         temp_output = Path(self.shared_folder) / 'temp_output'
-        output_path.mkdir(parent=True, exist_ok=True)
-        temp_output.mkdir(parent=True, exist_ok=True)
+        output_path.mkdir(parents=True, exist_ok=True)
+        temp_output.mkdir(parents=True, exist_ok=True)
 
         def runner(args):
             env = dict(os.environ)
