@@ -69,8 +69,6 @@ class kb_gtdbtk:
         # return variables are: output
         #BEGIN run_kb_gtdbtk
 
-        # TODO remove unused files
-        # TODO put actual params in spec
         params = get_gtdbtk_params(params)
 
         logging.info("Get Genome Seqs\n")
