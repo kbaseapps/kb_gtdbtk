@@ -17,19 +17,20 @@ class KBClients:
     A set of clients for KB-SDK modules.
     '''
 
-    def __init__(self, callback_url: str, user_token: str):
+    def __init__(self, callback_url: str, workspace_url: str, user_token: str):
         '''
         Create the client set.
 
         :param callback_url: The url of the callback server.
+        :param workspace_url: The url of the KBase workspace server.
         :param user_token: The user's token.
         '''
         # TODO check inputs aren't None or empty string
         self._dfu = DataFileUtil(callback_url, token=user_token)
         self._au = AssemblyUtil(callback_url, token=user_token)
         self._mgu = MetagenomeUtils(callback_url, token=user_token)
-        self._ws = Workspace(callback_url, token=user_token)
         self._report = KBaseReport(callback_url, token=user_token)
+        self._ws = Workspace(workspace_url, token=user_token)
 
     # Using methods rather than instance variables since create_autospec doesn't play nicely
     # with instance variables.
