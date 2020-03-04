@@ -34,8 +34,7 @@ def get_gtdbtk_params(input_params: Dict[str, object]) -> GTDBTKParams:
     :returns: the parsed parameters.
     :raises ValueError: if any of the parameters are invalid.
     '''
-    # TODO put actual params in spec
-    ref = input_params.get('input_object_ref')  # TODO Update UI
+    ref = input_params.get('input_object_ref')
     if not ref:
         # for backwards compatibility
         ref = input_params.get('inputObjectRef')
