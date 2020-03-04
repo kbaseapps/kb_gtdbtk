@@ -113,7 +113,7 @@ class kb_gtdbtkTest(unittest.TestCase):
             'index.html': 'e865d72e375bbbc5721f8d999698e1c5'
         }
 
-        self.check_gtdbtk_output(report, 2277, md5s)
+        self.check_gtdbtk_output(report, 4624, md5s)
 
     def check_gtdbtk_output(self, report, zipsize, filename_to_md5, tolerance=15):
         print(report)
