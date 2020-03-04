@@ -31,7 +31,7 @@ class kb_gtdbtk:
     ######################################### noqa
     VERSION = "0.1.1"
     GIT_URL = "https://github.com/mrcreosote/kb_gtdbtk.git"
-    GIT_COMMIT_HASH = "c3241b7286ad0047a114429f7b7c51c9442d92fe"
+    GIT_COMMIT_HASH = "22487eab15c54d06487166eeeaef6f7c19dd5a98"
 
     #BEGIN_CLASS_HEADER
     #END_CLASS_HEADER
@@ -51,10 +51,19 @@ class kb_gtdbtk:
 
     def run_kb_gtdbtk(self, ctx, params):
         """
-        This example function accepts any number of parameters and returns results in a KBaseReport
-        :param params: instance of mapping from String to unspecified object
-        :returns: instance of type "ReportResults" -> structure: parameter
-           "report_name" of String, parameter "report_ref" of String
+        Run GTDB-tk.
+        :param params: instance of type "GTDBtkParams" (Parameters for the
+           GTDB-tk run. Required: input_object_ref: A reference to the
+           workspace object to process. workspace_id: The integer workspace
+           ID where the results will be saved. Optional: min_perc_aa: the
+           minimum sequence alignment as a percent, default 10.) ->
+           structure: parameter "input_object_ref" of String, parameter
+           "workspace_id" of Long, parameter "min_perc_aa" of Double
+        :returns: instance of type "ReportResults" (The results of the
+           GTDB-tk run. report_name: The name of the report object in the
+           workspace. report_ref: The UPA of the report object, e.g.
+           wsid/objid/ver.) -> structure: parameter "report_name" of String,
+           parameter "report_ref" of String
         """
         # ctx is the context object
         # return variables are: output

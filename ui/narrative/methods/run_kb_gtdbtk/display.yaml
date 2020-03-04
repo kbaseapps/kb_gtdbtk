@@ -24,7 +24,7 @@ suggestions:
 # Configure the display and description of parameters
 #
 parameters :
-    inputObjectRef :
+    input_object_ref :
         ui-name : |
             Assembly Input
         short-hint : |
