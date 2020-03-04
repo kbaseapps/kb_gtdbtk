@@ -4,8 +4,8 @@ import time
 import unittest
 from configparser import ConfigParser
 
-# from kb_gtdbtk.kb_gtdbtkImpl import kb_gtdbtk
-# from kb_gtdbtk.kb_gtdbtkServer import MethodContext
+from kb_gtdbtk.kb_gtdbtkImpl import kb_gtdbtk
+from kb_gtdbtk.kb_gtdbtkServer import MethodContext
 from kb_gtdbtk.authclient import KBaseAuth as _KBaseAuth
 
 from installed_clients.WorkspaceClient import Workspace
@@ -33,23 +33,23 @@ class kb_gtdbtkTest(unittest.TestCase):
         user_id = auth_client.get_user(token)
         # WARNING: don't call any logging methods on the context object,
         # it'll result in a NoneType error
-        # cls.ctx = MethodContext(None)
-        # cls.ctx.update({'token': token,
-        #                 'user_id': user_id,
-        #                 'provenance': [
-        #                     {'service': 'kb_gtdbtk',
-        #                      'method': 'please_never_use_it_in_production',
-        #                      'method_params': []
-        #                      }],
-        #                 'authenticated': 1})
+        cls.ctx = MethodContext(None)
+        cls.ctx.update({'token': token,
+                        'user_id': user_id,
+                        'provenance': [
+                            {'service': 'kb_gtdbtk',
+                             'method': 'please_never_use_it_in_production',
+                             'method_params': []
+                             }],
+                        'authenticated': 1})
         cls.wsURL = cls.cfg['workspace-url']
-        cls.wsClient = Workspace(cls.wsURL)
-        # cls.serviceImpl = kb_gtdbtk(cls.cfg)
+        cls.wsClient = Workspace(cls.wsURL, token=token)
+        cls.serviceImpl = kb_gtdbtk(cls.cfg)
         cls.scratch = cls.cfg['scratch']
-        # cls.callback_url = os.environ['SDK_CALLBACK_URL']
+        cls.callback_url = os.environ['SDK_CALLBACK_URL']
         suffix = int(time.time() * 1000)
-        cls.wsName = "test_ContigFilter_" + str(suffix)
-        # ret = cls.wsClient.create_workspace({'workspace': cls.wsName})  # noqa
+        cls.wsName = "test_gktb_tk_" + str(suffix)
+        ret = cls.wsClient.create_workspace({'workspace': cls.wsName})  # noqa
 
     @classmethod
     def tearDownClass(cls):
@@ -58,7 +58,8 @@ class kb_gtdbtkTest(unittest.TestCase):
             print('Test workspace was deleted')
 
     # NOTE: According to Python unittest naming rules test method names should start from 'test'. # noqa
-    # def test_your_method(self):
+    def test_your_method(self):
+        pass
         # Prepare test objects in workspace if needed using
         # self.getWsClient().save_objects({'workspace': self.getWsName(),
         #                                  'objects': []})
