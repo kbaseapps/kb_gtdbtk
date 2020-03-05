@@ -12,8 +12,6 @@ from kb_gtdbtk.core.kb_client_set import KBClients
 # DEV NOTES: This is tested by mocks, and so type changes will not be detected by the tests.
 # Type changes should be tested manually.
 
-# TODO document the testing strategy, e.g. unit tests only for CI
-
 
 def download_sequence(
         upa: str,
