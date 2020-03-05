@@ -11,6 +11,9 @@ WORK_DIR = /kb/module/work/tmp
 EXECUTABLE_SCRIPT_NAME = run_$(SERVICE_CAPS)_async_job.sh
 STARTUP_SCRIPT_NAME = start_server.sh
 TEST_SCRIPT_NAME = run_tests.sh
+# see https://stackoverflow.com/a/23324703/643675
+MAKEFILE_DIR:=$(strip $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST)))))
+PYPATH=$(MAKEFILE_DIR)/$(LIB_DIR):$(MAKEFILE_DIR)/$(TEST_DIR)
 
 .PHONY: test
 
@@ -23,6 +26,10 @@ compile:
 		--out $(LIB_DIR) \
 		--pysrvname $(SERVICE_CAPS).$(SERVICE_CAPS)Server \
 		--pyimplname $(SERVICE_CAPS).$(SERVICE_CAPS)Impl;
+	
+	kb-sdk compile $(SPEC_FILE) \
+		--out . \
+		--html \
 
 build:
 	chmod +x $(SCRIPTS_DIR)/entrypoint.sh
@@ -52,14 +59,22 @@ build-test-script:
 	echo 'echo "Removing temp files..."' >> $(TEST_DIR)/$(TEST_SCRIPT_NAME)
 	echo 'rm -rf $(WORK_DIR)/*' >> $(TEST_DIR)/$(TEST_SCRIPT_NAME)
 	echo 'echo "...done removing temp files."' >> $(TEST_DIR)/$(TEST_SCRIPT_NAME)
-	echo 'export PYTHONPATH=$$script_dir/../$(LIB_DIR):$$PATH:$$PYTHONPATH' >> $(TEST_DIR)/$(TEST_SCRIPT_NAME)
-	echo 'cd $$script_dir/../$(TEST_DIR)' >> $(TEST_DIR)/$(TEST_SCRIPT_NAME)
-	echo 'python -m nose --with-coverage --cover-package=$(SERVICE_CAPS) --cover-html --cover-html-dir=/kb/module/work/test_coverage --nocapture  --nologcapture .' >> $(TEST_DIR)/$(TEST_SCRIPT_NAME)
+	# TODO flake8 and bandit
+	echo 'MYPYPATH=$(MAKEFILE_DIR)/$(LIB_DIR) mypy --namespace-packages $(LIB_DIR)/$(SERVICE_CAPS)/core' >> $(TEST_DIR)/$(TEST_SCRIPT_NAME)
+	echo 'PYTHONPATH=$(PYPATH) pytest --verbose --cov $(LIB_DIR)/$(SERVICE_CAPS) --cov-config=$(TEST_DIR)/coveragerc $(TEST_DIR) --cov-report=html' >> $(TEST_DIR)/$(TEST_SCRIPT_NAME)
+	echo 'mv .coverage /kb/module/work/' >> $(TEST_DIR)/$(TEST_SCRIPT_NAME)
+	echo 'rm -r /kb/module/work/test_coverage' >> $(TEST_DIR)/$(TEST_SCRIPT_NAME)
+	echo 'mv htmlcov /kb/module/work/test_coverage' >> $(TEST_DIR)/$(TEST_SCRIPT_NAME)
 	chmod +x $(TEST_DIR)/$(TEST_SCRIPT_NAME)
 
 test:
 	if [ ! -f /kb/module/work/token ]; then echo -e '\nOutside a docker container please run "kb-sdk test" rather than "make test"\n' && exit 1; fi
 	bash $(TEST_DIR)/$(TEST_SCRIPT_NAME)
+
+test-sdkless:
+	# TODO flake8 and bandit
+	MYPYPATH=$(MAKEFILE_DIR)/$(LIB_DIR) mypy --namespace-packages $(LIB_DIR)/$(SERVICE_CAPS)/core
+	PYTHONPATH=$(PYPATH) pytest --verbose --cov $(LIB_DIR)/$(SERVICE_CAPS) --cov-config=$(TEST_DIR)/coveragerc $(TEST_DIR) --ignore=$(TEST_DIR)/kb_gtdbtk_server_test.py
 
 clean:
 	rm -rfv $(LBIN_DIR)

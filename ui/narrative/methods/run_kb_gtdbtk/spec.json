@@ -11,7 +11,7 @@
     },
     "parameters": [
         {
-            "id": "inputObjectRef",
+            "id": "input_object_ref",
             "optional": false,
             "advanced": false,
             "allow_multiple": false,
@@ -48,14 +48,11 @@
             "method": "run_kb_gtdbtk",
             "input_mapping": [
                 {
-                    "narrative_system_variable": "workspace",
-                    "target_property": "workspace_name"
-                },{
                     "narrative_system_variable": "workspace_id",
                     "target_property": "workspace_id"
                 },{
-                    "input_parameter": "inputObjectRef",
-                    "target_property": "inputObjectRef",
+                    "input_parameter": "input_object_ref",
+                    "target_property": "input_object_ref",
                     "target_type_transform":"ref"
                 },{
                     "input_parameter": "min_perc_aa",

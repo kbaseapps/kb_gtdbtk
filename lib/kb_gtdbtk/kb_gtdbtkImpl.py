@@ -2,11 +2,15 @@
 #BEGIN_HEADER
 import logging
 import os
+import subprocess
 
-from installed_clients.KBaseReportClient import KBaseReport
-from .utils.misc_utils import load_fastas, mkdir_p
-from .utils.misc_utils import create_html_report
-from .utils.gtdbtk_utils import GTDBTkUtils
+from pathlib import Path
+
+from kb_gtdbtk.core.api_translation import get_gtdbtk_params
+from kb_gtdbtk.core.sequence_downloader import download_sequence
+from kb_gtdbtk.core.kb_client_set import KBClients
+from kb_gtdbtk.core.gtdbtk_runner import run_gtdbtk
+from kb_gtdbtk.core.kb_report_generation import generate_report
 #END_HEADER
 
 
@@ -25,9 +29,9 @@ class kb_gtdbtk:
     # state. A method could easily clobber the state set by another while
     # the latter method is running.
     ######################################### noqa
-    VERSION = "0.0.1"
-    GIT_URL = ""
-    GIT_COMMIT_HASH = ""
+    VERSION = "0.1.1"
+    GIT_URL = "https://github.com/mrcreosote/kb_gtdbtk.git"
+    GIT_COMMIT_HASH = "22487eab15c54d06487166eeeaef6f7c19dd5a98"
 
     #BEGIN_CLASS_HEADER
     #END_CLASS_HEADER
@@ -37,65 +41,64 @@ class kb_gtdbtk:
     def __init__(self, config):
         #BEGIN_CONSTRUCTOR
         self.callback_url = os.environ['SDK_CALLBACK_URL']
-        self.shared_folder = config['scratch']
-        self.config = config
-        self.config['callback_url'] = self.callback_url
+        self.shared_folder = Path(config['scratch'])
+        self.ws_url = config['workspace-url']
         self.cpus = 32  # bigmem 32 cpus & 90,000MB RAM
         logging.basicConfig(format='%(created)s %(levelname)s: %(message)s',
                             level=logging.INFO)
         #END_CONSTRUCTOR
         pass
 
-
     def run_kb_gtdbtk(self, ctx, params):
         """
-        This example function accepts any number of parameters and returns results in a KBaseReport
-        :param params: instance of mapping from String to unspecified object
-        :returns: instance of type "ReportResults" -> structure: parameter
-           "report_name" of String, parameter "report_ref" of String
+        Run GTDB-tk.
+        :param params: instance of type "GTDBtkParams" (Parameters for the
+           GTDB-tk run. Required: input_object_ref: A reference to the
+           workspace object to process. workspace_id: The integer workspace
+           ID where the results will be saved. Optional: min_perc_aa: the
+           minimum sequence alignment as a percent, default 10.) ->
+           structure: parameter "input_object_ref" of String, parameter
+           "workspace_id" of Long, parameter "min_perc_aa" of Double
+        :returns: instance of type "ReportResults" (The results of the
+           GTDB-tk run. report_name: The name of the report object in the
+           workspace. report_ref: The UPA of the report object, e.g.
+           wsid/objid/ver.) -> structure: parameter "report_name" of String,
+           parameter "report_ref" of String
         """
         # ctx is the context object
         # return variables are: output
         #BEGIN run_kb_gtdbtk
 
-        # TODO: some parameter checking
-        try:
-            ref = params.get('inputObjectRef')
-        except KeyError:
-            print("Must provide a ws reference to object with sequences")
-            # this should throw an exception, not keep going
+        params = get_gtdbtk_params(params)
 
-        min_perc_aa = params.get('min_perc_aa', 10)
-
-        try:
-            workspace_id = params.get('workspace_id')
-        except KeyError:
-            print("Must provide a workspace id")
-            # this should throw an exception, not keep going
-
-        # get the fasta file from the input ref
-        # TODO: handle sets
         logging.info("Get Genome Seqs\n")
-        fasta_path = os.path.join(self.shared_folder, 'fastas')
-        mkdir_p(fasta_path)
-        id_to_assy_info = load_fastas(self.config, fasta_path, ref)
-        for id_, val in id_to_assy_info.items():
-            print(id_, val['assembly_name'], val['path'])
+        fasta_path = self.shared_folder / 'fastas'
+        fasta_path.mkdir(parents=True, exist_ok=True)
+
+        cli = KBClients(self.callback_url, self.ws_url, ctx['token'])
+
+        path_to_filename = download_sequence(params.ref, fasta_path, cli)
+        for path, fn in path_to_filename.items():
+            print(fn, path)
 
         logging.info("Run gtdbtk classifywf\n")
-        output_path = os.path.join(self.shared_folder, 'output')
-        temp_output = os.path.join(self.shared_folder, 'temp_output')
-        mkdir_p(output_path)
-        mkdir_p(temp_output)
-        gtdbtku = GTDBTkUtils(self.config, self.callback_url, workspace_id, self.cpus)
-        results = gtdbtku.gtdbtk_classifywf(temp_output, output_path, min_perc_aa, id_to_assy_info)
-        logging.info(results)
-       
-        output = create_html_report(
-            self.callback_url,
-            output_path,
-            params['workspace_name'])
-        
+
+        output_path = self.shared_folder / 'output'
+        temp_output = self.shared_folder / 'temp_output'
+        output_path.mkdir(parents=True, exist_ok=True)
+        temp_output.mkdir(parents=True, exist_ok=True)
+
+        def runner(args):
+            env = dict(os.environ)
+            env['TEMP_DIR'] = str(self.shared_folder / 'tmp')
+            # should print to stdout/stderr
+            subprocess.run(args, check=True, env=env)
+
+        run_gtdbtk(
+            runner, path_to_filename, output_path, temp_output, params.min_perc_aa, self.cpus)
+
+        output = generate_report(cli, output_path, params.workspace_id)
+
         #END run_kb_gtdbtk
 
         # At some point might do deeper type checking...
@@ -104,6 +107,7 @@ class kb_gtdbtk:
                              'output is not type dict as required.')
         # return the results
         return [output]
+
     def status(self, ctx):
         #BEGIN_STATUS
         returnVal = {'state': "OK",

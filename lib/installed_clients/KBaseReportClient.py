@@ -7,14 +7,7 @@
 ############################################################
 
 from __future__ import print_function
-# the following is a hack to get the baseclient to import whether we're in a
-# package or not. This makes pep8 unhappy hence the annotations.
-try:
-    # baseclient and this client are in a package
-    from .baseclient import BaseClient as _BaseClient  # @UnusedImport
-except ImportError:
-    # no they aren't
-    from baseclient import BaseClient as _BaseClient  # @Reimport
+from .baseclient import BaseClient as _BaseClient
 
 
 class KBaseReport(object):
