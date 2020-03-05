@@ -17,12 +17,6 @@ from installed_clients.DataFileUtilClient import DataFileUtil
 from installed_clients.WorkspaceClient import Workspace
 from installed_clients.AbstractHandleClient import AbstractHandle
 
-# TODO add manual integration tests that *are not* run as part of the test suite
-# Full run requires 100MB and 30m at least, infeasable to be part of automated tests
-# Clearly document test setup.
-# Full test should use kb-sdk test if possible, maybe config option?
-
-
 # TODO add tests for other types (and make some of them actually find genes)
 # TODO add tests for copy of a copy
 # TODO add a few failing case tests (most covered by unit tests)
