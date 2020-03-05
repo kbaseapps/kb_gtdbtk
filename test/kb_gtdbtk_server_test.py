@@ -85,7 +85,7 @@ class kb_gtdbtkTest(unittest.TestCase):
         requests.delete(cls.shock_url + '/node/' + node_id, headers=header, allow_redirects=True)
         print('Deleted shock node ' + node_id)
 
-    def test_your_method(self):
+    def test_assembly(self):
         tempdir = self.scratch / 'tempstuff'
         tempdir.mkdir(parents=True, exist_ok=True)
         assyfile = tempdir / 'tiny_genome.fa'
