@@ -5,6 +5,7 @@
 _____
 * Update GTDB-Tk version to 1.0.2
 * remove python 2.7 environment
+* changed input variable inputObjectRef to input_object_ref
 
 0.1.0
 _____
