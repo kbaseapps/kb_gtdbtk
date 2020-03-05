@@ -15,6 +15,9 @@ RUN curl -LJO https://github.com/ParBLiSS/FastANI/releases/download/v1.3/fastANI
 
 RUN pip install pipenv==2018.11.26
 
+ENV GTDBTK_DATA_PATH=/data
+# conda updates to py 3.8 and everything breaks
+RUN conda install -c bioconda hmmer prodigal pplacer fasttree --yes
 # -----------------------------------------
 
 COPY ./ /kb/module
@@ -24,14 +27,8 @@ RUN chmod -R a+rw /kb/module
 WORKDIR /kb/module
 
 # This stuff has to come after the COPY since it uses the pipfile in the repo
-
 # really need a test build and a prod build. Not sure that's possible via sdk.
 RUN pipenv install --system --deploy --ignore-pipfile --dev
-
-RUN /bin/bash -c 'echo "installing gtdbtk v1.0.2"'
-ENV GTDBTK_DATA_PATH=/data
-# conda updates to py 3.8 and everything breaks
-RUN conda install -c bioconda hmmer prodigal pplacer fasttree --yes
 
 RUN make all
 
