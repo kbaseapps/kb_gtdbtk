@@ -110,7 +110,11 @@ class kb_gtdbtkTest(unittest.TestCase):
             'input_object_ref': assy})[0]
 
         md5s = {
-            'index.html': 'e865d72e375bbbc5721f8d999698e1c5'
+            'index.html': 'e865d72e375bbbc5721f8d999698e1c5',
+            'gtdbtk.bac120.markers_summary.tsv': 'a09e7128e6af6d0ff808436a12692777',
+            'gtdbtk.bac120.markers_summary.tsv.json': '994dd707e876157f2ad0d9150cb2dc0a',
+            'gtdbtk.ar122.markers_summary.tsv': '3d15217ca2e43d27a01327cd7d23a586',
+            'gtdbtk.ar122.markers_summary.tsv.json': 'foo4',
         }
 
         self.check_gtdbtk_output(report, 4624, md5s)
@@ -178,6 +182,6 @@ class kb_gtdbtkTest(unittest.TestCase):
         files.remove(filename)
         print(files)
 
-        assert files == list(filename_to_md5.keys())
+        assert set(files) == set(filename_to_md5.keys())
         for f in files:
             assert hashlib.md5(open(zipdir / f, 'rb').read()).hexdigest() == filename_to_md5[f]
