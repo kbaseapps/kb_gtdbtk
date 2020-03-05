@@ -114,7 +114,7 @@ class kb_gtdbtkTest(unittest.TestCase):
             'gtdbtk.bac120.markers_summary.tsv': 'a09e7128e6af6d0ff808436a12692777',
             'gtdbtk.bac120.markers_summary.tsv.json': '994dd707e876157f2ad0d9150cb2dc0a',
             'gtdbtk.ar122.markers_summary.tsv': '3d15217ca2e43d27a01327cd7d23a586',
-            'gtdbtk.ar122.markers_summary.tsv.json': 'foo4',
+            'gtdbtk.ar122.markers_summary.tsv.json': '124843868858867aba1f43b51707864b',
         }
 
         self.check_gtdbtk_output(report, 4624, md5s)
