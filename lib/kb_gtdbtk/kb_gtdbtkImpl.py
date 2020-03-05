@@ -83,14 +83,14 @@ class kb_gtdbtk:
 
         logging.info("Run gtdbtk classifywf\n")
 
-        output_path = Path(self.shared_folder) / 'output'
-        temp_output = Path(self.shared_folder) / 'temp_output'
+        output_path = self.shared_folder / 'output'
+        temp_output = self.shared_folder / 'temp_output'
         output_path.mkdir(parents=True, exist_ok=True)
         temp_output.mkdir(parents=True, exist_ok=True)
 
         def runner(args):
             env = dict(os.environ)
-            env['TEMP_DIR'] = self.shared_folder / 'tmp'
+            env['TEMP_DIR'] = str(self.shared_folder / 'tmp')
             # should print to stdout/stderr
             subprocess.run(args, check=True, env=env)
 

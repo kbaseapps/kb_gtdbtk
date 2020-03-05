@@ -23,11 +23,9 @@ from installed_clients.AbstractHandleClient import AbstractHandle
 # Full test should use kb-sdk test if possible, maybe config option?
 
 
-# TODO add tests for other types
+# TODO add tests for other types (and make some of them actually find genes)
 # TODO add tests for copy of a copy
 # TODO add a few failing case tests (most covered by unit tests)
-# each test takes 30m ... need to think of a way to speed this up. Maybe a flag to skip running
-# GTDB-tk so the report is empty and just check the downloads?
 
 WORKDIR = '/kb/module/work/tmp/'
 
