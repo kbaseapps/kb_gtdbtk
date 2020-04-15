@@ -4,6 +4,7 @@
 0.1.2
 ______
 * Update GTDB-Tk to version 1.1.0
+* Added GTDB-Tk version number to tooltip
 
 
 0.1.1
