@@ -18,7 +18,7 @@ This KBase apps wraps the GTDB-Tk commandline tool created by Donavan Parks, Pie
 
 ## References
 
-* Chaumeil PA, Mussig AJ, Hugenholtz P, Parks DH. 2019. [GTDB-Tk: A toolkit to classify genomes with the Genome Taxonomy Database](<https://academic.oup.com/bioinformatics/advance-article-abstract/doi/10.1093/bioinformatics/btz848/5626182"). <i>Bioinformatics</i>, btz848.
+* Chaumeil PA, Mussig AJ, Hugenholtz P, Parks DH. 2019. [GTDB-Tk: A toolkit to classify genomes with the Genome Taxonomy Database](https://academic.oup.com/bioinformatics/advance-article-abstract/doi/10.1093/bioinformatics/btz848/5626182). <i>Bioinformatics</i>, btz848.
 
 * Parks DH, et al. 2018. [A standardized bacterial taxonomy based on genome phylogeny substantially revises the tree of life](https://www.nature.com/articles/nbt.4229). <i>Nat. Biotechnol.</i>, http://dx.doi.org/10.1038/nbt.4229
 
