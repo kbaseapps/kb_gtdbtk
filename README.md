@@ -17,11 +17,8 @@ This KBase apps wraps the GTDB-Tk commandline tool created by Donavan Parks, Pie
 [GTDB-Tk](https://github.com/Ecogenomics/GtdbTk) is a software toolkit for assigning objective taxonomic classifications to bacterial and archaeal genomes. It is designed to work with recent advances that allow hundreds or thousands of metagenome-assembled genomes (MAGs) to be obtained directly from environmental samples. It can also be applied to isolate and single-cell genomes. The GTDB-Tk is open source and released under the GNU General Public License (Version 3).
 
 ## References
-A manuscript describing the GTDB-Tk is currently being prepared:
 
-* Chaumeil PA, Hugenholtz P, Parks DH. 2018. GTDB-Tk: A toolkit to classify genomes with the Genome Taxonomy Database. \<in prep\>.
-
-In the meantime, if you find the GTDB-Tk useful please cite this GitHub page or the GTDB taxonomy:
+* Chaumeil PA, Mussig AJ, Hugenholtz P, Parks DH. 2019. [GTDB-Tk: A toolkit to classify genomes with the Genome Taxonomy Database](<https://academic.oup.com/bioinformatics/advance-article-abstract/doi/10.1093/bioinformatics/btz848/5626182"). <i>Bioinformatics</i>, btz848.
 
 * Parks DH, et al. 2018. [A standardized bacterial taxonomy based on genome phylogeny substantially revises the tree of life](https://www.nature.com/articles/nbt.4229). <i>Nat. Biotechnol.</i>, http://dx.doi.org/10.1038/nbt.4229
 
