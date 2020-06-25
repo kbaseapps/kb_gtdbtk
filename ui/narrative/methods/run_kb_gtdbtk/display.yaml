@@ -46,7 +46,7 @@ description : |
     <p>This app is using gtdbtk release 89 data <a href="https://data.ace.uq.edu.au/public/gtdb/data/releases/release89/89.0/gtdbtk_r89_data.tar.gz">https://data.ace.uq.edu.au/public/gtdb/data/releases/release89/89.0/gtdbtk_r89_data.tar.gz</a></p>
     <p><a href="https://data.ace.uq.edu.au/public/gtdb/data/releases/release89/89.0/gtdbtk_r89_data.tar.gz">Data Release Notes</a></p>
     <h3>About GTDB </h3>
-    <a href='https://gtdb.ecogenomic.org/'>The Genome Taxonomy Database (GTDB)</a> is constructed from RerSeq and Genbank genomes, and relsease are indexed to RefSeq releases. All genomes are quality controlled using <a href='https://github.com/Ecogenomics/CheckM/wiki'>CheckM</a> and those statistics can be found on the <a href='https://gtdb.ecogenomic.org/stats'>GTDB website</a>.
+    <a href='https://gtdb.ecogenomic.org/'>The Genome Taxonomy Database (GTDB)</a> is constructed from RefSeq and Genbank genomes, and releases are indexed to RefSeq releases. All genomes are quality controlled using <a href='https://github.com/Ecogenomics/CheckM/wiki'>CheckM</a> and those statistics can be found on the <a href='https://gtdb.ecogenomic.org/stats'>GTDB website</a>.
     <h3>References</h3>
     <p>GTDB-Tk is described in:</p>
         <ul>
@@ -80,14 +80,43 @@ description : |
     
 publications : 
     -
-<ul>
-<li>Chaumeil PA, Mussig AJ, Hugenholtz P, Parks DH. 2019. <a href="https://academic.oup.com/bioinformatics/advance-article-abstract/doi/10.1093/bioinformatics/btz848/5626182" rel="nofollow">GTDB-Tk: A toolkit to classify genomes with the Genome Taxonomy Database</a>. <i>Bioinformatics</i>, btz848.</li>
-<li>Parks DH, et al. 2019. <a href="https://www.biorxiv.org/content/10.1101/771964v2" rel="nofollow">Selection of representative genomes for 24,706 bacterial and archaeal species clusters provide a complete genome-based taxonomy</a>. <i>bioRxiv</i>, <a href="https://doi.org/10.1101/771964" rel="nofollow">https://doi.org/10.1101/771964</a>.</li>
-<li>Parks DH, et al. 2018. <a href="https://www.nature.com/articles/nbt.4229" rel="nofollow">A standardized bacterial taxonomy based on genome phylogeny substantially revises the tree of life</a>. <i>Nat. Biotechnol.</i>, <a href="http://dx.doi.org/10.1038/nbt.4229" rel="nofollow">http://dx.doi.org/10.1038/nbt.4229</a>.</li>
+        pmid: 31730192
+        display-text:|
+            Pierre-Alain Chaumeil, Aaron J Mussig, Philip Hugenholtz, Donovan H Parks, GTDB-Tk: a toolkit to classify genomes with the Genome Taxonomy Database, Bioinformatics, Volume 36, Issue 6, 15 March 2020, Pages 1925–1927. DOI: https://doi.org/10.1093/bioinformatics/btz848
+        link: https://doi.org/10.1093/bioinformatics/btz848
+        
+        pmid: 30148503
+        display-text:|
+            Parks, D., Chuvochina, M., Waite, D. et al. A standardized bacterial taxonomy based on genome phylogeny substantially revises the tree of life. Nat Biotechnol 36, 996–1004 (2018). DOI: https://doi.org/10.1038/nbt.4229
+        link: http://dx.doi.org/10.1038/nbt.4229
 
-<li>Matsen FA, Kodner RB, Armbrust EV. 2010. <a href="https://www.ncbi.nlm.nih.gov/pubmed/21034504">pplacer: linear time maximum-likelihood and Bayesian phylogenetic placement of sequences onto a fixed reference tree</a>. <i>BMC Bioinformatics</i>, 11:538.</li>
-<li>Jain C, et al. 2017. <a href="https://www.biorxiv.org/content/early/2017/11/27/225342">High-throughput ANI Analysis of 90K Prokaryotic Genomes Reveals Clear Species Boundaries</a>. <i>bioRxiv</i>, <a href="https://doi.org/10.1101/225342">https://doi.org/10.1101/225342</a>.</li>
-<li>Hyatt D, et al. 2010. <a href="https://www.ncbi.nlm.nih.gov/pubmed/20211023">Prodigal: prokaryotic gene recognition and translation initiation site identification</a>. <i>BMC Bioinformatics</i>, 11:119. doi: 10.1186/1471-2105-11-119.</li>
-<li>Price MN, Dehal PS, Arkin AP. 2010. <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2835736/">FastTree 2 - Approximately Maximum-Likelihood Trees for Large Alignments</a>. <i>PLoS One</i>, 5, e9490.</li>
-<li>Eddy SR. 2011. <a href="https://www.ncbi.nlm.nih.gov/pubmed/22039361">Accelerated profile HMM searches</a>. <i>PLOS Comp. Biol.</i>, 7:e1002195.</li>  
-</ul>
+        pmid: 
+        display-text:|
+            Donovan H. Parks, Maria Chuvochina, Pierre-Alain Chaumeil, Christian Rinke, Aaron J. Mussig, Philip Hugenholtz, Selection of representative genomes for 24,706 bacterial and archaeal species clusters provide a complete genome-based taxonomy, bioRxiv 771964. DOI: https://doi.org/10.1101/771964
+        link: https://www.biorxiv.org/content/10.1101/771964v1
+
+        pmid: 21034504
+        display-text:|
+            Matsen FA, Kodner RB, Armbrust EV. pplacer: linear time maximum-likelihood and Bayesian phylogenetic placement of sequences onto a fixed reference tree. BMC Bioinformatics. 2010;11:538. Published 2010 Oct 30. doi:10.1186/1471-2105-11-538
+        link: https://pubmed.ncbi.nlm.nih.gov/21034504/
+        
+        pmid: 30504855
+        display-text:|
+            Jain C, Rodriguez-R LM, Phillippy AM, Konstantinidis KT, Aluru S. High throughput ANI analysis of 90K prokaryotic genomes reveals clear species boundaries. Nat Commun. 2018;9(1):5114. Published 2018 Nov 30. DOI:10.1038/s41467-018-07641-9
+        link: https://www.nature.com/articles/s41467-018-07641-9
+        
+        pmid: 20211023
+        display-text:|
+            Hyatt D, Chen GL, Locascio PF, Land ML, Larimer FW, Hauser LJ. Prodigal: prokaryotic gene recognition and translation initiation site identification. BMC Bioinformatics. 2010;11:119. Published 2010 Mar 8. DOI:10.1186/1471-2105-11-119
+        link: https://pubmed.ncbi.nlm.nih.gov/20211023/
+        
+        pmid: 20224823
+        display-text:|
+            Price MN, Dehal PS, Arkin AP. FastTree 2--approximately maximum-likelihood trees for large alignments. PLoS One. 2010;5(3):e9490. Published 2010 Mar 10. DOI:10.1371/journal.pone.0009490
+            link: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2835736/
+        
+        pmid: 22039361
+        display-text:|
+            Eddy SR. Accelerated Profile HMM Searches. PLoS Comput Biol. 2011;7(10):e1002195. DOI:10.1371/journal.pcbi.1002195
+        link: https://pubmed.ncbi.nlm.nih.gov/22039361/      
+    
