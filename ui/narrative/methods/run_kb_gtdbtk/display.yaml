@@ -81,7 +81,7 @@ description : |
 publications : 
     -
         pmid: 31730192
-        display-text:|
+        display-text: |
             Pierre-Alain Chaumeil, Aaron J Mussig, Philip Hugenholtz, Donovan H Parks, GTDB-Tk: a toolkit to classify genomes with the Genome Taxonomy Database, Bioinformatics, Volume 36, Issue 6, 15 March 2020, Pages 1925–1927. DOI: https://doi.org/10.1093/bioinformatics/btz848
         link: https://doi.org/10.1093/bioinformatics/btz848
         
