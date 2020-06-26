@@ -86,37 +86,37 @@ publications :
         link: https://doi.org/10.1093/bioinformatics/btz848
         
         pmid: 30148503
-        display-text:|
+        display-text: |
             Parks, D., Chuvochina, M., Waite, D. et al. A standardized bacterial taxonomy based on genome phylogeny substantially revises the tree of life. Nat Biotechnol 36, 996–1004 (2018). DOI: https://doi.org/10.1038/nbt.4229
         link: http://dx.doi.org/10.1038/nbt.4229
 
         pmid: 32341564
-        display-text:|
+        display-text: |
             Parks DH, Chuvochina M, Chaumeil PA, Rinke C, Mussig AJ, Hugenholtz P. A complete domain-to-species taxonomy for Bacteria and Archaea [published online ahead of print, 2020 Apr 27]. Nat Biotechnol. 2020;10.1038/s41587-020-0501-8. DOI:10.1038/s41587-020-0501-8        
         link: https://www.nature.com/articles/s41587-020-0501-8
     
         pmid: 21034504
-        display-text:|
+        display-text: |
             Matsen FA, Kodner RB, Armbrust EV. pplacer: linear time maximum-likelihood and Bayesian phylogenetic placement of sequences onto a fixed reference tree. BMC Bioinformatics. 2010;11:538. Published 2010 Oct 30. doi:10.1186/1471-2105-11-538
         link: https://pubmed.ncbi.nlm.nih.gov/21034504/
         
         pmid: 30504855
-        display-text:|
+        display-text: |
             Jain C, Rodriguez-R LM, Phillippy AM, Konstantinidis KT, Aluru S. High throughput ANI analysis of 90K prokaryotic genomes reveals clear species boundaries. Nat Commun. 2018;9(1):5114. Published 2018 Nov 30. DOI:10.1038/s41467-018-07641-9
         link: https://www.nature.com/articles/s41467-018-07641-9
         
         pmid: 20211023
-        display-text:|
+        display-text: |
             Hyatt D, Chen GL, Locascio PF, Land ML, Larimer FW, Hauser LJ. Prodigal: prokaryotic gene recognition and translation initiation site identification. BMC Bioinformatics. 2010;11:119. Published 2010 Mar 8. DOI:10.1186/1471-2105-11-119
         link: https://pubmed.ncbi.nlm.nih.gov/20211023/
         
         pmid: 20224823
-        display-text:|
+        display-text: |
             Price MN, Dehal PS, Arkin AP. FastTree 2--approximately maximum-likelihood trees for large alignments. PLoS One. 2010;5(3):e9490. Published 2010 Mar 10. DOI:10.1371/journal.pone.0009490
             link: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2835736/
         
         pmid: 22039361
-        display-text:|
+        display-text: |
             Eddy SR. Accelerated Profile HMM Searches. PLoS Comput Biol. 2011;7(10):e1002195. DOI:10.1371/journal.pcbi.1002195
         link: https://pubmed.ncbi.nlm.nih.gov/22039361/      
     
