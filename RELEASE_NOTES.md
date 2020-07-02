@@ -1,6 +1,11 @@
 # kb_gtdbtk release notes
 =========================================
 
+0.1.4
+______
+* Fix typo in citations
+
+
 0.1.3
 ______
 * Added citations to the publications section
