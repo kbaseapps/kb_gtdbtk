@@ -9,8 +9,8 @@ MAINTAINER KBase Developer
 RUN apt-get update
 RUN apt-get install libgomp1  
 
-RUN curl -LJO https://github.com/ParBLiSS/FastANI/releases/download/v1.3/fastANI-Linux64-v1.3.zip \
-&& unzip fastANI-Linux64-v1.3.zip \
+RUN curl -LJO https://github.com/ParBLiSS/FastANI/releases/download/v1.31/fastANI-Linux64-v1.31.zip \
+&& unzip fastANI-Linux64-v1.31.zip \
 && mv fastANI /miniconda/bin/
 
 RUN pip install pipenv==2018.11.26

@@ -1,6 +1,12 @@
 # kb_gtdbtk release notes
 =========================================
 
+0.1.5
+______
+* Update GTDB-Tk to version 1.3.0
+* Update database version to release 95
+* Update FastANI to version 1.31
+
 0.1.4
 ______
 * Fix typo in citations
