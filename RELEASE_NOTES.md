@@ -1,6 +1,10 @@
 # kb_gtdbtk release notes
 =========================================
 
+0.1.5
+______
+* Update to data release version 95
+
 0.1.4
 ______
 * Fix typo in citations

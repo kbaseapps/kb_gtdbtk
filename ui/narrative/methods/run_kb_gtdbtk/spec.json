@@ -1,7 +1,7 @@
 {
-    "ver": "0.0.1",
+    "ver": "0.1.5",
     "authors": [
-        "donovan_parks", "Aaron", "pchaumeil", "psdehal"
+        "donovan_parks", "Aaron", "pchaumeil", "psdehal", "seanjungbluth"
     ],
     "contact": "",
     "categories": ["active", "communities", "annotation"],
