@@ -9,15 +9,17 @@ MAINTAINER KBase Developer
 RUN apt-get update
 RUN apt-get install libgomp1  
 
-RUN curl -LJO https://github.com/ParBLiSS/FastANI/releases/download/v1.3/fastANI-Linux64-v1.3.zip \
-&& unzip fastANI-Linux64-v1.3.zip \
+ENV FASTANI_VERSION='v1.33'
+
+RUN curl -LJO https://github.com/ParBLiSS/FastANI/releases/download/${FASTANI_VERSION}/fastANI-Linux64-${FASTANI_VERSION}.zip \
+&& unzip fastANI-Linux64-${FASTANI_VERSION}.zip \
 && mv fastANI /miniconda/bin/
 
 RUN pip install pipenv==2018.11.26
 
 ENV GTDBTK_DATA_PATH=/data
 # conda updates to py 3.8 and everything breaks
-RUN conda install -c bioconda hmmer prodigal pplacer fasttree --yes
+RUN conda install -c bioconda hmmer prodigal pplacer fasttree mash --yes
 # -----------------------------------------
 
 COPY ./ /kb/module

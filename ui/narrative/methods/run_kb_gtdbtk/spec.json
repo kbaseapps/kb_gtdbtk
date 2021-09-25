@@ -1,9 +1,9 @@
 {
-    "ver": "0.0.1",
+    "ver": "0.1.6",
     "authors": [
-        "donovan_parks", "Aaron", "pchaumeil", "psdehal"
+        "donovan_parks", "Aaron", "pchaumeil", "psdehal", "dylan"
     ],
-    "contact": "",
+    "contact": "http://www.kbase.us/support/",
     "categories": ["active", "communities", "annotation"],
     "widgets": {
         "input": null,

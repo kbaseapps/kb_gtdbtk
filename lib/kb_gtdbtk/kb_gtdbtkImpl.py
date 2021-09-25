@@ -29,9 +29,9 @@ class kb_gtdbtk:
     # state. A method could easily clobber the state set by another while
     # the latter method is running.
     ######################################### noqa
-    VERSION = "0.1.1"
-    GIT_URL = "https://github.com/mrcreosote/kb_gtdbtk.git"
-    GIT_COMMIT_HASH = "22487eab15c54d06487166eeeaef6f7c19dd5a98"
+    VERSION = "0.1.6"
+    GIT_URL = "https://github.com/kbaseapps/kb_gtdbtk"
+    GIT_COMMIT_HASH = "369b56d1f8caec4df15f46a2dcf4c1fa611c9535"
 
     #BEGIN_CLASS_HEADER
     #END_CLASS_HEADER
@@ -48,6 +48,7 @@ class kb_gtdbtk:
                             level=logging.INFO)
         #END_CONSTRUCTOR
         pass
+
 
     def run_kb_gtdbtk(self, ctx, params):
         """
@@ -107,7 +108,6 @@ class kb_gtdbtk:
                              'output is not type dict as required.')
         # return the results
         return [output]
-
     def status(self, ctx):
         #BEGIN_STATUS
         returnVal = {'state': "OK",

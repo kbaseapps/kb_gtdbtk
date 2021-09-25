@@ -1,10 +1,18 @@
 # kb_gtdbtk release notes
 =========================================
 
-0.1.4
+0.1.6
 ______
-* Fix typo in citations
+* Update GTDB-Tk to v1.6.0
+* Update refdata to GTDB R06-RS202
+* Update FASTANI to v1.33
+* Added Github Actions testing
 
+0.1.5
+______
+* Update GTDB-Tk to v1.3.0
+* Update refdata to GTDB to R05-RS95
+* Update FastANI to v1.31
 
 0.1.3
 ______

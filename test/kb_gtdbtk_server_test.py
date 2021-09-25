@@ -88,13 +88,13 @@ class kb_gtdbtkTest(unittest.TestCase):
     def test_assembly(self):
         tempdir = self.scratch / 'tempstuff'
         tempdir.mkdir(parents=True, exist_ok=True)
-        assyfile = tempdir / 'tiny_genome.fa'
-        copyfile(Path(__file__).parent / 'tiny_genome.fa', assyfile)
+        assyfile = tempdir / 'Rhodo_contigs.fa'
+        copyfile(Path(__file__).parent / 'Rhodo_contigs.fa', assyfile)
 
         assy = self.au.save_assembly_from_fasta(
             {'file': {'path': str(assyfile)},
              'workspace_name': self.wsName,  # TODO AU should take an ID
-             'assembly_name': 'tiny_genome.fa'
+             'assembly_name': 'Rhodo_contigs.fa'
              })
 
         report = self.serviceImpl.run_kb_gtdbtk(self.ctx, {
