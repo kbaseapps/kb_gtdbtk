@@ -6,7 +6,7 @@ ______
 * Update GTDB-Tk to v1.6.0
 * Update refdata to GTDB R06-RS202
 * Update FASTANI to v1.33
-* Added Github Actions testing
+* renamed GTDB-Tk Classify App method to run_kb_gtdbtk_classify_wf()
 
 0.1.5
 ______

@@ -96,9 +96,26 @@ def _process_output_files(temp_output, out_dir, id_to_name):
             summary_json = '{"data": ' + summary_df.to_json(orient='records') + '}'
             sj = json.loads(summary_json)
             for item in sj['data']:
-                key = 'Name' if 'Name' in item else 'user_genome'
-                item[key] = id_to_name[item[key]]
+                # DEBUG
+                #for key in item.keys():
+                #    print ("KEY: '"+key+"' VAL: '"+str(item[key])+"'")
 
+                #key = 'Name' if 'Name' in item else 'user_genome'
+                if 'name' in item:
+                    key = 'name'
+                elif 'user_genome' in item:
+                    key = 'user_genome'
+                else:
+                    continue
+                
+                this_id = item[key]
+                if this_id not in id_to_name:
+                    raise ValueError ("missing "+this_id+" in id_to_name dict")
+
+                item[key] = id_to_name[this_id]  # note: this resets data in sj
+
+            #print ("OUTFILE: '"+outfile+"'")  # DEBUG
+            #print ("JSON: '"+json.dumps(sj)+"'")  # DEBUG
             with open(outfile, 'w') as out:
                 out.write(json.dumps(sj))
 
