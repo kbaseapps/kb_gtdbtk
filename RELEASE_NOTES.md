@@ -14,6 +14,10 @@ ______
 * Update refdata to GTDB to R05-RS95
 * Update FastANI to v1.31
 
+0.1.4
+______
+* Fix typo in citations
+
 0.1.3
 ______
 * Added citations to the publications section
