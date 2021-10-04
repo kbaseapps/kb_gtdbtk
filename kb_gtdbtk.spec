@@ -33,6 +33,12 @@ module kb_gtdbtk {
 
 
     /*
+        Run GTDB-tk Classify (deprecated method name)
+    */
+    funcdef run_kb_gtdbtk(GTDBtk_Classify_Params params) returns (ReportResults output)
+        authentication required;
+
+    /*
         Run GTDB-tk Classify
     */
     funcdef run_kb_gtdbtk_classify_wf(GTDBtk_Classify_Params params) returns (ReportResults output)

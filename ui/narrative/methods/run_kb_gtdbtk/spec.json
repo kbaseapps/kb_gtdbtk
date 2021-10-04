@@ -1,0 +1,74 @@
+{
+    "ver": "0.1.6",
+    "authors": [
+        "donovan_parks", "aaronmussig", "pchaumeil", "psdehal", "dylan"
+    ],
+    "contact": "http://www.kbase.us/support/",
+    "categories": ["inactive", "communities", "annotation"],
+    "widgets": {
+        "input": null,
+        "output": "no-display"
+    },
+    "parameters": [
+        {
+            "id": "input_object_ref",
+            "optional": false,
+            "advanced": false,
+            "allow_multiple": false,
+            "default_values": [ "" ],
+            "field_type": "text",
+            "text_options": {
+                "valid_ws_types": ["KBaseGenomes.ContigSet",
+                                   "KBaseGenomeAnnotations.Assembly",
+                                   "KBaseGenomes.Genome",
+                                   "KBaseSets.GenomeSet",
+                                   "KBaseSearch.GenomeSet",
+                                   "KBaseSets.AssemblySet",
+                                   "KBaseMetagenomes.BinnedContigs" ]
+            }
+        },
+        {
+            "id": "min_perc_aa",
+            "optional": true,
+            "advanced": true,
+            "allow_multiple": false,
+            "default_values": ["10"],
+            "field_type": "text",
+            "text_options": {
+                "validate_as": "int",
+                "min_int": 1,
+                "max_int": 100
+            }
+        }
+    ],
+    "behavior": {
+        "service-mapping": {
+            "url": "",
+            "name": "kb_gtdbtk",
+            "method": "run_kb_gtdbtk_classify_wf",
+            "input_mapping": [
+                {
+                    "narrative_system_variable": "workspace_id",
+                    "target_property": "workspace_id"
+                },{
+                    "input_parameter": "input_object_ref",
+                    "target_property": "input_object_ref",
+                    "target_type_transform":"ref"
+                },{
+                    "input_parameter": "min_perc_aa",
+                    "target_property": "min_perc_aa"
+                }
+            ],
+            "output_mapping": [
+                {
+                    "service_method_output_path": [0,"report_name"],
+                    "target_property": "report_name"
+                },{
+                    "service_method_output_path": [0,"report_ref"],
+                    "target_property": "report_ref"
+                }
+            ]
+        }
+    },
+    "job_id_output_field": "docker"
+}

@@ -31,7 +31,7 @@ class kb_gtdbtk:
     ######################################### noqa
     VERSION = "0.1.6"
     GIT_URL = "https://github.com/kbaseapps/kb_gtdbtk"
-    GIT_COMMIT_HASH = "e5809fba7fce39678cf60c97a07a0ee6fa281bac"
+    GIT_COMMIT_HASH = "7be2aa18f473d7ec79a4fc6e99045c5890496925"
 
     #BEGIN_CLASS_HEADER
     #END_CLASS_HEADER
@@ -49,6 +49,37 @@ class kb_gtdbtk:
         #END_CONSTRUCTOR
         pass
 
+
+    def run_kb_gtdbtk(self, ctx, params):
+        """
+        Run GTDB-tk Classify (deprecated method name)
+        :param params: instance of type "GTDBtk_Classify_Params" (Parameters
+           for the GTDB-tk Classify (classify_wf) run. Required:
+           input_object_ref: A reference to the workspace object to process.
+           workspace_id: The integer workspace ID where the results will be
+           saved. Optional: min_perc_aa: the minimum sequence alignment as a
+           percent, default 10.) -> structure: parameter "input_object_ref"
+           of String, parameter "workspace_id" of Long, parameter
+           "min_perc_aa" of Double
+        :returns: instance of type "ReportResults" (The results of the
+           GTDB-tk run. report_name: The name of the report object in the
+           workspace. report_ref: The UPA of the report object, e.g.
+           wsid/objid/ver.) -> structure: parameter "report_name" of String,
+           parameter "report_ref" of String
+        """
+        # ctx is the context object
+        # return variables are: output
+        #BEGIN run_kb_gtdbtk
+        logging.info("run_kb_gtdbtk() is deprecated.  Use run_kb_gtdbtk_classify_wf() instead.\n")
+        output = dict()
+        #END run_kb_gtdbtk
+
+        # At some point might do deeper type checking...
+        if not isinstance(output, dict):
+            raise ValueError('Method run_kb_gtdbtk return value ' +
+                             'output is not type dict as required.')
+        # return the results
+        return [output]
 
     def run_kb_gtdbtk_classify_wf(self, ctx, params):
         """
