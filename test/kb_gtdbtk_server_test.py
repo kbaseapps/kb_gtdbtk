@@ -5,6 +5,7 @@ import requests
 import time
 import unittest
 import uuid
+import json
 from pathlib import Path
 from configparser import ConfigParser
 from shutil import copyfile
@@ -65,6 +66,7 @@ class kb_gtdbtkTest(unittest.TestCase):
         cls.dfu = DataFileUtil(cls.callback_url, token=cls.token)
         cls.handles_to_delete = []
         cls.nodes_to_delete = []
+        cls.prepare_data()
 
     @classmethod
     def tearDownClass(cls):
@@ -85,21 +87,71 @@ class kb_gtdbtkTest(unittest.TestCase):
         requests.delete(cls.shock_url + '/node/' + node_id, headers=header, allow_redirects=True)
         print('Deleted shock node ' + node_id)
 
-    def test_classify_wf_assembly(self):
-        tempdir = self.scratch / 'tempstuff'
+    @classmethod
+    def ref_from_info(cls, obj_info):
+        [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I, WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple
+        return "/".join([str(obj_info[WSID_I]), str(obj_info[OBJID_I]), str(obj_info[VERSION_I])])
+        
+    @classmethod
+    def prepare_data(cls):
+        tempdir = cls.scratch / 'tempstuff'
         tempdir.mkdir(parents=True, exist_ok=True)
-        assyfile = tempdir / 'Rhodo_contigs.fa'
-        copyfile(Path(__file__).parent / 'Rhodo_contigs.fa', assyfile)
 
-        assy = self.au.save_assembly_from_fasta(
-            {'file': {'path': str(assyfile)},
-             'workspace_name': self.wsName,  # TODO AU should take an ID
-             'assembly_name': 'Rhodo_contigs.fa'
+        # single assembly
+        this_filename = 'Rhodo_contigs.fa'
+        single_assyfile = tempdir / this_filename
+        copyfile(Path(__file__).parent / 'data' / this_filename, single_assyfile)
+        cls.single_assy = cls.au.save_assembly_from_fasta(
+            {'file': {'path': str(single_assyfile)},
+             'workspace_name': cls.wsName,  # TODO AU should take an ID
+             'assembly_name': this_filename
              })
 
+        # MG assembly
+        this_filename = '37AB_metaSPAdes_binnedcontigs.contigs.gz'
+        mg_assyfile = tempdir / this_filename
+        copyfile(Path(__file__).parent / 'data' / this_filename, mg_assyfile)
+        mg_assy = cls.au.save_assembly_from_fasta(
+            {'file': {'path': str(mg_assyfile)},
+             'workspace_name': cls.wsName,
+             'assembly_name': this_filename
+             })
+
+        # binned contigs
+        this_filename = '37AB_metaSPAdes.binnedcontigs'
+        mg_binfile = tempdir / this_filename
+        copyfile(Path(__file__).parent / 'data' / this_filename, mg_binfile)
+        with open (mg_binfile, 'r') as bin_fh:
+            bin_obj = json.load(bin_fh)
+        bin_obj['assembly_ref'] = mg_assy
+        bin_obj_info = cls.ws.save_objects({
+            'workspace': cls.wsName,
+            'objects': [
+                {
+                    'type': 'KBaseMetagenomes.BinnedContigs',
+                    'data': bin_obj,
+                    'name': this_filename
+                }
+            ]})[0]
+        cls.binned_contigs = cls.ref_from_info(bin_obj_info)
+        
+        
+    # test binnedcontigs input
+    # NOT ABLE TO RUN ON DEV1.  Too much memory required
+    @unittest.skip("skipped test_classify_wf_binnedcontigs()")  # uncomment to skip
+    def test_classify_wf_binnedcontigs(self):
         report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, {
             'workspace_id': self.wsid,
-            'input_object_ref': assy})[0]
+            'input_object_ref': self.binned_contigs})[0]
+        # TODO: after shrinking data to fit on dev1, test report content
+        
+
+    # test assembly input
+    # HIDE @unittest.skip("skipped test_classify_wf_assembly()")  # uncomment to skip
+    def test_classify_wf_assembly(self):
+        report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, {
+            'workspace_id': self.wsid,
+            'input_object_ref': self.single_assy})[0]
 
         # can't easily maintain md5s through repeated updates.  don't require
         md5s = {}
@@ -115,6 +167,7 @@ class kb_gtdbtkTest(unittest.TestCase):
         """
 
         self.check_gtdbtk_output(report, 4624, md5s)
+
 
     def check_gtdbtk_output(self, report, zipsize, filename_to_md5, tolerance=15):
         print(report)

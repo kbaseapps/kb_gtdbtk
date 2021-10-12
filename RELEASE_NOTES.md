@@ -7,6 +7,8 @@ ______
 * Update refdata to GTDB R06-RS202
 * Update FASTANI to v1.33
 * renamed GTDB-Tk Classify App method to run_kb_gtdbtk_classify_wf()
+* removed empty values from output html to make datatables happy
+* added binnedcontig unit test
 
 0.1.5
 ______
