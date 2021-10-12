@@ -28,9 +28,9 @@ parameters :
         ui-name : |
             Assembly Input
         short-hint : |
-            An assembly, genome or set
+            A genome assembly, genome, binned contigs, or set
         long-hint  : |
-            A single assembly or genome object or an assembly set or genome set.
+            A single genome assembly or genome object or an assembly set or genome set.  Also accepts Binned Contigs object.
     min_perc_aa :
         ui-name : |
             Minimum Alignment Percent

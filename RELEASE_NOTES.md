@@ -9,6 +9,8 @@ ______
 * renamed GTDB-Tk Classify App method to run_kb_gtdbtk_classify_wf()
 * removed empty values from output html to make datatables happy
 * added binnedcontig unit test
+* added fast archaeal assembly set unit test
+* made input types clear
 
 0.1.5
 ______

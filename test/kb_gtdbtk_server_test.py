@@ -13,8 +13,10 @@ from shutil import copyfile
 from kb_gtdbtk.kb_gtdbtkImpl import kb_gtdbtk
 from kb_gtdbtk.kb_gtdbtkServer import MethodContext
 from kb_gtdbtk.authclient import KBaseAuth as _KBaseAuth
+from installed_clients.SetAPIServiceClient import SetAPI
 from installed_clients.AssemblyUtilClient import AssemblyUtil
 from installed_clients.DataFileUtilClient import DataFileUtil
+from installed_clients.GenomeFileUtilClient import GenomeFileUtil
 from installed_clients.WorkspaceClient import Workspace
 from installed_clients.AbstractHandleClient import AbstractHandle
 
@@ -56,6 +58,7 @@ class kb_gtdbtkTest(unittest.TestCase):
         cls.ws = Workspace(cls.ws_url, token=cls.token)
         cls.serviceImpl = kb_gtdbtk(cls.cfg)
         cls.scratch = Path(cls.cfg['scratch']).absolute()
+        cls.service_wiz_url = cls.cfg['srv-wiz-url']
         cls.callback_url = os.environ['SDK_CALLBACK_URL']
         suffix = int(time.time() * 1000)
         cls.wsName = "test_gktb_tk_" + str(suffix)
@@ -64,6 +67,8 @@ class kb_gtdbtkTest(unittest.TestCase):
         cls.hs = AbstractHandle(cls.cfg['handle-service-url'], token=cls.token)
         cls.au = AssemblyUtil(cls.callback_url, token=cls.token)
         cls.dfu = DataFileUtil(cls.callback_url, token=cls.token)
+        cls.gfu = GenomeFileUtil(cls.callback_url, token=cls.token)
+        cls.setAPI = SetAPI(cls.service_wiz_url, token=cls.token)
         cls.handles_to_delete = []
         cls.nodes_to_delete = []
         cls.prepare_data()
@@ -98,7 +103,7 @@ class kb_gtdbtkTest(unittest.TestCase):
         tempdir.mkdir(parents=True, exist_ok=True)
 
         # single assembly
-        this_filename = 'Rhodo_contigs.fa'
+        this_filename = 'Rhodo_contigs.fa.gz'
         single_assyfile = tempdir / this_filename
         copyfile(Path(__file__).parent / 'data' / this_filename, single_assyfile)
         cls.single_assy = cls.au.save_assembly_from_fasta(
@@ -135,18 +140,41 @@ class kb_gtdbtkTest(unittest.TestCase):
             ]})[0]
         cls.binned_contigs = cls.ref_from_info(bin_obj_info)
         
-        
-    # test binnedcontigs input
-    # NOT ABLE TO RUN ON DEV1.  Too much memory required
-    @unittest.skip("skipped test_classify_wf_binnedcontigs()")  # uncomment to skip
-    def test_classify_wf_binnedcontigs(self):
-        report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, {
-            'workspace_id': self.wsid,
-            'input_object_ref': self.binned_contigs})[0]
-        # TODO: after shrinking data to fit on dev1, test report content
-        
+        # 3 archaeal assemblies and genomes, assembly set and genome set
+        cls.genomes = []
+        cls.assemblies = []
+        assembly_items = []
+        for this_genome_id in ['GCF_000007345.1', 'GCF_000008665.1', 'GCF_009428885.1']:
+            this_gff_filename = this_genome_id + '_genes.gff'
+            this_assy_filename = this_genome_id + '_assembly.fa.gz'
 
-    # test assembly input
+            # assembly
+            assyfile = tempdir / this_assy_filename
+            copyfile(Path(__file__).parent / 'data' / this_assy_filename, assyfile)
+            assembly_ref = cls.au.save_assembly_from_fasta(
+                {'file': {'path': str(assyfile)},
+                 'workspace_name': cls.wsName,
+                 'assembly_name': this_assy_filename
+                })
+            cls.assemblies.append(assembly_ref)
+            assembly_items.append({'ref': assembly_ref, 'label': this_genome_id})
+            
+        # archaeal assemblySet
+        assemblySet_name = 'Archaea_3.AssemblySet'
+        assemblySet_obj = { 'description': 'AssemblySet for archaeal genomes',
+                            'items': assembly_items
+        }
+        try:
+            cls.assemblySet = cls.setAPI.save_assembly_set_v1 (
+                {'workspace_name': cls.wsName,
+                 'output_object_name': assemblySet_name,
+                 'data': assemblySet_obj,
+                })['set_ref']
+        except Exception as e:
+            raise ValueError ("ABORT: unable to save AssemblySet object.\n"+str(e))
+        
+            
+    # test bacterial assembly input (takes about 1 hr)
     # HIDE @unittest.skip("skipped test_classify_wf_assembly()")  # uncomment to skip
     def test_classify_wf_assembly(self):
         report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, {
@@ -168,6 +196,25 @@ class kb_gtdbtkTest(unittest.TestCase):
 
         self.check_gtdbtk_output(report, 4624, md5s)
 
+
+    # test binnedcontigs input (takes about 1 hr)
+    # NOT ABLE TO RUN ON DEV1.  Too much memory required.  Need to shrink number of bins
+    @unittest.skip("skipped test_classify_wf_binnedcontigs()")  # uncomment to skip
+    def test_classify_wf_binnedcontigs(self):
+        report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, {
+            'workspace_id': self.wsid,
+            'input_object_ref': self.binned_contigs})[0]
+        # TODO: after shrinking data to fit on dev1, test report content
+        
+
+    # test archaeal assemblySet input (takes a few minutes)
+    # HIDE @unittest.skip("skipped test_classify_wf_assemblyset()")  # uncomment to skip
+    def test_classify_wf_assemblyset(self):
+        report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, {
+            'workspace_id': self.wsid,
+            'input_object_ref': self.assemblySet})[0]
+        # TODO: test report content
+        
 
     def check_gtdbtk_output(self, report, zipsize, filename_to_md5, tolerance=15):
         print(report)
