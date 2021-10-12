@@ -102,10 +102,6 @@ def _process_output_files(temp_output, out_dir, id_to_name):
                     if not item.get(key):
                         item[key] = '-'  # note: this resets data in sj
 
-                # sometimes missing aa_percent field, which disrupts datatables report
-                if 'aa_percent' not in item:
-                    item['aa_percent'] = '-'
-
                 # field 'Name' was changed to 'name'
                 #key = 'Name' if 'Name' in item else 'user_genome'
                 if 'name' in item:
