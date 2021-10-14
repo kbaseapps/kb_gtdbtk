@@ -8,9 +8,9 @@ ______
 * Update FASTANI to v1.33
 * renamed GTDB-Tk Classify App method to run_kb_gtdbtk_classify_wf()
 * removed empty values from output html to make datatables happy
-* added binnedcontig unit test
-* added fast archaeal assembly set unit test
+* added unit tests for binnedcontigs, faster archaeal assemblySet, genome, and genomeSet
 * made input types clear
+* update Genome object taxon_assignment and taxonomy (if empty) with GTDB Classification
 
 0.1.5
 ______

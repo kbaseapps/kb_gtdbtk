@@ -102,7 +102,7 @@ class kb_gtdbtkTest(unittest.TestCase):
         tempdir = cls.scratch / 'tempstuff'
         tempdir.mkdir(parents=True, exist_ok=True)
 
-        # single assembly
+        # single bacterial assembly
         this_filename = 'Rhodo_contigs.fa.gz'
         single_assyfile = tempdir / this_filename
         copyfile(Path(__file__).parent / 'data' / this_filename, single_assyfile)
@@ -141,9 +141,10 @@ class kb_gtdbtkTest(unittest.TestCase):
         cls.binned_contigs = cls.ref_from_info(bin_obj_info)
         
         # 3 archaeal assemblies and genomes, assembly set and genome set
-        cls.genomes = []
-        cls.assemblies = []
+        cls.arch_genomes = []
+        cls.arch_assemblies = []
         assembly_items = []
+        genome_elements = {}
         for this_genome_id in ['GCF_000007345.1', 'GCF_000008665.1', 'GCF_009428885.1']:
             this_gff_filename = this_genome_id + '_genes.gff'
             this_assy_filename = this_genome_id + '_assembly.fa.gz'
@@ -156,8 +157,23 @@ class kb_gtdbtkTest(unittest.TestCase):
                  'workspace_name': cls.wsName,
                  'assembly_name': this_assy_filename
                 })
-            cls.assemblies.append(assembly_ref)
+            cls.arch_assemblies.append(assembly_ref)
             assembly_items.append({'ref': assembly_ref, 'label': this_genome_id})
+
+            # genome
+            gfffile = tempdir / this_gff_filename
+            copyfile(Path(__file__).parent / 'data' / this_gff_filename, gfffile)
+            genome_ref = cls.gfu.fasta_gff_to_genome (
+                { "workspace_name": cls.wsName,
+                  "genome_name": this_genome_id,
+                  "fasta_file": {"path": str(assyfile)},
+                  "gff_file": {"path": str(gfffile)},
+                  "source": "GFF",
+                  "scientific_name": "Genus_foo species_bar",
+                  "generate_missing_genes": "True"                
+                })['genome_ref']
+            cls.arch_genomes.append(genome_ref)
+            genome_elements[this_genome_id] = { 'ref': genome_ref }
             
         # archaeal assemblySet
         assemblySet_name = 'Archaea_3.AssemblySet'
@@ -165,15 +181,34 @@ class kb_gtdbtkTest(unittest.TestCase):
                             'items': assembly_items
         }
         try:
-            cls.assemblySet = cls.setAPI.save_assembly_set_v1 (
+            cls.arch_assemblySet = cls.setAPI.save_assembly_set_v1 (
                 {'workspace_name': cls.wsName,
                  'output_object_name': assemblySet_name,
                  'data': assemblySet_obj,
                 })['set_ref']
         except Exception as e:
             raise ValueError ("ABORT: unable to save AssemblySet object.\n"+str(e))
+
+        # archaeal genomeSet
+        genomeSet_name = 'Archaea_3.GenomeSet'
+        genomeSet_obj = {'description': 'Test GS', 'elements': genome_elements }
+        try:
+            genomeSet_info = cls.ws.save_objects(
+                {'workspace': cls.wsName,
+                 'objects': [{
+                     'type': 'KBaseSearch.GenomeSet',
+                     'data': genomeSet_obj,
+                     'name': genomeSet_name
+                     }]})[0]
+        except Exception as e:
+            raise ValueError ("ABORT: unable to save GenomeSet object.\n"+str(e))
+        cls.arch_genomeSet = cls.ref_from_info(genomeSet_info)
+
         
-            
+    ##############
+    # UNIT TESTS #
+    ##############
+        
     # test bacterial assembly input (takes about 1 hr)
     # HIDE @unittest.skip("skipped test_classify_wf_assembly()")  # uncomment to skip
     def test_classify_wf_assembly(self):
@@ -193,7 +228,6 @@ class kb_gtdbtkTest(unittest.TestCase):
             'gtdbtk.ar122.markers_summary.tsv.json': '124843868858867aba1f43b51707864b',
         }
         """
-
         self.check_gtdbtk_output(report, 4624, md5s)
 
 
@@ -212,10 +246,30 @@ class kb_gtdbtkTest(unittest.TestCase):
     def test_classify_wf_assemblyset(self):
         report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, {
             'workspace_id': self.wsid,
-            'input_object_ref': self.assemblySet})[0]
+            'input_object_ref': self.arch_assemblySet})[0]
+        # TODO: test report content
+        
+    # test archaeal genome input (takes a few minutes)
+    @unittest.skip("skipped test_classify_wf_genome()")  # uncomment to skip
+    def test_classify_wf_genome(self):
+        report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, {
+            'workspace_id': self.wsid,
+            'input_object_ref': self.arch_genomes[0]})[0]
+        # TODO: test report content
+
+    # test archaeal genomeSet input (takes a few minutes)
+    # hide @unittest.skip("skipped test_classify_wf_genomeset()")  # uncomment to skip
+    def test_classify_wf_genomeset(self):
+        report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, {
+            'workspace_id': self.wsid,
+            'input_object_ref': self.arch_genomeSet})[0]
         # TODO: test report content
         
 
+    ################
+    # HELPER FUNCS #
+    ################
+    
     def check_gtdbtk_output(self, report, zipsize, filename_to_md5, tolerance=15):
         print(report)
         minsize = zipsize - tolerance

@@ -11,6 +11,7 @@ from kb_gtdbtk.core.sequence_downloader import download_sequence
 from kb_gtdbtk.core.kb_client_set import KBClients
 from kb_gtdbtk.core.gtdbtk_runner import run_gtdbtk
 from kb_gtdbtk.core.kb_report_generation import generate_report
+from kb_gtdbtk.core.genome_obj_update import check_obj_type_genome, update_genome_objs_class
 #END_HEADER
 
 
@@ -43,7 +44,7 @@ class kb_gtdbtk:
         self.callback_url = os.environ['SDK_CALLBACK_URL']
         self.shared_folder = Path(config['scratch'])
         self.ws_url = config['workspace-url']
-        self.cpus = 32  # bigmem 32 cpus & 90,000MB RAM
+        self.cpus = 32  # bigmem 32 cpus & 251 GB RAM
         logging.basicConfig(format='%(created)s %(levelname)s: %(message)s',
                             level=logging.INFO)
         #END_CONSTRUCTOR
@@ -114,7 +115,7 @@ class kb_gtdbtk:
         for path, fn in path_to_filename.items():
             print(fn, path)
 
-        logging.info("Run gtdbtk classifywf\n")
+        logging.info("Run gtdbtk classify_wf\n")
 
         output_path = self.shared_folder / 'output'
         temp_output = self.shared_folder / 'temp_output'
@@ -127,9 +128,12 @@ class kb_gtdbtk:
             # should print to stdout/stderr
             subprocess.run(args, check=True, env=env)
 
-        run_gtdbtk(
+        classification = run_gtdbtk(
             runner, path_to_filename, output_path, temp_output, params.min_perc_aa, self.cpus)
 
+        if check_obj_type_genome (params.ref, cli):
+            update_genome_objs_class (params.ref, classification, cli)
+        
         output = generate_report(cli, output_path, params.workspace_id)
 
         #END run_kb_gtdbtk_classify_wf
