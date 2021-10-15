@@ -2,10 +2,7 @@
 Downloads sequence data from KBase services.
 '''
 
-import os
 from typing import Dict
-from pathlib import Path
-from shutil import copyfile
 
 from kb_gtdbtk.core.kb_client_set import KBClients
 
@@ -30,11 +27,8 @@ def check_obj_type_genome(
     [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I,
      WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple    
 
-    obj_data = clients.dfu().get_objects({'object_refs': [upa]})['data'][0]
-    # normalize upa just in case it's a ref vs. an upa
-    upa = str(obj_data['info'][WSID_I]) + '/' + str(obj_data['info'][OBJID_I]) + '/' + str(
-        obj_data['info'][VERSION_I])
-    obj_type = obj_data['info'][TYPE_I].split('-')[0]
+    obj = clients.dfu().get_objects({'object_refs': [upa]})['data'][0]
+    obj_type = obj['info'][TYPE_I].split('-')[0]
 
     if 'KBaseSets.GenomeSet' == obj_type:
         return True
@@ -180,7 +174,7 @@ def _process_genome_objs(upa, upas, classification, clients):
         else:
             raise ValueError(f'{genomeset_type} type is not supported')
 
-        updated_obj_info = clients.dfu().save_objects(
+        clients.dfu().save_objects(
             { 'id': top_wsid,
               'objects': [{ 'type': 'KBaseSearch.GenomeSet',
                             'name': genomeset_name,
