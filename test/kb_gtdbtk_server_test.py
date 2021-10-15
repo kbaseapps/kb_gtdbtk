@@ -258,7 +258,7 @@ class kb_gtdbtkTest(unittest.TestCase):
         # TODO: test report content
 
     # test archaeal genomeSet input (takes a few minutes)
-    # hide @unittest.skip("skipped test_classify_wf_genomeset()")  # uncomment to skip
+    # HIDE @unittest.skip("skipped test_classify_wf_genomeset()")  # uncomment to skip
     def test_classify_wf_genomeset(self):
         report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, {
             'workspace_id': self.wsid,

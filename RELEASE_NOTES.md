@@ -1,6 +1,10 @@
 # kb_gtdbtk release notes
 =========================================
 
+0.1.7
+______
+* Update GTDB-Tk to v1.7.0
+
 0.1.6
 ______
 * Update GTDB-Tk to v1.6.0

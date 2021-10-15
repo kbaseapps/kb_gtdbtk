@@ -116,9 +116,9 @@ def _process_genome_objs(upa, upas, classification, clients):
 
         # set taxon_assignments
         if not genome_obj['data'].get('tason_assignments'):
-            genome_obj['data']['taxon_assignments'] = {'GTDB_R06RS202': classification[assembly_name]}
+            genome_obj['data']['taxon_assignments'] = {'GTDB_R06-RS202': classification[assembly_name]}
         else:
-            genome_obj['data']['taxon_assignments']['GTDB_R06RS202'] = classification[assembly_name]
+            genome_obj['data']['taxon_assignments']['GTDB_R06-RS202'] = classification[assembly_name]
             
         # set taxonomy (if missing)
         if not genome_obj['data'].get('tasonomy') \
