@@ -43,9 +43,9 @@
         {
             "id": "overwrite_tax",
             "optional": true,
-            "advanced": true,
+            "advanced": false,
             "allow_multiple": false,
-            "default_values": [ 1 ],
+            "default_values": [ 0 ],
             "field_type": "dropdown",
             "dropdown_options": {
                 "options": [

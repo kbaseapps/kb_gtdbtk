@@ -54,7 +54,7 @@ def get_gtdbtk_params(input_params: Dict[str, object]) -> GTDBTKParams:
     if type(wsid) != int or _cast(int, wsid) < 1:
         raise ValueError('workspace_id is required and must be an integer > 0')
 
-    overwrite_tax = _cast(int, input_params.get('overwrite_tax', 1))
+    overwrite_tax = int (input_params.get('overwrite_tax', 0))
     if type(overwrite_tax) != int or (overwrite_tax != 0 and overwrite_tax != 1):
         raise ValueError('overwrite_tax is required and must be an integer [0,1]')
 

@@ -274,7 +274,9 @@ class kb_gtdbtkTest(unittest.TestCase):
     def test_classify_wf_genomeset(self):
         report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, {
             'workspace_id': self.wsid,
-            'input_object_ref': self.arch_genomeSet})[0]
+            'input_object_ref': self.arch_genomeSet,
+            'overwrite_tax': '1'
+        })[0]
         # TODO: test report content
         assert self.isUpa (report['report_ref'])
 
