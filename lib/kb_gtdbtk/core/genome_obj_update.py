@@ -141,9 +141,9 @@ def _process_genome_objs(upa, upas, classification, overwrite_tax, clients):
                             str(updated_obj_info[OBJID_I]),
                             str(updated_obj_info[VERSION_I])])
         updated_genome_refs[original_upa] = new_ref
-        desc = 'Taxnomoy unchanged, taxon_assignment added GTDB'
+        desc = 'Taxonomy unchanged, taxon_assignment added GTDB'
         if this_genome_tax_written:
-            desc = 'Taxnomoy and taxon_assignment updated with GTDB'
+            desc = 'Taxonomy and taxon_assignment updated with GTDB'
         objects_created.append({'ref': new_ref, 'description': desc})
         
         
@@ -196,9 +196,9 @@ def _process_genome_objs(upa, upas, classification, overwrite_tax, clients):
         new_ref = '/'.join([str(updated_obj_info[WSID_I]),
                             str(updated_obj_info[OBJID_I]),
                             str(updated_obj_info[VERSION_I])])
-        desc = 'Taxnomoy unchanged, taxon_assignment added GTDB'
+        desc = 'Taxonomy unchanged, taxon_assignment added GTDB'
         if any_genome_updated:
-            desc = 'Taxnomoy and taxon_assignment updated with GTDB'
+            desc = 'Taxonomy and taxon_assignment updated with GTDB'
         objects_created.append({'ref': new_ref, 'description': desc})
         
     return objects_created
