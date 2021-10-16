@@ -43,6 +43,7 @@ def check_obj_type_genome(
 def update_genome_objs_class(
         upa: str,
         classification: Dict[str, str],
+        overwrite_tax: int,
         clients: KBClients,
         ):
     '''
@@ -77,13 +78,14 @@ def update_genome_objs_class(
     else:
         raise ValueError(f'{obj_type} type is not supported')
 
-    return _process_genome_objs(upa, upas, classification, clients)
+    return _process_genome_objs(upa, upas, classification, overwrite_tax, clients)
 
 
-def _process_genome_objs(upa, upas, classification, clients):
+def _process_genome_objs(upa, upas, classification, overwrite_tax, clients):
     [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I,
      WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple    
 
+    objects_created = []
     updated_genome_refs = dict()
     genomeset_query = False
     top_obj = clients.dfu().get_objects({'object_refs': [upa]})['data'][0]
@@ -114,8 +116,9 @@ def _process_genome_objs(upa, upas, classification, clients):
         else:
             genome_obj['data']['taxon_assignments']['GTDB_R06-RS202'] = classification[assembly_name]
             
-        # set taxonomy (if missing)
-        if not genome_obj['data'].get('tasonomy') \
+        # set taxonomy (if missing or force overwrite)
+        if overwrite_tax == 1 \
+           or not genome_obj['data'].get('tasonomy') \
            or genome_obj['data']['taxonomy'].startswith('Unconfirmed') \
            or genome_obj['data']['taxonomy'].startswith('Unknown'):
             genome_obj['data']['taxonomy'] = classification[assembly_name]
@@ -130,10 +133,14 @@ def _process_genome_objs(upa, upas, classification, clients):
                             'name': genome_name,
                             'data': genome_obj['data']
                             }]})[0]
-        updated_genome_refs[original_upa] = '/'.join([str(updated_obj_info[WSID_I]),
-                                                      str(updated_obj_info[OBJID_I]),
-                                                      str(updated_obj_info[VERSION_I])])
-
+        new_ref = '/'.join([str(updated_obj_info[WSID_I]),
+                            str(updated_obj_info[OBJID_I]),
+                            str(updated_obj_info[VERSION_I])])
+        updated_genome_refs[original_upa] = new_ref
+        objects_created.append({'ref': new_ref,
+                                'description': 'Genome with updated Taxonomy'})
+        
+        
     # update refs in genomeset
     if genomeset_query:
         new_genomeset_data = dict()
@@ -174,12 +181,16 @@ def _process_genome_objs(upa, upas, classification, clients):
         else:
             raise ValueError(f'{genomeset_type} type is not supported')
 
-        clients.dfu().save_objects(
+        updated_obj_info = clients.dfu().save_objects(
             { 'id': top_wsid,
               'objects': [{ 'type': 'KBaseSearch.GenomeSet',
                             'name': genomeset_name,
                             'data': new_genomeset_data
-                            }]})[0]
+              }]})[0]
+        new_ref = '/'.join([str(updated_obj_info[WSID_I]),
+                            str(updated_obj_info[OBJID_I]),
+                            str(updated_obj_info[VERSION_I])])
+        objects_created.append({'ref': new_ref,
+                                'description': 'GenomeSet with updated Taxonomy'})
         
-
-    return
+    return objects_created

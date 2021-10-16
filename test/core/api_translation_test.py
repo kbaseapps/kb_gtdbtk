@@ -10,15 +10,15 @@ def test_get_gtdbtk_params():
         'inputObjectRef': 'should be ignored',  # old key name
         'some random key': 'foo'  # should this be an error?
     })
-    assert p == ('5/6/7', 56, 10)
+    assert p == ('5/6/7', 56, 10, 1)
 
     p = get_gtdbtk_params({'workspace_id': 92, 'input_object_ref': '104/67/3', 'min_perc_aa': 78.9})
-    assert p == ('104/67/3', 92, 78.9)
+    assert p == ('104/67/3', 92, 78.9, 1)
 
 
 def test_get_gtdbtk_params_backwards_compatibility():
     p = get_gtdbtk_params({'workspace_id': 56, 'inputObjectRef': '8/9/10'})
-    assert p == ('8/9/10', 56, 10)
+    assert p == ('8/9/10', 56, 10, 1)
 
 
 def test_get_gtdbtk_params_fail_bad_args():

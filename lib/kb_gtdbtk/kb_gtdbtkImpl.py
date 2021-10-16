@@ -32,7 +32,7 @@ class kb_gtdbtk:
     ######################################### noqa
     VERSION = "0.1.7"
     GIT_URL = "https://github.com/kbaseapps/kb_gtdbtk"
-    GIT_COMMIT_HASH = "453fef626ad9f94d4790108b9c43ad887f9818aa"
+    GIT_COMMIT_HASH = "2b1fb26322612fd24d388f0a086f793b7297c627"
 
     #BEGIN_CLASS_HEADER
     #END_CLASS_HEADER
@@ -61,7 +61,7 @@ class kb_gtdbtk:
            saved. Optional: min_perc_aa: the minimum sequence alignment as a
            percent, default 10.) -> structure: parameter "input_object_ref"
            of String, parameter "workspace_id" of Long, parameter
-           "min_perc_aa" of Double
+           "min_perc_aa" of Double, parameter "overwrite_tax" of type "bool"
         :returns: instance of type "ReportResults" (The results of the
            GTDB-tk run. report_name: The name of the report object in the
            workspace. report_ref: The UPA of the report object, e.g.
@@ -92,7 +92,7 @@ class kb_gtdbtk:
            saved. Optional: min_perc_aa: the minimum sequence alignment as a
            percent, default 10.) -> structure: parameter "input_object_ref"
            of String, parameter "workspace_id" of Long, parameter
-           "min_perc_aa" of Double
+           "min_perc_aa" of Double, parameter "overwrite_tax" of type "bool"
         :returns: instance of type "ReportResults" (The results of the
            GTDB-tk run. report_name: The name of the report object in the
            workspace. report_ref: The UPA of the report object, e.g.
@@ -131,10 +131,11 @@ class kb_gtdbtk:
         classification = run_gtdbtk(
             runner, path_to_filename, output_path, temp_output, params.min_perc_aa, self.cpus)
 
+        objects_created = None
         if check_obj_type_genome (params.ref, cli):
-            update_genome_objs_class (params.ref, classification, cli)
+            objects_created = update_genome_objs_class (params.ref, classification, params.overwrite_tax, cli)
         
-        output = generate_report(cli, output_path, params.workspace_id)
+        output = generate_report(cli, output_path, params.workspace_id, objects_created)
 
         #END run_kb_gtdbtk_classify_wf
 

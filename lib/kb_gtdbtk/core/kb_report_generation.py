@@ -5,7 +5,7 @@ Create a KBase Report for a GTDB-tk run.
 import uuid
 
 from shutil import copyfile
-from typing import Callable
+from typing import Dict, List, Callable
 from pathlib import Path
 from kb_gtdbtk.core.kb_client_set import KBClients
 
@@ -14,6 +14,7 @@ def generate_report(
         clients: KBClients,
         gtdbtk_output_dir: Path,
         workspace_id: int,
+        objects_created: List[Dict[str,str]],
         uuid_gen: Callable[[], uuid.UUID] = uuid.uuid4):
     '''
     Create a KBase report for a GTDB-tk run.
@@ -36,12 +37,17 @@ def generate_report(
         'description': 'HTML report for GTDBTk Classify'
         }
 
-    report_info = clients.report().create_extended_report({
+    report_params = {
                     'direct_html_link_index': 0,
                     'html_links': [html_file],
                     'report_object_name': report_name,
                     'workspace_id': workspace_id
-                })
+    }
+    if objects_created is not None:
+        report_params['objects_created'] = objects_created
+    
+    report_info = clients.report().create_extended_report(report_params)
+
     return {
         'report_name': report_info['name'],
         'report_ref': report_info['ref']

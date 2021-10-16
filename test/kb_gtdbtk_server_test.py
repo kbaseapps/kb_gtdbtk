@@ -96,6 +96,14 @@ class kb_gtdbtkTest(unittest.TestCase):
     def ref_from_info(cls, obj_info):
         [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I, WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple
         return "/".join([str(obj_info[WSID_I]), str(obj_info[OBJID_I]), str(obj_info[VERSION_I])])
+
+    def isUpa (self, candidate_upa):
+        legit_upa = True
+        for upa_element in candidate_upa.split('/'):
+            if not upa_element.isdigit():
+                print ("Error: not UPA element: "+upa_element)
+                legit_upa = False
+        return legit_upa
         
     @classmethod
     def prepare_data(cls):
@@ -215,6 +223,7 @@ class kb_gtdbtkTest(unittest.TestCase):
         report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, {
             'workspace_id': self.wsid,
             'input_object_ref': self.single_assy})[0]
+        assert self.isUpa (report['report_ref'])
 
         # can't easily maintain md5s through repeated updates.  don't require
         md5s = {}
@@ -239,6 +248,7 @@ class kb_gtdbtkTest(unittest.TestCase):
             'workspace_id': self.wsid,
             'input_object_ref': self.binned_contigs})[0]
         # TODO: after shrinking data to fit on dev1, test report content
+        assert self.isUpa (report['report_ref'])
         
 
     # test archaeal assemblySet input (takes a few minutes)
@@ -248,6 +258,7 @@ class kb_gtdbtkTest(unittest.TestCase):
             'workspace_id': self.wsid,
             'input_object_ref': self.arch_assemblySet})[0]
         # TODO: test report content
+        assert self.isUpa (report['report_ref'])
         
     # test archaeal genome input (takes a few minutes)
     @unittest.skip("skipped test_classify_wf_genome()")  # uncomment to skip
@@ -256,6 +267,7 @@ class kb_gtdbtkTest(unittest.TestCase):
             'workspace_id': self.wsid,
             'input_object_ref': self.arch_genomes[0]})[0]
         # TODO: test report content
+        assert self.isUpa (report['report_ref'])
 
     # test archaeal genomeSet input (takes a few minutes)
     # HIDE @unittest.skip("skipped test_classify_wf_genomeset()")  # uncomment to skip
@@ -264,7 +276,7 @@ class kb_gtdbtkTest(unittest.TestCase):
             'workspace_id': self.wsid,
             'input_object_ref': self.arch_genomeSet})[0]
         # TODO: test report content
-        
+        assert self.isUpa (report['report_ref'])
 
     ################
     # HELPER FUNCS #

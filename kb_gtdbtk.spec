@@ -4,6 +4,8 @@ A KBase module: kb_gtdbtk
 
 module kb_gtdbtk {
 
+    typedef int bool;
+    
     /* Parameters for the GTDB-tk Classify (classify_wf) run.
 
         Required:
@@ -18,6 +20,7 @@ module kb_gtdbtk {
         string input_object_ref;
         int workspace_id;
         float min_perc_aa;
+	bool overwrite_tax;
     } GTDBtk_Classify_Params;
 
     

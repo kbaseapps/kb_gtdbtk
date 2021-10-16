@@ -39,7 +39,31 @@
                 "min_int": 1,
                 "max_int": 100
             }
-        }
+        },
+        {
+            "id": "overwrite_tax",
+            "optional": true,
+            "advanced": true,
+            "allow_multiple": false,
+            "default_values": [ "1" ],
+            "field_type": "dropdown",
+            "dropdown_options": {
+                "options": [
+                    {
+                        "value": "0",
+                        "display": "DON'T overwrite Taxonomy",
+                        "id": "overwrite_tax-NO",
+                        "ui-name": "overwrite_tax-NO"
+                    },
+                    {
+                        "value": "1",
+                        "display": "DO overwrite Taxonomy",
+                        "id": "overwrite_tax-UES",
+                        "ui-name": "overwrite_tax-YES"
+                    }
+                ]
+            }
+        }	
     ],
     "behavior": {
         "service-mapping": {
@@ -57,6 +81,9 @@
                 },{
                     "input_parameter": "min_perc_aa",
                     "target_property": "min_perc_aa"
+                },{
+                    "input_parameter": "overwrite_tax",
+                    "target_property": "overwrite_tax"
                 }
             ],
             "output_mapping": [
