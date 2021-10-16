@@ -88,6 +88,7 @@ def _process_genome_objs(upa, upas, classification, overwrite_tax, clients):
     objects_created = []
     updated_genome_refs = dict()
     genomeset_query = False
+    any_genome_updated = False
     top_obj = clients.dfu().get_objects({'object_refs': [upa]})['data'][0]
     top_wsid = top_obj['info'][WSID_I]
     
@@ -117,10 +118,13 @@ def _process_genome_objs(upa, upas, classification, overwrite_tax, clients):
             genome_obj['data']['taxon_assignments']['GTDB_R06-RS202'] = classification[assembly_name]
             
         # set taxonomy (if missing or force overwrite)
+        this_genome_tax_written = False
         if overwrite_tax == 1 \
            or not genome_obj['data'].get('tasonomy') \
            or genome_obj['data']['taxonomy'].startswith('Unconfirmed') \
            or genome_obj['data']['taxonomy'].startswith('Unknown'):
+            this_genome_tax_written = True
+            any_genome_updated = True
             genome_obj['data']['taxonomy'] = classification[assembly_name]
 
         # save updated genome obj
@@ -137,8 +141,10 @@ def _process_genome_objs(upa, upas, classification, overwrite_tax, clients):
                             str(updated_obj_info[OBJID_I]),
                             str(updated_obj_info[VERSION_I])])
         updated_genome_refs[original_upa] = new_ref
-        objects_created.append({'ref': new_ref,
-                                'description': 'Genome with updated Taxonomy'})
+        desc = 'Taxnomoy unchanged, taxon_assignment added GTDB'
+        if this_genome_tax_written:
+            desc = 'Taxnomoy and taxon_assignment updated with GTDB'
+        objects_created.append({'ref': new_ref, 'description': desc})
         
         
     # update refs in genomeset
@@ -190,7 +196,9 @@ def _process_genome_objs(upa, upas, classification, overwrite_tax, clients):
         new_ref = '/'.join([str(updated_obj_info[WSID_I]),
                             str(updated_obj_info[OBJID_I]),
                             str(updated_obj_info[VERSION_I])])
-        objects_created.append({'ref': new_ref,
-                                'description': 'GenomeSet with updated Taxonomy'})
+        desc = 'Taxnomoy unchanged, taxon_assignment added GTDB'
+        if any_genome_updated:
+            desc = 'Taxnomoy and taxon_assignment updated with GTDB'
+        objects_created.append({'ref': new_ref, 'description': desc})
         
     return objects_created
