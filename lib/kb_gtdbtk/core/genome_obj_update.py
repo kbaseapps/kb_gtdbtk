@@ -120,7 +120,7 @@ def _process_genome_objs(upa, upas, classification, overwrite_tax, clients):
         # set taxonomy (if missing or force overwrite)
         this_genome_tax_written = False
         if overwrite_tax == 1 \
-           or not genome_obj['data'].get('tasonomy') \
+           or not genome_obj['data'].get('taxonomy') \
            or genome_obj['data']['taxonomy'].startswith('Unconfirmed') \
            or genome_obj['data']['taxonomy'].startswith('Unknown'):
             this_genome_tax_written = True
