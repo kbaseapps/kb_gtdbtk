@@ -45,18 +45,18 @@
             "optional": true,
             "advanced": true,
             "allow_multiple": false,
-            "default_values": [ "1" ],
+            "default_values": [ 1 ],
             "field_type": "dropdown",
             "dropdown_options": {
                 "options": [
                     {
-                        "value": "0",
+                        "value": 0,
                         "display": "DON'T overwrite Taxonomy",
                         "id": "overwrite_tax-NO",
                         "ui-name": "overwrite_tax-NO"
                     },
                     {
-                        "value": "1",
+                        "value": 1,
                         "display": "DO overwrite Taxonomy",
                         "id": "overwrite_tax-UES",
                         "ui-name": "overwrite_tax-YES"

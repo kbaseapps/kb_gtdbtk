@@ -5,6 +5,7 @@
 ______
 * Update GTDB-Tk to v1.7.0
 * Added option to retain old Genome taxonomy
+* Added updated Genome objects to report
 
 0.1.6
 ______
