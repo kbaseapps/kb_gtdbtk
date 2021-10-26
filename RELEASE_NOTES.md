@@ -1,10 +1,32 @@
 # kb_gtdbtk release notes
 =========================================
 
+0.1.7
+______
+* Update GTDB-Tk to v1.7.0
+* Added option to retain old Genome taxonomy
+* Added updated Genome objects to report
+
+0.1.6
+______
+* Update GTDB-Tk to v1.6.0
+* Update refdata to GTDB R06-RS202
+* Update FASTANI to v1.33
+* renamed GTDB-Tk Classify App method to run_kb_gtdbtk_classify_wf()
+* removed empty values from output html to make datatables happy
+* added unit tests for binnedcontigs, faster archaeal assemblySet, genome, and genomeSet
+* made input types clear
+* update Genome object taxon_assignment and taxonomy (if empty) with GTDB Classification
+
+0.1.5
+______
+* Update GTDB-Tk to v1.3.0
+* Update refdata to GTDB to R05-RS95
+* Update FastANI to v1.31
+
 0.1.4
 ______
 * Fix typo in citations
-
 
 0.1.3
 ______

@@ -342,6 +342,10 @@ class Application(object):
                              name='kb_gtdbtk.run_kb_gtdbtk',
                              types=[dict])
         self.method_authentication['kb_gtdbtk.run_kb_gtdbtk'] = 'required'  # noqa
+        self.rpc_service.add(impl_kb_gtdbtk.run_kb_gtdbtk_classify_wf,
+                             name='kb_gtdbtk.run_kb_gtdbtk_classify_wf',
+                             types=[dict])
+        self.method_authentication['kb_gtdbtk.run_kb_gtdbtk_classify_wf'] = 'required'  # noqa
         self.rpc_service.add(impl_kb_gtdbtk.status,
                              name='kb_gtdbtk.status',
                              types=[dict])

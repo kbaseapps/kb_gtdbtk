@@ -73,11 +73,15 @@ def run_gtdbtk(
 
     logging.info('Starting Command:\n' + ' '.join(gtdbtk_cmd))
     gtdbtk_runner(gtdbtk_cmd)
-    _process_output_files(temp_output, output_dir, id_to_name)
+    classification = _process_output_files(temp_output, output_dir, id_to_name)
 
+    return classification
+    
 
 def _process_output_files(temp_output, out_dir, id_to_name):
 
+    classification = dict()
+    
     for file_ in ('gtdbtk.ar122.summary.tsv',
                   'gtdbtk.bac120.summary.tsv',
                   'gtdbtk.bac120.markers_summary.tsv',
@@ -96,10 +100,33 @@ def _process_output_files(temp_output, out_dir, id_to_name):
             summary_json = '{"data": ' + summary_df.to_json(orient='records') + '}'
             sj = json.loads(summary_json)
             for item in sj['data']:
-                key = 'Name' if 'Name' in item else 'user_genome'
-                item[key] = id_to_name[item[key]]
 
+                # no blank fields.  messes up datatables in index.html
+                for key in item.keys():
+                    #print ("RESULTS: k: '"+key+"' val: '"+str(item[key])+"'")  # DEBUG
+                    if not item.get(key):
+                        item[key] = '-'  # note: this resets data in sj
+
+                # reset id to assembly name
+                # Note: field 'Name' was changed to 'name'
+                #key = 'Name' if 'Name' in item else 'user_genome'
+                if 'name' in item:
+                    key = 'name'
+                elif 'user_genome' in item:
+                    key = 'user_genome'
+                else:
+                    continue
+                this_id = item[key]
+                if this_id not in id_to_name:
+                    raise ValueError ("missing "+this_id+" in id_to_name dict")
+                item[key] = id_to_name[this_id]  # note: this resets data in sj
+
+                # store classification by assembly name
+                if 'classification' in item:
+                    classification[id_to_name[this_id]] = item['classification']
+                
+            # rewrite with updated vals
             with open(outfile, 'w') as out:
                 out.write(json.dumps(sj))
 
-    return
+    return classification
