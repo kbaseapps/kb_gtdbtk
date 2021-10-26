@@ -1,7 +1,7 @@
 # kb_gtdbtk release notes
 =========================================
 
-0.1.7
+1.0.0
 ______
 * Update GTDB-Tk to v1.7.0
 * Added option to retain old Genome taxonomy
