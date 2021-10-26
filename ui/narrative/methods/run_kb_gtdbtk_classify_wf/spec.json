@@ -58,7 +58,7 @@
                     {
                         "value": 1,
                         "display": "DO overwrite Taxonomy",
-                        "id": "overwrite_tax-UES",
+                        "id": "overwrite_tax-YES",
                         "ui-name": "overwrite_tax-YES"
                     }
                 ]
