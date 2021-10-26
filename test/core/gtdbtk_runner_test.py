@@ -41,13 +41,13 @@ def test_gtdbtk_run():
             # implmentation doesn't care for now other than the first column
 
             with open(temp_out / 'gtdbtk.ar122.summary.tsv', 'w') as t:
-                t.writelines(['\t'.join(['Name', 'field1', 'field2']) + '\n',
+                t.writelines(['\t'.join(['name', 'field1', 'field2']) + '\n',
                               '\t'.join(['id0', 'foo', 'bar']) + '\n',
                               '\t'.join(['id1', 'baz', 'bat']) + '\n',
                               ])
 
             with open(temp_out / 'gtdbtk.bac120.summary.tsv', 'w') as t:
-                t.writelines(['\t'.join(['Name', 'field1', 'field2']) + '\n',
+                t.writelines(['\t'.join(['name', 'field1', 'field2']) + '\n',
                               '\t'.join(['id0', 'whoo', 'whee']) + '\n',
                               '\t'.join(['id1', 'whoa', 'whump']) + '\n',
                               ])
@@ -93,14 +93,14 @@ def test_gtdbtk_run():
 
         with open(out_dir / 'gtdbtk.ar122.summary.tsv.json') as j:
             assert json.load(j) == {'data': [
-                {'Name': 'somefile1.fasta', 'field1': 'foo', 'field2': 'bar'},
-                {'Name': 'somefile2.fasta', 'field1': 'baz', 'field2': 'bat'},
+                {'name': 'somefile1.fasta', 'field1': 'foo', 'field2': 'bar'},
+                {'name': 'somefile2.fasta', 'field1': 'baz', 'field2': 'bat'},
             ]}
 
         with open(out_dir / 'gtdbtk.bac120.summary.tsv.json') as j:
             assert json.load(j) == {'data': [
-                {'Name': 'somefile1.fasta', 'field1': 'whoo', 'field2': 'whee'},
-                {'Name': 'somefile2.fasta', 'field1': 'whoa', 'field2': 'whump'},
+                {'name': 'somefile1.fasta', 'field1': 'whoo', 'field2': 'whee'},
+                {'name': 'somefile2.fasta', 'field1': 'whoa', 'field2': 'whump'},
             ]}
 
         with open(out_dir / 'gtdbtk.bac120.markers_summary.tsv.json') as j:

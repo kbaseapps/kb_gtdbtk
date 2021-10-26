@@ -29,7 +29,7 @@ def test_create_report():
             }
 
         ret = generate_report(
-            clis, test_dir, 78,
+            clis, test_dir, 78, None,
             uuid_gen=lambda: uuid.UUID('bd5c9ba0-db2c-4c03-b2de-92d9c94ce51e'))
 
         assert ret == {

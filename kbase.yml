@@ -8,10 +8,10 @@ service-language:
     python
 
 module-version:
-    0.1.4
+    0.1.7
 
 owners:
-    [psdehal, donovan_parks, Aaron, pchaumeil, gaprice, zcrockett]
+    [psdehal, donovan_parks, aaronmussig, pchaumeil, gaprice, zcrockett, dylan]
 
 data-version:
-    0.0.3
+    0.0.6
