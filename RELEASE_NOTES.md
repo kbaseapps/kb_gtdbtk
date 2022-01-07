@@ -1,6 +1,10 @@
 # kb_gtdbtk release notes
 =========================================
 
+1.1.0
+______
+* Return all output from GTDB-Tk Classify workflow as downloadable ZIP archive, especially classify.tree
+
 1.0.0
 ______
 * Update GTDB-Tk to v1.7.0
