@@ -50,7 +50,7 @@ def generate_report(
     report_params = {
                     'direct_html_link_index': 0,
                     'html_links': [html_file],
-                    'file_links': [output_file_archive]
+                    'file_links': [output_file_archive],
                     'report_object_name': report_name,
                     'workspace_id': workspace_id
     }
