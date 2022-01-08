@@ -18,10 +18,7 @@
             "default_values": [ "" ],
             "field_type": "text",
             "text_options": {
-                "valid_ws_types": ["KBaseGenomes.ContigSet",
-                                   "KBaseGenomeAnnotations.Assembly",
-                                   "KBaseGenomes.Genome",
-                                   "KBaseSets.GenomeSet",
+                "valid_ws_types": ["KBaseSets.GenomeSet",
                                    "KBaseSearch.GenomeSet",
                                    "KBaseSets.AssemblySet",
                                    "KBaseMetagenomes.BinnedContigs" ]
