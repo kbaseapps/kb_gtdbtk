@@ -81,7 +81,16 @@ def run_gtdbtk(
 def _process_output_files(temp_output, out_dir, id_to_name):
 
     classification = dict()
-    
+
+    # copy over all created output
+    for file_ in os.listdir (temp_output):
+        tmppath = temp_output / file_
+        if not tmppath.is_file():
+            continue
+        path = out_dir / file_
+        copyfile(tmppath, path)        
+
+    # make json files for html tables
     for file_ in ('gtdbtk.ar122.summary.tsv',
                   'gtdbtk.bac120.summary.tsv',
                   'gtdbtk.bac120.markers_summary.tsv',

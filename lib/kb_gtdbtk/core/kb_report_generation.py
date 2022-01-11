@@ -30,6 +30,16 @@ def generate_report(
     report_name = 'GTDBTk_report_' + str(uuid_gen())
     copyfile(Path(__file__).parent / 'index.html', gtdbtk_output_dir / 'index.html')
 
+    upload_ret = clients.dfu().file_to_shock({'file_path': str(gtdbtk_output_dir),
+                                              'make_handle': 0,
+                                              'pack': 'zip'})
+    
+    output_file_archive = {
+        'shock_id': upload_ret['shock_id'],
+        'name': 'GTDB-Tk_classify_wf.zip',
+        'description': 'GTDB-Tk Classify WF output'
+        }
+    
     html_file = {
         'path': str(gtdbtk_output_dir),
         'name': 'index.html',
@@ -40,6 +50,7 @@ def generate_report(
     report_params = {
                     'direct_html_link_index': 0,
                     'html_links': [html_file],
+                    'file_links': [output_file_archive],
                     'report_object_name': report_name,
                     'workspace_id': workspace_id
     }
