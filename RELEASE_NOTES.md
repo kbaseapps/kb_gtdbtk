@@ -1,6 +1,11 @@
 # kb_gtdbtk release notes
 =========================================
 
+1.1.0
+______
+* Return all output from GTDB-Tk Classify workflow as downloadable ZIP archive, especially classify.tree
+* Don't accept individual Genomes or Assemblies to avoid wasteful runs.  Require GenomeSet or AssemblySet.
+
 1.0.0
 ______
 * Update GTDB-Tk to v1.7.0
