@@ -1,6 +1,11 @@
 # kb_gtdbtk release notes
 =========================================
 
+1.2.0
+_____
+* Update GTDB-Tk to v2.0.0 (released Apr 8, 2022)
+* Update refdata to GTDB-R07_RS207 (released Apr 8, 2022)
+
 1.1.0
 ______
 * Return all output from GTDB-Tk Classify workflow as downloadable ZIP archive, especially classify.tree
