@@ -335,15 +335,20 @@ class kb_gtdbtkTest(unittest.TestCase):
         del d['html_links'][0]['URL']
         del d['html_links'][0]['handle']
 
+        objects_created = d['objects_created']
+        archive_shock_id = d['file_links'][0]['shock_id']
+        
         assert objname == obj['info'][1]
         assert d == {'direct_html': None,
                      'direct_html_link_index': 0,
-                     'file_links': [],
+                     'file_links': [{'shock_id': archive_shock_id,
+                                     'name': 'GTDB-Tk_classify_wf.zip',
+                                     'description': 'GTDB-Tk Classify WF output'}],
                      'html_links': [{'description': 'HTML report for GTDBTk Classify',
                                      'label': 'index.html',
                                      'name': 'index.html'}],
                      'html_window_height': None,
-                     'objects_created': [],
+                     'objects_created': objects_created,
                      'summary_window_height': None,
                      'text_message': None,
                      'warnings': []}
