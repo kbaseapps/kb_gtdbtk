@@ -38,6 +38,54 @@
             }
         },
         {
+            "id": "full_tree",
+            "optional": true,
+            "advanced": true,
+            "allow_multiple": false,
+            "default_values": [ 0 ],
+            "field_type": "dropdown",
+            "dropdown_options": {
+                "options": [
+                    {
+                        "value": 0,
+                        "display": "use order-level subtrees",
+                        "id": "full_tree-NO",
+                        "ui-name": "full_tree-NO"
+                    },
+                    {
+                        "value": 1,
+                        "display": "use full tree",
+                        "id": "full_tree-YES",
+                        "ui-name": "full_tree-YES"
+                    }
+                ]
+            }
+        },	
+        {
+            "id": "keep_intermediates",
+            "optional": true,
+            "advanced": true,
+            "allow_multiple": false,
+            "default_values": [ 0 ],
+            "field_type": "dropdown",
+            "dropdown_options": {
+                "options": [
+                    {
+                        "value": 0,
+                        "display": "DON'T keep intermediate files",
+                        "id": "keep_intermediates-NO",
+                        "ui-name": "keep_intermediates-NO"
+                    },
+                    {
+                        "value": 1,
+                        "display": "DO keep intermediate files",
+                        "id": "keep_intermediates-YES",
+                        "ui-name": "keep_intermediates-YES"
+                    }
+                ]
+            }
+        },	
+        {
             "id": "overwrite_tax",
             "optional": true,
             "advanced": false,
@@ -78,6 +126,12 @@
                 },{
                     "input_parameter": "min_perc_aa",
                     "target_property": "min_perc_aa"
+                },{
+                    "input_parameter": "full_tree",
+                    "target_property": "full_tree"
+                },{
+                    "input_parameter": "keep_intermediates",
+                    "target_property": "keep_intermediates"
                 },{
                     "input_parameter": "overwrite_tax",
                     "target_property": "overwrite_tax"

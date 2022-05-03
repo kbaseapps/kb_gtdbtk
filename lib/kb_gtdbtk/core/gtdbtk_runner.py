@@ -8,17 +8,29 @@ import os
 import pandas as pd
 import tempfile
 
+from datetime import datetime
 from pathlib import Path
 from shutil import copyfile
 from typing import Dict, List, Callable
 
 
+# timestamp
+def now_ISO():
+    now_timestamp = datetime.now()
+    now_secs_from_epoch = (now_timestamp - datetime(1970,1,1)).total_seconds()
+    now_timestamp_in_iso = datetime.fromtimestamp(int(now_secs_from_epoch)).strftime('%Y-%m-%d_%T')
+    return now_timestamp_in_iso
+    
+
+# main func
 def run_gtdbtk(
         gtdbtk_runner: Callable[[List[str]], None],
         sequences: Dict[Path, str],
         output_dir: Path,
         temp_dir: Path,
         min_perc_aa: float,
+        full_tree: int,
+        keep_intermediates: int,
         cpus: int) -> None:
     '''
     Run GTDB-tk on a set of sequences in FASTA format. Expects the 'gtdbtk' command to be on the
@@ -45,7 +57,8 @@ def run_gtdbtk(
     # characters such as |. Essentially here we provide safe file names and identitifers
     # (which GTDB-tk will use to create temporary files) and then remap to the original,
     # potentially unsafe names.
-    temp_links = temp_dir / 'links'
+    timestamp = now_ISO()
+    temp_links = temp_dir / 'links' / timestamp
     temp_links.mkdir(parents=True, exist_ok=True)
     id_to_name = {}
     with tempfile.NamedTemporaryFile(
@@ -60,7 +73,7 @@ def run_gtdbtk(
             os.symlink(path, temp_links / id_)
             tf.write(str(temp_links / id_) + '\t' + id_ + '\n')
 
-    temp_output = temp_dir / 'output'
+    temp_output = temp_dir / 'output' / timestamp
     temp_output.mkdir(parents=True, exist_ok=True)
 
     gtdbtk_cmd = [
@@ -70,7 +83,11 @@ def run_gtdbtk(
         '--batchfile', tf.name,
         '--cpus', str(cpus),
         '--min_perc_aa', str(min_perc_aa)]
-
+    if full_tree == 1:
+        gtdbtk_cmd += ['--full_tree']
+    if keep_intermediates == 1:
+        gtdbtk_cmd += ['--keep_intermediates']
+    
     logging.info('Starting Command:\n' + ' '.join(gtdbtk_cmd))
     gtdbtk_runner(gtdbtk_cmd)
     classification = _process_output_files(temp_output, output_dir, id_to_name)

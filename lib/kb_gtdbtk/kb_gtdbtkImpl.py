@@ -30,9 +30,9 @@ class kb_gtdbtk:
     # state. A method could easily clobber the state set by another while
     # the latter method is running.
     ######################################### noqa
-    VERSION = "1.1.0"
+    VERSION = "1.2.0"
     GIT_URL = "https://github.com/kbaseapps/kb_gtdbtk"
-    GIT_COMMIT_HASH = "6772b76809a11620ef24dfc9887de04fa72fcb05"
+    GIT_COMMIT_HASH = "453bed94486c72fcbc3b8aa02e37f390b480f0a1"
 
     #BEGIN_CLASS_HEADER
     #END_CLASS_HEADER
@@ -61,7 +61,9 @@ class kb_gtdbtk:
            saved. Optional: min_perc_aa: the minimum sequence alignment as a
            percent, default 10.) -> structure: parameter "input_object_ref"
            of String, parameter "workspace_id" of Long, parameter
-           "min_perc_aa" of Double, parameter "overwrite_tax" of type "bool"
+           "min_perc_aa" of Double, parameter "full_tree" of type "bool",
+           parameter "keep_intermediates" of type "bool", parameter
+           "overwrite_tax" of type "bool"
         :returns: instance of type "ReportResults" (The results of the
            GTDB-tk run. report_name: The name of the report object in the
            workspace. report_ref: The UPA of the report object, e.g.
@@ -92,7 +94,9 @@ class kb_gtdbtk:
            saved. Optional: min_perc_aa: the minimum sequence alignment as a
            percent, default 10.) -> structure: parameter "input_object_ref"
            of String, parameter "workspace_id" of Long, parameter
-           "min_perc_aa" of Double, parameter "overwrite_tax" of type "bool"
+           "min_perc_aa" of Double, parameter "full_tree" of type "bool",
+           parameter "keep_intermediates" of type "bool", parameter
+           "overwrite_tax" of type "bool"
         :returns: instance of type "ReportResults" (The results of the
            GTDB-tk run. report_name: The name of the report object in the
            workspace. report_ref: The UPA of the report object, e.g.
@@ -129,7 +133,7 @@ class kb_gtdbtk:
             subprocess.run(args, check=True, env=env)
 
         classification = run_gtdbtk(
-            runner, path_to_filename, output_path, temp_output, params.min_perc_aa, self.cpus)
+            runner, path_to_filename, output_path, temp_output, params.min_perc_aa, params.full_tree, params.keep_intermediates, self.cpus)
 
         objects_created = None
         if check_obj_type_genome (params.ref, cli):

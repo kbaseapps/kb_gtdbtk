@@ -70,6 +70,8 @@ def test_gtdbtk_run():
             out_dir,
             temp_dir,
             50.2,
+            0,
+            0,
             16
             )
 
