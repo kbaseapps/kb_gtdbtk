@@ -27,7 +27,8 @@ def test_gtdbtk_run():
             td = command[3]
             assert Path(td).is_dir()
 
-            temp_out = temp_dir / 'output'
+            #temp_out = temp_dir / 'output'
+            temp_out = str(td)
 
             assert command == [
                 'gtdbtk',
@@ -40,25 +41,25 @@ def test_gtdbtk_run():
             # arbitrary TSV files, these may not match what GTDB-tk produces
             # implmentation doesn't care for now other than the first column
 
-            with open(temp_out / 'gtdbtk.ar122.summary.tsv', 'w') as t:
+            with open(os.path.join(temp_out, 'gtdbtk.ar53.summary.tsv'), 'w') as t:
                 t.writelines(['\t'.join(['name', 'field1', 'field2']) + '\n',
                               '\t'.join(['id0', 'foo', 'bar']) + '\n',
                               '\t'.join(['id1', 'baz', 'bat']) + '\n',
                               ])
 
-            with open(temp_out / 'gtdbtk.bac120.summary.tsv', 'w') as t:
+            with open(os.path.join(temp_out, 'gtdbtk.bac120.summary.tsv'), 'w') as t:
                 t.writelines(['\t'.join(['name', 'field1', 'field2']) + '\n',
                               '\t'.join(['id0', 'whoo', 'whee']) + '\n',
                               '\t'.join(['id1', 'whoa', 'whump']) + '\n',
                               ])
 
-            with open(temp_out / 'gtdbtk.bac120.markers_summary.tsv', 'w') as t:
+            with open(os.path.join(temp_out, 'gtdbtk.bac120.markers_summary.tsv'), 'w') as t:
                 t.writelines(['\t'.join(['user_genome', 'field1', 'field2']) + '\n',
                               '\t'.join(['id0', 'fee', 'fie']) + '\n',
                               '\t'.join(['id1', 'fo', 'fum']) + '\n',
                               ])
 
-            # skip 'gtdbtk.ar122.markers_summary.tsv'
+            # skip 'gtdbtk.ar53.markers_summary.tsv'
 
             # ####   end of runner callable   ####
 
@@ -78,34 +79,36 @@ def test_gtdbtk_run():
         with open(tf[0]) as bf:
             lines = bf.readlines()
             assert len(lines) == 2
-            assert lines[0] == f'{temp_dir}/links/id0\tid0\n'
-            assert lines[1] == f'{temp_dir}/links/id1\tid1\n'
-
-        assert os.readlink(temp_dir / 'links' / 'id0') == '/somepath1'
-        assert os.readlink(temp_dir / 'links' / 'id1') == '/somepath2'
+            #assert lines[0] == f'{temp_dir}/links/id0\tid0\n'  # made path unique with timestamp
+            #assert lines[1] == f'{temp_dir}/links/id1\tid1\n'
+            id0_path = lines[0].split("\t")[0]
+            id1_path = lines[1].split("\t")[0]
+            
+        assert os.readlink(id0_path) == '/somepath1'
+        assert os.readlink(id1_path) == '/somepath2'
 
         assert sorted(os.listdir(out_dir)) == [
-            'gtdbtk.ar122.summary.tsv',
-            'gtdbtk.ar122.summary.tsv.json',
+            'gtdbtk.ar53.summary.tsv',
+            'gtdbtk.ar53.summary.tsv.json',
             'gtdbtk.bac120.markers_summary.tsv',
             'gtdbtk.bac120.markers_summary.tsv.json',
             'gtdbtk.bac120.summary.tsv',
             'gtdbtk.bac120.summary.tsv.json',
         ]
 
-        with open(out_dir / 'gtdbtk.ar122.summary.tsv.json') as j:
+        with open(os.path.join(out_dir, 'gtdbtk.ar53.summary.tsv.json')) as j:
             assert json.load(j) == {'data': [
                 {'name': 'somefile1.fasta', 'field1': 'foo', 'field2': 'bar'},
                 {'name': 'somefile2.fasta', 'field1': 'baz', 'field2': 'bat'},
             ]}
 
-        with open(out_dir / 'gtdbtk.bac120.summary.tsv.json') as j:
+        with open(os.path.join(out_dir, 'gtdbtk.bac120.summary.tsv.json')) as j:
             assert json.load(j) == {'data': [
                 {'name': 'somefile1.fasta', 'field1': 'whoo', 'field2': 'whee'},
                 {'name': 'somefile2.fasta', 'field1': 'whoa', 'field2': 'whump'},
             ]}
 
-        with open(out_dir / 'gtdbtk.bac120.markers_summary.tsv.json') as j:
+        with open(os.path.join(out_dir, 'gtdbtk.bac120.markers_summary.tsv.json')) as j:
             assert json.load(j) == {'data': [
                 {'user_genome': 'somefile1.fasta', 'field1': 'fee', 'field2': 'fie'},
                 {'user_genome': 'somefile2.fasta', 'field1': 'fo', 'field2': 'fum'},

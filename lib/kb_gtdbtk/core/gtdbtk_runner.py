@@ -15,11 +15,12 @@ from typing import Dict, List, Callable
 
 
 # timestamp
-def now_ISO():
+def now_ISOish():
     now_timestamp = datetime.now()
     now_secs_from_epoch = (now_timestamp - datetime(1970,1,1)).total_seconds()
-    now_timestamp_in_iso = datetime.fromtimestamp(int(now_secs_from_epoch)).strftime('%Y-%m-%d_%T')
-    return now_timestamp_in_iso
+    #now_timestamp_in_iso = datetime.fromtimestamp(int(now_secs_from_epoch)).strftime('%Y-%m-%d_%T')
+    now_timestamp_in_isoish = datetime.fromtimestamp(int(now_secs_from_epoch)).strftime('%Y%m%d_%H%M%S')
+    return now_timestamp_in_isoish
     
 
 # main func
@@ -57,7 +58,7 @@ def run_gtdbtk(
     # characters such as |. Essentially here we provide safe file names and identitifers
     # (which GTDB-tk will use to create temporary files) and then remap to the original,
     # potentially unsafe names.
-    timestamp = now_ISO()
+    timestamp = now_ISOish()
     temp_links = temp_dir / 'links' / timestamp
     temp_links.mkdir(parents=True, exist_ok=True)
     id_to_name = {}
@@ -108,10 +109,10 @@ def _process_output_files(temp_output, out_dir, id_to_name):
         copyfile(tmppath, path)        
 
     # make json files for html tables
-    for file_ in ('gtdbtk.ar122.summary.tsv',
+    for file_ in ('gtdbtk.ar53.summary.tsv',
                   'gtdbtk.bac120.summary.tsv',
                   'gtdbtk.bac120.markers_summary.tsv',
-                  'gtdbtk.ar122.markers_summary.tsv'
+                  'gtdbtk.ar53.markers_summary.tsv'
                   # skip filtered for now, unused
                   # 'gtdbtk.filtered.tsv'
                   ):

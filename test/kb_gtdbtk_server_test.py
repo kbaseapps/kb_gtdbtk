@@ -246,6 +246,7 @@ class kb_gtdbtkTest(unittest.TestCase):
 
     # test binnedcontigs input with full tree (takes about 1 hr)
     # NOT ABLE TO RUN ON DEV1.  Too much memory required.  Need to shrink number of bins
+    # SKIP THIS!!!
     @unittest.skip("skipped test_classify_wf_binnedcontigs_fulltree()")  # uncomment to skip
     def test_classify_wf_binnedcontigs_fulltree(self):
         report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, {
@@ -335,15 +336,13 @@ class kb_gtdbtkTest(unittest.TestCase):
         del d['html_links'][0]['URL']
         del d['html_links'][0]['handle']
 
-        objects_created = d['objects_created']
-        archive_shock_id = d['file_links'][0]['shock_id']
+        objects_created = d['objects_created']  # can't predict dynamic objects created
+        file_links = d['file_links']  # can't predict dynamic handle
         
         assert objname == obj['info'][1]
         assert d == {'direct_html': None,
                      'direct_html_link_index': 0,
-                     'file_links': [{'shock_id': archive_shock_id,
-                                     'name': 'GTDB-Tk_classify_wf.zip',
-                                     'description': 'GTDB-Tk Classify WF output'}],
+                     'file_links': file_links,
                      'html_links': [{'description': 'HTML report for GTDBTk Classify',
                                      'label': 'index.html',
                                      'name': 'index.html'}],
@@ -352,7 +351,9 @@ class kb_gtdbtkTest(unittest.TestCase):
                      'summary_window_height': None,
                      'text_message': None,
                      'warnings': []}
-
+        
+        # Shock is no longer being used
+        """
         shocknode = shock_url.split('/')[-1]
         self.handles_to_delete.append(hid)
         self.nodes_to_delete.append(shocknode)
@@ -364,12 +365,15 @@ class kb_gtdbtkTest(unittest.TestCase):
         assert shockret['id'] == shocknode
         shockfile = shockret['file']
         assert shockfile['name'] == filename
+        """
         # can't maintain filesize expectation through wrapped tool/db updates
         """
         assert shockfile['size'] > minsize  # zip file size & md5 not repeatable
         assert shockfile['size'] < maxsize
         """
-        
+
+        # Shock is no longer being used
+        """
         handleret = self.hs.hids_to_handles([hid])[0]
         print(handleret)
         assert handleret['url'] == self.shock_url
@@ -389,6 +393,7 @@ class kb_gtdbtkTest(unittest.TestCase):
         files = os.listdir(zipdir)
         files.remove(filename)
         print(files)
+        """
 
         # can't easily maintain md5s through repeated updates.  don't require
         """
