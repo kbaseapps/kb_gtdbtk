@@ -10,7 +10,7 @@ import tempfile
 
 from datetime import datetime
 from pathlib import Path
-from shutil import copyfile
+from shutil import copyfile,copytree
 from typing import Dict, List, Callable
 
 
@@ -101,13 +101,16 @@ def _process_output_files(temp_output, out_dir, id_to_name):
     classification = dict()
 
     # copy over all created output
+    """
     for file_ in os.listdir (temp_output):
         tmppath = temp_output / file_
         if not tmppath.is_file():
             continue
         path = out_dir / file_
         copyfile(tmppath, path)        
-
+    """
+    copytree(temp_output, out_dir)
+    
     # make json files for html tables
     file_folder = {'gtdbtk.ar53.summary.tsv': 'classify',
                    'gtdbtk.bac120.summary.tsv': 'classify',
