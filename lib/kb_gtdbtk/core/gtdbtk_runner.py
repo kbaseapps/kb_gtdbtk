@@ -109,7 +109,8 @@ def _process_output_files(temp_output, out_dir, id_to_name):
         path = out_dir / file_
         copyfile(tmppath, path)        
     """
-    copytree(temp_output, out_dir)
+    sub_out_dir = Path(out_dir / 'runtime_output')
+    copytree(temp_output, sub_out_dir, symlinks=True)
     
     # make json files for html tables
     file_folder = {'gtdbtk.ar53.summary.tsv': 'classify',
