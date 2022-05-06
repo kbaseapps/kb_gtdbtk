@@ -1,2 +1,0 @@
-1. update Pipfile
-2. run "pipenv lock -r > requirements.txt"

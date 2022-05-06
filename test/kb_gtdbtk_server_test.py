@@ -353,6 +353,7 @@ class kb_gtdbtkTest(unittest.TestCase):
                      'warnings': []}
         
         # Shock is no longer being used
+        """
         shocknode = shock_url.split('/')[-1]
         self.handles_to_delete.append(hid)
         self.nodes_to_delete.append(shocknode)
@@ -364,6 +365,7 @@ class kb_gtdbtkTest(unittest.TestCase):
         assert shockret['id'] == shocknode
         shockfile = shockret['file']
         assert shockfile['name'] == filename
+        """
 
         # can't maintain filesize expectation through wrapped tool/db updates
         """
@@ -372,6 +374,7 @@ class kb_gtdbtkTest(unittest.TestCase):
         """
 
         # Shock is no longer being used
+        """
         handleret = self.hs.hids_to_handles([hid])[0]
         print(handleret)
         assert handleret['url'] == self.shock_url
@@ -391,6 +394,7 @@ class kb_gtdbtkTest(unittest.TestCase):
         files = os.listdir(zipdir)
         files.remove(filename)
         print(files)
+        """
 
         # can't easily maintain md5s through repeated updates.  don't require
         """
