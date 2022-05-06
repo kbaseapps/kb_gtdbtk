@@ -109,19 +109,30 @@ def _process_output_files(temp_output, out_dir, id_to_name):
         copyfile(tmppath, path)        
 
     # make json files for html tables
+    file_folder = {'gtdbtk.ar53.summary.tsv': 'classify',
+                   'gtdbtk.bac120.summary.tsv': 'classify',
+                   'gtdbtk.ar53.markers_summary.tsv': 'identify',
+                   'gtdbtk.bac120.markers_summary.tsv': 'identify',
+                   'gtdbtk.ar53.classify.tree': 'classify',
+                   'gtdbtk.bac120.classify.tree': 'classify'
+                  }
     for file_ in ('gtdbtk.ar53.summary.tsv',
                   'gtdbtk.bac120.summary.tsv',
+                  'gtdbtk.ar53.markers_summary.tsv',
                   'gtdbtk.bac120.markers_summary.tsv',
-                  'gtdbtk.ar53.markers_summary.tsv'
+                  'gtdbtk.ar53.classify.tree',
+                  'gtdbtk.bac120.classify.tree'
                   # skip filtered for now, unused
                   # 'gtdbtk.filtered.tsv'
                   ):
-        tmppath = temp_output / file_
+        tmppath = temp_output / file_folder[file_] / file_
         if not tmppath.is_file():
             logging.info('No such file, skipping: ' + str(tmppath))
         else:
             path = out_dir / file_
             copyfile(tmppath, path)
+            if not file_.endswith('.tsv'):
+                continue
             summary_df = pd.read_csv(path, sep='\t', encoding='utf-8')
             outfile = str(path) + '.json'
             summary_json = '{"data": ' + summary_df.to_json(orient='records') + '}'

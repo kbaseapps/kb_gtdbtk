@@ -29,7 +29,11 @@ def test_gtdbtk_run():
 
             #temp_out = temp_dir / 'output'
             temp_out = str(td)
-
+            temp_classify = Path(os.path.join(temp_out, 'classify'))
+            temp_classify.mkdir(parents=True, exist_ok=True)
+            temp_identify = Path(os.path.join(temp_out, 'identify'))
+            temp_identify.mkdir(parents=True, exist_ok=True)
+            
             assert command == [
                 'gtdbtk',
                 'classify_wf',
@@ -41,19 +45,19 @@ def test_gtdbtk_run():
             # arbitrary TSV files, these may not match what GTDB-tk produces
             # implmentation doesn't care for now other than the first column
 
-            with open(os.path.join(temp_out, 'gtdbtk.ar53.summary.tsv'), 'w') as t:
+            with open(os.path.join(temp_classify, 'gtdbtk.ar53.summary.tsv'), 'w') as t:
                 t.writelines(['\t'.join(['name', 'field1', 'field2']) + '\n',
                               '\t'.join(['id0', 'foo', 'bar']) + '\n',
                               '\t'.join(['id1', 'baz', 'bat']) + '\n',
                               ])
 
-            with open(os.path.join(temp_out, 'gtdbtk.bac120.summary.tsv'), 'w') as t:
+            with open(os.path.join(temp_classify, 'gtdbtk.bac120.summary.tsv'), 'w') as t:
                 t.writelines(['\t'.join(['name', 'field1', 'field2']) + '\n',
                               '\t'.join(['id0', 'whoo', 'whee']) + '\n',
                               '\t'.join(['id1', 'whoa', 'whump']) + '\n',
                               ])
 
-            with open(os.path.join(temp_out, 'gtdbtk.bac120.markers_summary.tsv'), 'w') as t:
+            with open(os.path.join(temp_identify, 'gtdbtk.bac120.markers_summary.tsv'), 'w') as t:
                 t.writelines(['\t'.join(['user_genome', 'field1', 'field2']) + '\n',
                               '\t'.join(['id0', 'fee', 'fie']) + '\n',
                               '\t'.join(['id1', 'fo', 'fum']) + '\n',
@@ -88,8 +92,12 @@ def test_gtdbtk_run():
         assert os.readlink(id1_path) == '/somepath2'
 
         assert sorted(os.listdir(out_dir)) == [
+            #'gtdbtk.ar53.classify.tree',
+            #'gtdbtk.ar53.markers_summary.tsv',
+            #'gtdbtk.ar53.markers_summary.tsv.json',
             'gtdbtk.ar53.summary.tsv',
             'gtdbtk.ar53.summary.tsv.json',
+            #'gtdbtk.bac120.classify.tree',
             'gtdbtk.bac120.markers_summary.tsv',
             'gtdbtk.bac120.markers_summary.tsv.json',
             'gtdbtk.bac120.summary.tsv',
