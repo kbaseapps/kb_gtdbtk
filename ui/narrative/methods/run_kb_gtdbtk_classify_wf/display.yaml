@@ -26,11 +26,11 @@ suggestions:
 parameters :
     input_object_ref :
         ui-name : |
-            Assembly Input
+            Input
         short-hint : |
-            A genome assembly, genome, binned contigs, or set
+            A binned contigs object, assembly set, or genome set
         long-hint  : |
-            A single genome assembly or genome object or an assembly set or genome set.  Also accepts Binned Contigs object.
+            An assembly set or genome set.  Also accepts Binned Contigs object.  Use Build AssemblySet or Build GenomeSet if have just one object.
     min_perc_aa :
         ui-name : |
             Minimum Alignment Percent
