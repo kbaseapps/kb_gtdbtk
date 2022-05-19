@@ -102,6 +102,7 @@ def test_gtdbtk_run():
             'gtdbtk.bac120.markers_summary.tsv.json',
             'gtdbtk.bac120.summary.tsv',
             'gtdbtk.bac120.summary.tsv.json',
+            'runtime_output'
         ]
 
         with open(os.path.join(out_dir, 'gtdbtk.ar53.summary.tsv.json')) as j:

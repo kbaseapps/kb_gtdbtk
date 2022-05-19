@@ -3,9 +3,9 @@
 
 1.2.0
 _____
-* Update GTDB-Tk to v2.0.0 (released Apr 8, 2022)
+* Update GTDB-Tk to v2.1.0 (released May 11, 2022)
 * Update refdata to GTDB-R07_RS207 (released Apr 8, 2022)
-* Update base Docker image to kbase/sdkpython:3.8.0
+* Update base Docker image to kbase/sdkpython:3.8.10
 
 1.1.0
 ______

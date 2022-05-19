@@ -1,4 +1,4 @@
-FROM kbase/sdkpython:3.8.0
+FROM kbase/sdkpython:3.8.10
 MAINTAINER KBase Developer
 # -----------------------------------------
 # In this section, you can install any system dependencies required
@@ -14,7 +14,7 @@ RUN pip install pytest pytest-cov mypy coveralls flake8 --upgrade \
     && pip install jsonrpcbase requests pandas --upgrade
 
 # GTDB-Tk install
-ENV GTDBTK_VERSION='2.0.0'
+ENV GTDBTK_VERSION='2.1.0'
 RUN pip install gtdbtk==${GTDBTK_VERSION}
 
 # GTDB-Tk dependencies

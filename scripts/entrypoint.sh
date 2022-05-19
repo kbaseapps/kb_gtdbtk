@@ -19,9 +19,9 @@ elif [ "${1}" = "init" ] ; then
   echo "Initialize module"
   cd /data
   echo "Getting GTDB-Tk database"
-  curl --insecure -O https://data.gtdb.ecogenomic.org/releases/release207/207.0/auxillary_files/gtdbtk_r207_data.tar.gz
-  tar xvzf gtdbtk_r207_data.tar.gz --strip 1
-  rm gtdbtk_r207_data.tar.gz
+  curl --insecure -O https://data.gtdb.ecogenomic.org/releases/release207/207.0/auxillary_files/gtdbtk_r207_v2_data.tar.gz
+  tar xvzf gtdbtk_r207_v2_data.tar.gz --strip 1
+  rm gtdbtk_r207_v2_data.tar.gz
   if [[ -d "taxonomy" && -d "fastani" && -d "markers" ]] ; then
     touch __READY__
   else

@@ -10,7 +10,7 @@ import tempfile
 
 from datetime import datetime
 from pathlib import Path
-from shutil import copyfile,copytree
+from shutil import copyfile,copytree,rmtree
 from typing import Dict, List, Callable
 
 
@@ -110,6 +110,8 @@ def _process_output_files(temp_output, out_dir, id_to_name):
         copyfile(tmppath, path)        
     """
     sub_out_dir = Path(out_dir / 'runtime_output')
+    if os.path.isdir(sub_out_dir):  # only occurs during unit tests
+        rmtree(sub_out_dir)
     copytree(temp_output, sub_out_dir, symlinks=True)
     
     # make json files for html tables
