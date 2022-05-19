@@ -1,7 +1,7 @@
 #
 # define display information
 #
-name: Classify Microbes with GTDB-Tk - v2.0.0
+name: Classify Microbes with GTDB-Tk - v2.1.0
 
 tooltip: |
     Obtain objective taxonomic assignments for bacterial and archaeal genomes based on the Genome Taxonomy Database (GTDB) ver R07-RS207
@@ -55,13 +55,13 @@ parameters :
 
 description : |
     <h3>Description</h3>
-    <p><b><a href="https://github.com/Ecogenomics/GTDBTk">GTDB-Tk v2.0.0</a></b> is a software toolkit for assigning objective taxonomic classifications to bacterial and archaeal genomes. It is designed to work with recent advances that allow hundreds or thousands of metagenome-assembled genomes (MAGs) to be obtained directly from environmental samples. It can also be applied to isolate and single-cell genomes. If the input is a GenomeSet, the App will optionally overwrite the Taxonomy information in the Genome object(s).</p>
+    <p><b><a href="https://github.com/Ecogenomics/GTDBTk">GTDB-Tk v2.1.0</a></b> is a software toolkit for assigning objective taxonomic classifications to bacterial and archaeal genomes. It is designed to work with recent advances that allow hundreds or thousands of metagenome-assembled genomes (MAGs) to be obtained directly from environmental samples. It can also be applied to isolate and single-cell genomes. If the input is a GenomeSet, the App will optionally overwrite the Taxonomy information in the Genome object(s).</p>
     <p>As of v2.0.0, the GTDB-Tk Classify workflow by default uses order-level subtrees rather than the entire Bacterial tree.  This uses far less memory.  An option to use the full tree is provided.</p>
     <p>As of v2.0.0, intermediate files in the classification workflow are deleted.  An option to keep those intermediate files is provided.</p>
     <p>Note: individual Genome objects must first be placed into a GenomeSet to be used as input.  This is to avoid accidentally running the App multiple times, once for each Genome, which is very inefficient.  Similarly, individual Assembly objects must be placed into an AssemblySet object.  The utility Apps Build GenomeSet or Build AssemblySet can be used for this purpose.</p>
 
     <h3>Data</h3>
-    <p>This app is using gtdbtk release 207 data <a href="https://data.gtdb.ecogenomic.org/releases/release207/207.0/auxillary_files/gtdbtk_r207_data.tar.gz">https://data.gtdb.ecogenomic.org/releases/release207/207.0/auxillary_files/gtdbtk_r207_data.tar.gz</a> (warning: clicking on link will start download 47.35 GB of data). This reference data corresponds to the GTDB R07-RS207 release.</p>
+    <p>This app is using gtdbtk release 207 data <a href="https://data.gtdb.ecogenomic.org/releases/release207/207.0/auxillary_files/gtdbtk_r207_v2_data.tar.gz">https://data.gtdb.ecogenomic.org/releases/release207/207.0/auxillary_files/gtdbtk_r207_v2_data.tar.gz</a> (warning: clicking on link will start download 62.74 GB of data). This reference data corresponds to the GTDB R07-RS207 release.</p>
     <h3>About GTDB </h3>
     <a href='https://gtdb.ecogenomic.org/'>The Genome Taxonomy Database (GTDB)</a> is constructed from RefSeq and Genbank genomes, and releases are indexed to RefSeq releases. All genomes are quality controlled using <a href='https://github.com/Ecogenomics/CheckM/wiki'>CheckM</a> and those statistics can be found on the <a href='https://gtdb.ecogenomic.org/stats'>GTDB website</a>.
     <h3>References</h3>
