@@ -7,10 +7,12 @@ import logging
 import os
 from collections import Counter
 from pathlib import Path
-from typing import Dict, List, Callable
+from typing import List, Callable
 
 # create a Krona chart based on a text file
 # https://github.com/marbl/Krona/wiki/Importing-text-and-XML-data
+
+
 def run_krona_import_text(
         runner: Callable[[List[str]], None],
         output_dir: Path,
@@ -19,13 +21,14 @@ def run_krona_import_text(
 
     input_file = _create_input_file(output_dir, temp_dir)
 
-    chart_file_name = 'krona_chart.html' # if updated, the index.html file should also be updated accordingly
+    chart_file_name = 'krona_chart.html'  # if updated, the index.html file should also be updated accordingly
     output_file = os.path.join(output_dir, chart_file_name)
 
     import_text_cmd = ['ktImportText', input_file, '-o', output_file]
 
     logging.info('Starting Command:\n' + ' '.join(import_text_cmd))
     runner(import_text_cmd)
+
 
 def _create_input_file(output_dir: Path, temp_dir: Path) -> Path:
     '''
