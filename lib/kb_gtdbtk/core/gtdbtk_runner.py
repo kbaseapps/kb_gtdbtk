@@ -8,17 +8,30 @@ import os
 import pandas as pd
 import tempfile
 
+from datetime import datetime
 from pathlib import Path
-from shutil import copyfile
+from shutil import copyfile,copytree,rmtree
 from typing import Dict, List, Callable
 
 
+# timestamp
+def now_ISOish():
+    now_timestamp = datetime.now()
+    now_secs_from_epoch = (now_timestamp - datetime(1970,1,1)).total_seconds()
+    #now_timestamp_in_iso = datetime.fromtimestamp(int(now_secs_from_epoch)).strftime('%Y-%m-%d_%T')
+    now_timestamp_in_isoish = datetime.fromtimestamp(int(now_secs_from_epoch)).strftime('%Y%m%d_%H%M%S')
+    return now_timestamp_in_isoish
+    
+
+# main func
 def run_gtdbtk(
         gtdbtk_runner: Callable[[List[str]], None],
         sequences: Dict[Path, str],
         output_dir: Path,
         temp_dir: Path,
         min_perc_aa: float,
+        full_tree: int,
+        keep_intermediates: int,
         cpus: int) -> None:
     '''
     Run GTDB-tk on a set of sequences in FASTA format. Expects the 'gtdbtk' command to be on the
@@ -45,7 +58,8 @@ def run_gtdbtk(
     # characters such as |. Essentially here we provide safe file names and identitifers
     # (which GTDB-tk will use to create temporary files) and then remap to the original,
     # potentially unsafe names.
-    temp_links = temp_dir / 'links'
+    timestamp = now_ISOish()
+    temp_links = temp_dir / 'links' / timestamp
     temp_links.mkdir(parents=True, exist_ok=True)
     id_to_name = {}
     with tempfile.NamedTemporaryFile(
@@ -60,7 +74,7 @@ def run_gtdbtk(
             os.symlink(path, temp_links / id_)
             tf.write(str(temp_links / id_) + '\t' + id_ + '\n')
 
-    temp_output = temp_dir / 'output'
+    temp_output = temp_dir / 'output' / timestamp
     temp_output.mkdir(parents=True, exist_ok=True)
 
     gtdbtk_cmd = [
@@ -70,7 +84,11 @@ def run_gtdbtk(
         '--batchfile', tf.name,
         '--cpus', str(cpus),
         '--min_perc_aa', str(min_perc_aa)]
-
+    if full_tree == 1:
+        gtdbtk_cmd += ['--full_tree']
+    if keep_intermediates == 1:
+        gtdbtk_cmd += ['--keep_intermediates']
+    
     logging.info('Starting Command:\n' + ' '.join(gtdbtk_cmd))
     gtdbtk_runner(gtdbtk_cmd)
     classification = _process_output_files(temp_output, output_dir, id_to_name)
@@ -83,27 +101,44 @@ def _process_output_files(temp_output, out_dir, id_to_name):
     classification = dict()
 
     # copy over all created output
+    """
     for file_ in os.listdir (temp_output):
         tmppath = temp_output / file_
         if not tmppath.is_file():
             continue
         path = out_dir / file_
         copyfile(tmppath, path)        
-
+    """
+    sub_out_dir = Path(out_dir / 'runtime_output')
+    if os.path.isdir(sub_out_dir):  # only occurs during unit tests
+        rmtree(sub_out_dir)
+    copytree(temp_output, sub_out_dir, symlinks=True)
+    
     # make json files for html tables
-    for file_ in ('gtdbtk.ar122.summary.tsv',
+    file_folder = {'gtdbtk.ar53.summary.tsv': 'classify',
+                   'gtdbtk.bac120.summary.tsv': 'classify',
+                   'gtdbtk.ar53.markers_summary.tsv': 'identify',
+                   'gtdbtk.bac120.markers_summary.tsv': 'identify',
+                   'gtdbtk.ar53.classify.tree': 'classify',
+                   'gtdbtk.bac120.classify.tree': 'classify'
+                  }
+    for file_ in ('gtdbtk.ar53.summary.tsv',
                   'gtdbtk.bac120.summary.tsv',
+                  'gtdbtk.ar53.markers_summary.tsv',
                   'gtdbtk.bac120.markers_summary.tsv',
-                  'gtdbtk.ar122.markers_summary.tsv'
+                  'gtdbtk.ar53.classify.tree',
+                  'gtdbtk.bac120.classify.tree'
                   # skip filtered for now, unused
                   # 'gtdbtk.filtered.tsv'
                   ):
-        tmppath = temp_output / file_
+        tmppath = temp_output / file_folder[file_] / file_
         if not tmppath.is_file():
             logging.info('No such file, skipping: ' + str(tmppath))
         else:
             path = out_dir / file_
             copyfile(tmppath, path)
+            if not file_.endswith('.tsv'):
+                continue
             summary_df = pd.read_csv(path, sep='\t', encoding='utf-8')
             outfile = str(path) + '.json'
             summary_json = '{"data": ' + summary_df.to_json(orient='records') + '}'
