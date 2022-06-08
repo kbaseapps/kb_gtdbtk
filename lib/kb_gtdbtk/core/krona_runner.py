@@ -3,7 +3,11 @@ Run KronaTools
 '''
 
 import json
+import logging
+import os
 from collections import Counter
+from pathlib import Path
+from typing import Dict, List, Callable
 
 # create a Krona chart based on a text file
 # https://github.com/marbl/Krona/wiki/Importing-text-and-XML-data
@@ -52,7 +56,6 @@ def _create_input_file(output_dir: Path, temp_dir: Path) -> Path:
     with open(krona_input_path, 'w') as krona_file:
         for taxonomy, count in taxo_counter.items():
             line = '{}\t{}\n'.format(count, taxonomy.replace(";", '\t'))
-            print(line)
             krona_file.write(line)
 
     return krona_input_path
