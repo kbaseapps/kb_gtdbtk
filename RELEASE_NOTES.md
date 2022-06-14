@@ -1,6 +1,10 @@
 # kb_gtdbtk release notes
 =========================
 
+1.2.1
+_____
+* added Krona chart to report
+
 1.2.0
 _____
 * Update GTDB-Tk to v2.1.0 (released May 11, 2022)

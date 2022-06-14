@@ -25,6 +25,11 @@ RUN curl -LJO https://github.com/ParBLiSS/FastANI/releases/download/${FASTANI_VE
 
 RUN conda install -c bioconda hmmer prodigal pplacer fasttree mash --yes
 
+# Krona install
+WORKDIR /kb
+RUN git clone https://github.com/marbl/Krona.git && \
+    cd Krona/KronaTools/ && \
+    ./install.pl
 # -----------------------------------------
 
 COPY ./ /kb/module

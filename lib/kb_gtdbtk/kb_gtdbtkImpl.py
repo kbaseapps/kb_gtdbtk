@@ -10,6 +10,7 @@ from kb_gtdbtk.core.api_translation import get_gtdbtk_params
 from kb_gtdbtk.core.sequence_downloader import download_sequence
 from kb_gtdbtk.core.kb_client_set import KBClients
 from kb_gtdbtk.core.gtdbtk_runner import run_gtdbtk
+from kb_gtdbtk.core.krona_runner import run_krona_import_text
 from kb_gtdbtk.core.kb_report_generation import generate_report
 from kb_gtdbtk.core.genome_obj_update import check_obj_type_genome, update_genome_objs_class
 #END_HEADER
@@ -134,6 +135,8 @@ class kb_gtdbtk:
 
         classification = run_gtdbtk(
             runner, path_to_filename, output_path, temp_output, params.min_perc_aa, params.full_tree, params.keep_intermediates, self.cpus)
+
+        run_krona_import_text(runner, output_path, temp_output)
 
         objects_created = None
         if check_obj_type_genome (params.ref, cli):
