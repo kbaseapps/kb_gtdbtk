@@ -1,6 +1,10 @@
 # kb_gtdbtk release notes
 =========================
 
+1.2.2
+_____
+* record taxon_assignment as GTDB_R07-RS207 in genome obj
+
 1.2.1
 _____
 * added Krona chart to report
