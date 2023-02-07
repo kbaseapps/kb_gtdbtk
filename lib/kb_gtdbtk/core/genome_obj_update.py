@@ -113,9 +113,9 @@ def _process_genome_objs(upa, upas, classification, overwrite_tax, clients):
 
         # set taxon_assignments
         if not genome_obj['data'].get('taxon_assignments'):
-            genome_obj['data']['taxon_assignments'] = {'GTDB_R06-RS202': classification[assembly_name]}
+            genome_obj['data']['taxon_assignments'] = {'GTDB_R07-RS207': classification[assembly_name]}
         else:
-            genome_obj['data']['taxon_assignments']['GTDB_R06-RS202'] = classification[assembly_name]
+            genome_obj['data']['taxon_assignments']['GTDB_R07-RS207'] = classification[assembly_name]
             
         # set taxonomy (if missing or force overwrite)
         this_genome_tax_written = False

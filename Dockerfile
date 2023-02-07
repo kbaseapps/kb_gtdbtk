@@ -1,4 +1,4 @@
-FROM kbase/sdkbase2:python
+FROM kbase/sdkpython:3.8.10
 MAINTAINER KBase Developer
 # -----------------------------------------
 # In this section, you can install any system dependencies required
@@ -7,19 +7,29 @@ MAINTAINER KBase Developer
 # installation scripts.
 
 RUN apt-get update
-RUN apt-get install libgomp1  
+RUN apt-get install -y libgomp1 unzip
 
+RUN pip install pip --upgrade
+RUN pip install pytest pytest-cov mypy coveralls flake8 --upgrade \
+    && pip install jsonrpcbase requests pandas --upgrade
+
+# GTDB-Tk install
+ENV GTDBTK_VERSION='2.1.0'
+RUN pip install gtdbtk==${GTDBTK_VERSION}
+
+# GTDB-Tk dependencies
 ENV FASTANI_VERSION='v1.33'
-
 RUN curl -LJO https://github.com/ParBLiSS/FastANI/releases/download/${FASTANI_VERSION}/fastANI-Linux64-${FASTANI_VERSION}.zip \
-&& unzip fastANI-Linux64-${FASTANI_VERSION}.zip \
-&& mv fastANI /miniconda/bin/
+    && unzip fastANI-Linux64-${FASTANI_VERSION}.zip \
+    && mv fastANI /usr/local/bin/
 
-RUN pip install pipenv==2018.11.26
-
-ENV GTDBTK_DATA_PATH=/data
-# conda updates to py 3.8 and everything breaks
 RUN conda install -c bioconda hmmer prodigal pplacer fasttree mash --yes
+
+# Krona install
+WORKDIR /kb
+RUN git clone https://github.com/marbl/Krona.git && \
+    cd Krona/KronaTools/ && \
+    ./install.pl
 # -----------------------------------------
 
 COPY ./ /kb/module
@@ -28,13 +38,9 @@ RUN chmod -R a+rw /kb/module
 
 WORKDIR /kb/module
 
-# This stuff has to come after the COPY since it uses the pipfile in the repo
-# really need a test build and a prod build. Not sure that's possible via sdk.
-RUN pipenv install --system --deploy --ignore-pipfile --dev
-
 RUN make all
 
-
+ENV GTDBTK_DATA_PATH=/data
 ENTRYPOINT [ "./scripts/entrypoint.sh" ]
 
 CMD [ ]

@@ -61,5 +61,6 @@ def generate_report(
 
     return {
         'report_name': report_info['name'],
-        'report_ref': report_info['ref']
+        'report_ref': report_info['ref'],
+        'archive_shock_id': upload_ret['shock_id']
     }

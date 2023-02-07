@@ -1,5 +1,19 @@
 # kb_gtdbtk release notes
-=========================================
+=========================
+
+1.2.2
+_____
+* record taxon_assignment as GTDB_R07-RS207 in genome obj
+
+1.2.1
+_____
+* added Krona chart to report
+
+1.2.0
+_____
+* Update GTDB-Tk to v2.1.0 (released May 11, 2022)
+* Update refdata to GTDB-R07_RS207 (released Apr 8, 2022)
+* Update base Docker image to kbase/sdkpython:3.8.10
 
 1.1.0
 ______

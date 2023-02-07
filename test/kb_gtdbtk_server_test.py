@@ -217,12 +217,16 @@ class kb_gtdbtkTest(unittest.TestCase):
     # UNIT TESTS #
     ##############
         
-    # test bacterial assembly input (takes about 1 hr)
+    # test bacterial assembly input against order-level subtrees (takes about 1 hr)
     # HIDE @unittest.skip("skipped test_classify_wf_assembly()")  # uncomment to skip
     def test_classify_wf_assembly(self):
         report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, {
             'workspace_id': self.wsid,
-            'input_object_ref': self.single_assy})[0]
+            'input_object_ref': self.single_assy,
+            'full_tree': 0,
+            'keep_intermediates': 0,
+            'overwrite_tax': 0
+        })[0]
         assert self.isUpa (report['report_ref'])
 
         # can't easily maintain md5s through repeated updates.  don't require
@@ -240,13 +244,32 @@ class kb_gtdbtkTest(unittest.TestCase):
         self.check_gtdbtk_output(report, 4624, md5s)
 
 
-    # test binnedcontigs input (takes about 1 hr)
+    # test binnedcontigs input with full tree (takes about 1 hr)
     # NOT ABLE TO RUN ON DEV1.  Too much memory required.  Need to shrink number of bins
-    @unittest.skip("skipped test_classify_wf_binnedcontigs()")  # uncomment to skip
-    def test_classify_wf_binnedcontigs(self):
+    # SKIP THIS!!!
+    @unittest.skip("skipped test_classify_wf_binnedcontigs_fulltree()")  # uncomment to skip
+    def test_classify_wf_binnedcontigs_fulltree(self):
         report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, {
             'workspace_id': self.wsid,
-            'input_object_ref': self.binned_contigs})[0]
+            'input_object_ref': self.binned_contigs,
+            'full_tree': 1,
+            'keep_intermediates': 0,
+            'overwrite_tax': 0
+        })[0]
+        # TODO: after shrinking data to fit on dev1, test report content
+        assert self.isUpa (report['report_ref'])
+        
+
+    # test binnedcontigs input with order-level subtrees (takes about 1 hr)
+    # HIDE @unittest.skip("skipped test_classify_wf_binnedcontigs_subtrees()")  # uncomment to skip
+    def test_classify_wf_binnedcontigs_subtrees(self):
+        report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, {
+            'workspace_id': self.wsid,
+            'input_object_ref': self.binned_contigs,
+            'full_tree': 0,
+            'keep_intermediates': 0,
+            'overwrite_tax': 0
+        })[0]
         # TODO: after shrinking data to fit on dev1, test report content
         assert self.isUpa (report['report_ref'])
         
@@ -256,30 +279,43 @@ class kb_gtdbtkTest(unittest.TestCase):
     def test_classify_wf_assemblyset(self):
         report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, {
             'workspace_id': self.wsid,
-            'input_object_ref': self.arch_assemblySet})[0]
+            'input_object_ref': self.arch_assemblySet,
+            'full_tree': 0,
+            'keep_intermediates': 1,
+            'overwrite_tax': 1
+        })[0]
         # TODO: test report content
         assert self.isUpa (report['report_ref'])
         
+
     # test archaeal genome input (takes a few minutes)
-    @unittest.skip("skipped test_classify_wf_genome()")  # uncomment to skip
+    # HIDE @unittest.skip("skipped test_classify_wf_genome()")  # uncomment to skip
     def test_classify_wf_genome(self):
         report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, {
             'workspace_id': self.wsid,
-            'input_object_ref': self.arch_genomes[0]})[0]
+            'input_object_ref': self.arch_genomes[0],
+            'full_tree': 0,
+            'keep_intermediates': 1,
+            'overwrite_tax': 0
+        })[0]
         # TODO: test report content
         assert self.isUpa (report['report_ref'])
 
+        
     # test archaeal genomeSet input (takes a few minutes)
     # HIDE @unittest.skip("skipped test_classify_wf_genomeset()")  # uncomment to skip
     def test_classify_wf_genomeset(self):
         report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, {
             'workspace_id': self.wsid,
             'input_object_ref': self.arch_genomeSet,
+            'full_tree': 1,
+            'keep_intermediates': 1,
             'overwrite_tax': '1'
         })[0]
         # TODO: test report content
         assert self.isUpa (report['report_ref'])
 
+        
     ################
     # HELPER FUNCS #
     ################
@@ -300,19 +336,24 @@ class kb_gtdbtkTest(unittest.TestCase):
         del d['html_links'][0]['URL']
         del d['html_links'][0]['handle']
 
+        objects_created = d['objects_created']  # can't predict dynamic objects created
+        file_links = d['file_links']  # can't predict dynamic handle
+        
         assert objname == obj['info'][1]
         assert d == {'direct_html': None,
                      'direct_html_link_index': 0,
-                     'file_links': [],
+                     'file_links': file_links,
                      'html_links': [{'description': 'HTML report for GTDBTk Classify',
                                      'label': 'index.html',
                                      'name': 'index.html'}],
                      'html_window_height': None,
-                     'objects_created': [],
+                     'objects_created': objects_created,
                      'summary_window_height': None,
                      'text_message': None,
                      'warnings': []}
-
+        
+        # Shock is no longer being used
+        """
         shocknode = shock_url.split('/')[-1]
         self.handles_to_delete.append(hid)
         self.nodes_to_delete.append(shocknode)
@@ -324,12 +365,16 @@ class kb_gtdbtkTest(unittest.TestCase):
         assert shockret['id'] == shocknode
         shockfile = shockret['file']
         assert shockfile['name'] == filename
+        """
+
         # can't maintain filesize expectation through wrapped tool/db updates
         """
         assert shockfile['size'] > minsize  # zip file size & md5 not repeatable
         assert shockfile['size'] < maxsize
         """
-        
+
+        # Shock is no longer being used
+        """
         handleret = self.hs.hids_to_handles([hid])[0]
         print(handleret)
         assert handleret['url'] == self.shock_url
@@ -349,6 +394,7 @@ class kb_gtdbtkTest(unittest.TestCase):
         files = os.listdir(zipdir)
         files.remove(filename)
         print(files)
+        """
 
         # can't easily maintain md5s through repeated updates.  don't require
         """

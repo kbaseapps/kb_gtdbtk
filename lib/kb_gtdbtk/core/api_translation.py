@@ -19,8 +19,14 @@ class GTDBTKParams(_NamedTuple):
     min_perc_aa: float
     ''' The mimimum sequence alignment in percent. '''
 
+    full_tree: int
+    ''' Boolean use full tree or order-level subtrees '''
+    
+    keep_intermediates: int
+    ''' Boolean retain intermediate files in classify_wf '''
+    
     overwrite_tax: int
-    ''' Boolean to decode wheter to overwrite an existing Taxonomy field in input Genome. '''
+    ''' Boolean overwrite an existing Taxonomy field in input Genome. '''
 
 
 def get_gtdbtk_params(input_params: Dict[str, object]) -> GTDBTKParams:
@@ -37,6 +43,10 @@ def get_gtdbtk_params(input_params: Dict[str, object]) -> GTDBTKParams:
     :returns: the parsed parameters.
     :raises ValueError: if any of the parameters are invalid.
     '''
+    wsid = input_params.get('workspace_id')
+    if type(wsid) != int or _cast(int, wsid) < 1:
+        raise ValueError('workspace_id is required and must be an integer > 0')
+
     ref = input_params.get('input_object_ref')
     if not ref:
         # for backwards compatibility
@@ -50,13 +60,22 @@ def get_gtdbtk_params(input_params: Dict[str, object]) -> GTDBTKParams:
         raise ValueError('min_perc_aa must be a float')
     # TODO check 0 <= min_perc_aa <= 1
 
-    wsid = input_params.get('workspace_id')
-    if type(wsid) != int or _cast(int, wsid) < 1:
-        raise ValueError('workspace_id is required and must be an integer > 0')
-
-    overwrite_tax = int (input_params.get('overwrite_tax', 0))
+    full_tree = int(input_params.get('full_tree', 0))
+    if type(full_tree) != int or (full_tree != 0 and full_tree != 1):
+        raise ValueError('full_tree is required and must be an integer [0,1]')
+    
+    keep_intermediates = int(input_params.get('keep_intermediates', 0))
+    if type(keep_intermediates) != int or (keep_intermediates != 0 and keep_intermediates != 1):
+        raise ValueError('keep_intermediates is required and must be an integer [0,1]')
+    
+    overwrite_tax = int(input_params.get('overwrite_tax', 0))
     if type(overwrite_tax) != int or (overwrite_tax != 0 and overwrite_tax != 1):
         raise ValueError('overwrite_tax is required and must be an integer [0,1]')
 
     
-    return GTDBTKParams(_cast(str, ref), _cast(int, wsid), _cast(float, min_perc_aa) * 1.0, _cast(int, overwrite_tax))
+    return GTDBTKParams(_cast(str, ref),
+                        _cast(int, wsid),
+                        _cast(float, min_perc_aa) * 1.0,
+                        _cast(int, full_tree),
+                        _cast(int, keep_intermediates),
+                        _cast(int, overwrite_tax))
