@@ -101,7 +101,7 @@ def update_genome_assembly_objs_class(
         obj_data['info'][VERSION_I])
     obj_type = obj_data['info'][TYPE_I].split('-')[0]
 
-    if self.check_obj_type_genome (upa, clients):
+    if check_obj_type_genome (upa, clients):
         if 'KBaseSets.GenomeSet' == obj_type:
             upas = [gsi['ref'] for gsi in obj_data['data']['items']]
         elif 'KBaseSearch.GenomeSet' == obj_type:
@@ -113,7 +113,7 @@ def update_genome_assembly_objs_class(
 
         return _process_genome_objs(upa, upas, classification, overwrite_tax, gtdb_ver, taxon_assignment_field, clients)
 
-    elif self.check_obj_type_assembly (upa, clients):
+    elif check_obj_type_assembly (upa, clients):
         if 'KBaseSets.AssemblySet' == obj_type:
             upas = [asi['ref'] for asi in obj_data['data']['items']]
         elif 'KBaseGenomeAnnotations.Assembly' == obj_type:
@@ -171,7 +171,7 @@ def _process_genome_objs(upa, upas, classification, overwrite_tax, gtdb_ver, tax
         std_lineages = { 'gtdb': { 'lineage': this_classification,
                                    'source_ver': gtdb_ver,
                                    'taxon_id': this_taxon_id,
-                                   'source_id' this_taxon_id
+                                   'source_id': this_taxon_id
                                    }
                          }
         # update and save assembly and give genome obj new assembly upa
@@ -304,7 +304,6 @@ def _process_assembly_objs(upa, upas, classification, overwrite_tax, gtdb_ver, t
             assemblyset_query = True
         # for a single assembly this is pulling the same data again. Could optimize here.
         assembly_obj = clients.dfu().get_objects({'object_refs': [assembly_upa]})['data'][0]
-        genome_name = genome_obj['info'][NAME_I]
         assembly_name = assembly_obj['info'][NAME_I]
 
         if assembly_name not in classification:
@@ -316,7 +315,7 @@ def _process_assembly_objs(upa, upas, classification, overwrite_tax, gtdb_ver, t
         
         this_classification = classification[assembly_name]
 
-        # set std_lineage GTDB field in genome and assembly objs
+        # set std_lineage GTDB field in assembly obj
         this_taxon_id = None
         for taxon_id in reversed(this_classification.split(';')):
             if len(taxon_id) == 3:
@@ -329,12 +328,12 @@ def _process_assembly_objs(upa, upas, classification, overwrite_tax, gtdb_ver, t
         std_lineages = { 'gtdb': { 'lineage': this_classification,
                                    'source_ver': gtdb_ver,
                                    'taxon_id': this_taxon_id,
-                                   'source_id' this_taxon_id
+                                   'source_id': this_taxon_id
                                    }
                          }
-        # update and save assembly and give genome obj new assembly upa
+        # update and save assembly
         assembly_obj['data']['std_lineages'] = std_lineages
-        this_wsid = genome_obj['info'][WSID_I]
+        this_wsid = assembly_obj['info'][WSID_I]
         updated_assembly_obj_info = clients.dfu().save_objects(
             { 'id': this_wsid,
               'objects': [{ 'type': 'KBaseGenomeAnnotations.Assembly',
@@ -352,7 +351,7 @@ def _process_assembly_objs(upa, upas, classification, overwrite_tax, gtdb_ver, t
         
     # update refs in assemblyset
     if assemblyset_query and any_assembly_updated:
-        new_genomeset_data = dict()
+        new_assemblyset_data = dict()
         assemblyset_obj = clients.dfu().get_objects({'object_refs': [upa]})['data'][0]
         assemblyset_name = assemblyset_obj['info'][NAME_I]
         assemblyset_type = assemblyset_obj['info'][TYPE_I].split('-')[0]
@@ -364,13 +363,13 @@ def _process_assembly_objs(upa, upas, classification, overwrite_tax, gtdb_ver, t
                 new_assemblyset_data['description'] = ''
 
             items = []
-            for asi in assembly_obj['data']['items']:
+            for asi in assemblyset_obj['data']['items']:
                 label = ''
                 if asi.get('label'):
                     label = asi['label']
                 if not updated_assembly_refs.get(asi['ref']):
                     raise ValueError ('unable to find '+asi['ref']+' in updated_assembly_refs')
-                new_ref = updated_assembly_refs[gsi['ref']]
+                new_ref = updated_assembly_refs[asi['ref']]
                 items.append({'label': label, 'ref': new_ref})
             new_assemblyset_data['items'] = items
         else:
