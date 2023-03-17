@@ -1,9 +1,15 @@
 # kb_gtdbtk release notes
 =========================
 
+1.2.3
+_____
+* record lineage info from GTDB_R07-RS207 in genome obj and assembly obj
+* fix numpy at 1.23.1 for Prodigal np.bool invocation
+
 1.2.2
 _____
 * record taxon_assignment as GTDB_R07-RS207 in genome obj
+* optionally record taxonomy from GTDB_R07-RS207 in genome obj
 
 1.2.1
 _____

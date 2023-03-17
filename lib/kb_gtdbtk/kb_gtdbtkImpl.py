@@ -12,7 +12,7 @@ from kb_gtdbtk.core.kb_client_set import KBClients
 from kb_gtdbtk.core.gtdbtk_runner import run_gtdbtk
 from kb_gtdbtk.core.krona_runner import run_krona_import_text
 from kb_gtdbtk.core.kb_report_generation import generate_report
-from kb_gtdbtk.core.genome_obj_update import check_obj_type_genome, update_genome_objs_class
+from kb_gtdbtk.core.genome_obj_update import check_obj_type_genome, check_obj_type_assembly, update_genome_assembly_objs_class
 #END_HEADER
 
 
@@ -45,7 +45,10 @@ class kb_gtdbtk:
         self.callback_url = os.environ['SDK_CALLBACK_URL']
         self.shared_folder = Path(config['scratch'])
         self.ws_url = config['workspace-url']
-        self.cpus = 32  # bigmem 32 cpus & 251 GB RAM
+        self.cpus = config['cpus']  # bigmem 32 cpus & 251 GB RAM
+        self.gtdb_ver = config['gtdb_ver']
+        self.taxon_assignment_field = config['taxon_assignment_field']
+        
         logging.basicConfig(format='%(created)s %(levelname)s: %(message)s',
                             level=logging.INFO)
         #END_CONSTRUCTOR
@@ -139,8 +142,8 @@ class kb_gtdbtk:
         run_krona_import_text(runner, output_path, temp_output)
 
         objects_created = None
-        if check_obj_type_genome (params.ref, cli):
-            objects_created = update_genome_objs_class (params.ref, classification, params.overwrite_tax, cli)
+        if check_obj_type_assembly (params.ref, cli) or check_obj_type_genome (params.ref, cli):
+            objects_created = update_genome_assembly_objs_class (params.ref, classification, params.overwrite_tax, self.gtdb_ver, self.taxon_assignment_field, cli)
         
         output = generate_report(cli, output_path, params.workspace_id, objects_created)
 
