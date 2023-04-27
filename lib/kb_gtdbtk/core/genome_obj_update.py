@@ -170,8 +170,8 @@ def _process_genome_objs(upa, upas, classification, overwrite_tax, gtdb_ver, tax
 
         std_lineages = { 'gtdb': { 'lineage': this_classification,
                                    'source_ver': gtdb_ver,
-                                   'taxon_id': this_taxon_id,
-                                   'source_id': None
+                                   'taxon_id': this_taxon_id
+                                   #'source_id': None
                                    }
                          }
         # update and save assembly and give genome obj new assembly upa
@@ -327,8 +327,8 @@ def _process_assembly_objs(upa, upas, classification, overwrite_tax, gtdb_ver, t
 
         std_lineages = { 'gtdb': { 'lineage': this_classification,
                                    'source_ver': gtdb_ver,
-                                   'taxon_id': this_taxon_id,
-                                   'source_id': None
+                                   'taxon_id': this_taxon_id
+                                   #'source_id': None
                                    }
                          }
         # update and save assembly
