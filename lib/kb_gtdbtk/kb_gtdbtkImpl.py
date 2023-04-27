@@ -31,9 +31,9 @@ class kb_gtdbtk:
     # state. A method could easily clobber the state set by another while
     # the latter method is running.
     ######################################### noqa
-    VERSION = "1.3.0"
+    VERSION = "1.2.3"
     GIT_URL = "https://github.com/kbaseapps/kb_gtdbtk"
-    GIT_COMMIT_HASH = "c4bffb78eefcf3db6481dc3e3b3a1ae7a4364e1e"
+    GIT_COMMIT_HASH = "2a582e6c2dd227de2ee212ba1175b76c32a54c5c"
 
     #BEGIN_CLASS_HEADER
     #END_CLASS_HEADER
