@@ -3,7 +3,7 @@
 
 1.3.0
 _____
-* update GTDB-Tk to v2.2.6 (released Mar 22, 2023)
+* update GTDB-Tk to v2.2.1 (released Feb 14, 2023)
 
 1.2.3
 _____

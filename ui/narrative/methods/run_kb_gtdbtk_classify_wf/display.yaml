@@ -1,7 +1,7 @@
 #
 # define display information
 #
-name: Classify Microbes with GTDB-Tk - v2.2.6
+name: Classify Microbes with GTDB-Tk - v2.2.1
 
 tooltip: |
     Obtain objective taxonomic assignments for bacterial and archaeal genomes based on the Genome Taxonomy Database (GTDB) ver R07-RS207
