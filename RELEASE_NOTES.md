@@ -1,6 +1,10 @@
 # kb_gtdbtk release notes
 =========================
 
+1.3.0
+_____
+* update GTDB-Tk to v2.2.6 (released Mar 22, 2023)
+
 1.2.3
 _____
 * record lineage info from GTDB_R07-RS207 in genome obj and assembly obj

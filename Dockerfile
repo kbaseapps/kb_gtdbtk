@@ -18,7 +18,7 @@ RUN pip uninstall -y numpy
 RUN yes | pip install numpy==1.23.1
 
 # GTDB-Tk install
-ENV GTDBTK_VERSION='2.1.0'
+ENV GTDBTK_VERSION='2.2.6'
 RUN pip install gtdbtk==${GTDBTK_VERSION}
 
 # GTDB-Tk dependencies
