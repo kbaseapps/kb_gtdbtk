@@ -7,9 +7,13 @@ from typing import Dict
 from kb_gtdbtk.core.kb_client_set import KBClients
 
 
+# global indices for KBase obj info list
+[OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I,
+ WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple    
+
+
 def check_obj_type_genome(
-        upa: str,
-        clients: KBClients,
+        obj_type: str
         ):
     '''
     Check to see if query is a Genome or GenomeSet
@@ -19,30 +23,22 @@ def check_obj_type_genome(
     KBaseSearch.GenomeSet
     KBaseGenomes.Genome
 
-    :param upa: The KBase UPA (e.g. X/Y/Z format) for the object from which sequence data will be
-        downloaded.
-    :param clients: The KBase clients to use for the download operation.
+    :param obj_type: string with KBase obj type
     :returns: True or False
     '''
-    [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I,
-     WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple    
+    genome_obj_types = ['KBaseSets.GenomeSet',
+                        'KBaseSearch.GenomeSet',
+                        'KBaseGenomes.Genome'
+                        ]
 
-    obj = clients.dfu().get_objects({'object_refs': [upa]})['data'][0]
-    obj_type = obj['info'][TYPE_I].split('-')[0]
-
-    if 'KBaseSets.GenomeSet' == obj_type:
-        return True
-    elif 'KBaseSearch.GenomeSet' == obj_type:
-        return True
-    elif 'KBaseGenomes.Genome' == obj_type:
+    if obj_type in genome_obj_types:
         return True
     else:
         return False
 
 
 def check_obj_type_assembly(
-        upa: str,
-        clients: KBClients,
+        obj_type: str
         ):
     '''
     Check to see if query is an Assembly or AssemblySet
@@ -51,20 +47,15 @@ def check_obj_type_assembly(
     KBaseSets.AssemblySet
     KBaseGenomeAnnotations.Assembly
 
-    :param upa: The KBase UPA (e.g. X/Y/Z format) for the object from which sequence data will be
-        downloaded.
-    :param clients: The KBase clients to use for the download operation.
+    :param obj_type: string with KBase obj type
     :returns: True or False
     '''
-    [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I,
-     WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple    
 
-    obj = clients.dfu().get_objects({'object_refs': [upa]})['data'][0]
-    obj_type = obj['info'][TYPE_I].split('-')[0]
+    assembly_obj_types = ['KBaseSets.AssemblySet',
+                        'KBaseGenomeAnnotations.Assembly'
+                        ]
 
-    if 'KBaseSets.AssemblySet' == obj_type:
-        return True
-    elif 'KBaseGenomeAnnotations.Assembly' == obj_type:
+    if obj_type in assembly_obj_types:
         return True
     else:
         return False
@@ -92,60 +83,61 @@ def update_genome_assembly_objs_class(
     :param clients: The KBase clients to use for the download operation.
     :returns: null
     '''
-    [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I,
-     WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple    
 
-    obj_data = clients.dfu().get_objects({'object_refs': [upa]})['data'][0]
+    top_obj = clients.dfu().get_objects({'object_refs': [upa]})['data'][0]
     # normalize upa just in case it's a ref vs. an upa
-    upa = str(obj_data['info'][WSID_I]) + '/' + str(obj_data['info'][OBJID_I]) + '/' + str(
-        obj_data['info'][VERSION_I])
-    obj_type = obj_data['info'][TYPE_I].split('-')[0]
+    upa = '/'.join([str(top_obj['info'][WSID_I]),
+                    str(top_obj['info'][OBJID_I]),
+                    str(top_obj['info'][VERSION_I])])
+    obj_data = top_obj['data']
+    obj_type = top_obj['info'][TYPE_I].split('-')[0]
 
-    if check_obj_type_genome (upa, clients):
+    if check_obj_type_genome (obj_type):
         if 'KBaseSets.GenomeSet' == obj_type:
-            upas = [gsi['ref'] for gsi in obj_data['data']['items']]
+            upas = [gsi['ref'] for gsi in obj_data['items']]
         elif 'KBaseSearch.GenomeSet' == obj_type:
-            upas = [gse['ref'] for gse in obj_data['data']['elements'].values()]
+            upas = [gse['ref'] for gse in obj_data['elements'].values()]
         elif 'KBaseGenomes.Genome' == obj_type:
-            upas = [upa]
+            upas = []
         else:
             raise ValueError(f'{obj_type} type is not supported')
 
-        return _process_genome_objs(upa, upas, classification, overwrite_tax, gtdb_ver, taxon_assignment_field, clients)
+        return _process_genome_objs(top_obj, upa, upas, classification, overwrite_tax, gtdb_ver, taxon_assignment_field, clients)
 
-    elif check_obj_type_assembly (upa, clients):
+    elif check_obj_type_assembly (obj_type):
         if 'KBaseSets.AssemblySet' == obj_type:
-            upas = [asi['ref'] for asi in obj_data['data']['items']]
+            upas = [asi['ref'] for asi in obj_data['items']]
         elif 'KBaseGenomeAnnotations.Assembly' == obj_type:
-            upas = [upa]
+            upas = []
         else:
             raise ValueError(f'{obj_type} type is not supported')
 
-        return _process_assembly_objs(upa, upas, classification, overwrite_tax, gtdb_ver, taxon_assignment_field, clients)
+        return _process_assembly_objs(top_obj, upa, upas, classification, overwrite_tax, gtdb_ver, taxon_assignment_field, clients)
 
     else:
         raise ValueError(f'{obj_type} type is not supported')
 
 
-def _process_genome_objs(upa, upas, classification, overwrite_tax, gtdb_ver, taxon_assignment_field, clients):
-    [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I,
-     WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple    
-
+def _process_genome_objs(top_obj, upa, upas, classification, overwrite_tax, gtdb_ver, taxon_assignment_field, clients):
     objects_created = []
     updated_genome_refs = dict()
     genomeset_query = False
     any_genome_updated = False
-    top_obj = clients.dfu().get_objects({'object_refs': [upa]})['data'][0]
     top_wsid = top_obj['info'][WSID_I]
     
+    if len(upas) > 0:
+        genomeset_query = True
+        genomeset_obj = top_obj
+    else:
+        upas = [upa]
+
     for genome_upa in upas:
         original_upa = genome_upa
-        
-        if upa != genome_upa:  # for single genomes, upa and genome_upa will be the same
-            #genome_upa = upa + ';' + genome_upa
-            genomeset_query = True
-        # for a single genome this is pulling the same data again. Could optimize here.
-        genome_obj = clients.dfu().get_objects({'object_refs': [genome_upa]})['data'][0]
+
+        if not genomeset_query:
+            genome_obj = top_obj
+        else:
+            genome_obj = clients.dfu().get_objects({'object_refs': [genome_upa]})['data'][0]
         genome_name = genome_obj['info'][NAME_I]
         assembly_upa = genome_obj['data'].get('contigset_ref') or genome_obj['data'].get('assembly_ref')
         assembly_obj = clients.dfu().get_objects({'object_refs': [assembly_upa]})['data'][0]
@@ -159,6 +151,10 @@ def _process_genome_objs(upa, upas, classification, overwrite_tax, gtdb_ver, tax
         this_classification = classification[assembly_name]
 
         # set std_lineage GTDB field in genome and assembly objs
+        #  Note: sometimes lineage does not resolve species, genus, etc.
+        #        in this case the string is 's__', 'g__', etc.
+        #        for taxon_id we want the first resolved taxon level, hence the skip if len==3
+        #
         this_taxon_id = None
         for taxon_id in reversed(this_classification.split(';')):
             if len(taxon_id) == 3:
@@ -231,7 +227,6 @@ def _process_genome_objs(upa, upas, classification, overwrite_tax, gtdb_ver, tax
     # update refs in genomeset
     if genomeset_query:
         new_genomeset_data = dict()
-        genomeset_obj = clients.dfu().get_objects({'object_refs': [upa]})['data'][0]
         genomeset_name = genomeset_obj['info'][NAME_I]
         genomeset_type = genomeset_obj['info'][TYPE_I].split('-')[0]
 
@@ -285,25 +280,26 @@ def _process_genome_objs(upa, upas, classification, overwrite_tax, gtdb_ver, tax
     return objects_created
 
 
-def _process_assembly_objs(upa, upas, classification, overwrite_tax, gtdb_ver, taxon_assignment_field, clients):
-    [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I,
-     WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple    
-
+def _process_assembly_objs(top_obj, upa, upas, classification, overwrite_tax, gtdb_ver, taxon_assignment_field, clients):
     objects_created = []
     updated_assembly_refs = dict()
     assemblyset_query = False
     any_assembly_updated = False
-    top_obj = clients.dfu().get_objects({'object_refs': [upa]})['data'][0]
     top_wsid = top_obj['info'][WSID_I]
+
+    if len(upas) > 0:
+        assemblyset_query = True
+        assemblyset_obj = top_obj
+    else:
+        upas = [upa]
     
     for assembly_upa in upas:
         original_upa = assembly_upa
         
-        if upa != assembly_upa:  # for single assemblies, upa and assembly_upa will be the same
-            #assembly_upa = upa + ';' + assembly_upa
-            assemblyset_query = True
-        # for a single assembly this is pulling the same data again. Could optimize here.
-        assembly_obj = clients.dfu().get_objects({'object_refs': [assembly_upa]})['data'][0]
+        if not assemblyset_query:
+            assembly_obj = clients.dfu().get_objects({'object_refs': [assembly_upa]})['data'][0]
+        else:
+            assembly_obj = top_obj
         assembly_name = assembly_obj['info'][NAME_I]
 
         if assembly_name not in classification:
@@ -352,7 +348,6 @@ def _process_assembly_objs(upa, upas, classification, overwrite_tax, gtdb_ver, t
     # update refs in assemblyset
     if assemblyset_query and any_assembly_updated:
         new_assemblyset_data = dict()
-        assemblyset_obj = clients.dfu().get_objects({'object_refs': [upa]})['data'][0]
         assemblyset_name = assemblyset_obj['info'][NAME_I]
         assemblyset_type = assemblyset_obj['info'][TYPE_I].split('-')[0]
 

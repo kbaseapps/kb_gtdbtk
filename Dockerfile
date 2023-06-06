@@ -6,7 +6,7 @@ MAINTAINER KBase Developer
 # install line here, a git checkout to download code, or run any other
 # installation scripts.
 
-RUN apt-get update
+RUN apt-get update -y
 RUN apt-get install -y libgomp1 unzip
 
 RUN pip install pip --upgrade
@@ -14,8 +14,7 @@ RUN pip install pytest pytest-cov mypy coveralls flake8 --upgrade \
     && pip install jsonrpcbase requests pandas --upgrade
 
 # Prodigal barfing on newer numpy from np.bool
-RUN pip uninstall -y numpy
-RUN yes | pip install numpy==1.23.1
+RUN pip install --upgrade numpy==1.23.1
 
 # GTDB-Tk install
 ENV GTDBTK_VERSION='2.1.0'
