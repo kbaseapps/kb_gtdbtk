@@ -6,7 +6,7 @@ MAINTAINER KBase Developer
 # install line here, a git checkout to download code, or run any other
 # installation scripts.
 
-RUN apt-get update
+RUN apt-get update -y
 RUN apt-get install -y libgomp1 unzip
 
 RUN pip install pip --upgrade
