@@ -12,6 +12,23 @@ from kb_gtdbtk.core.kb_client_set import KBClients
  WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple    
 
 
+# get_obj_type()
+#
+def get_obj_type(
+        upa: str,
+        clients: KBClients
+        ):
+    '''
+    Get obj type from info
+
+    :param upa: string with KBase obj ref
+    :returns: string with obj type
+    '''
+    obj_info = clients.ws().get_object_info_new({'objects': [{'ref':upa}]})[0]
+    obj_type = obj_info[TYPE_I].split('-')[0]
+    return obj_type
+
+
 # check_obj_type_genome()
 #
 def check_obj_type_genome(

@@ -12,7 +12,7 @@ from kb_gtdbtk.core.kb_client_set import KBClients
 from kb_gtdbtk.core.gtdbtk_runner import run_gtdbtk
 from kb_gtdbtk.core.krona_runner import run_krona_import_text
 from kb_gtdbtk.core.kb_report_generation import generate_report
-from kb_gtdbtk.core.genome_obj_update import check_obj_type_genome, check_obj_type_assembly, update_genome_assembly_objs_class
+from kb_gtdbtk.core.genome_obj_update import get_obj_type, check_obj_type_genome, check_obj_type_assembly, update_genome_assembly_objs_class
 #END_HEADER
 
 
@@ -142,7 +142,8 @@ class kb_gtdbtk:
         run_krona_import_text(runner, output_path, temp_output)
 
         objects_created = None
-        if check_obj_type_assembly (params.ref, cli) or check_obj_type_genome (params.ref, cli):
+        obj_type = get_obj_type (params.ref, cli)
+        if check_obj_type_assembly (obj_type) or check_obj_type_genome (obj_type):
             objects_created = update_genome_assembly_objs_class (params.ref, classification, params.overwrite_tax, self.gtdb_ver, self.taxon_assignment_field, cli)
         
         output = generate_report(cli, output_path, params.workspace_id, objects_created)
