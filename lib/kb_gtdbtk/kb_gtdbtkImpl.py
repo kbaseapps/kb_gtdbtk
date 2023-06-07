@@ -136,15 +136,27 @@ class kb_gtdbtk:
             # should print to stdout/stderr
             subprocess.run(args, check=True, env=env)
 
-        classification = run_gtdbtk(
-            runner, path_to_filename, output_path, temp_output, params.min_perc_aa, params.full_tree, params.keep_intermediates, self.cpus)
+        classification = run_gtdbtk (runner,
+                                     path_to_filename,
+                                     output_path,
+                                     temp_output,
+                                     params.min_perc_aa,
+                                     params.full_tree,
+                                     params.keep_intermediates,
+                                     self.cpus)
 
         run_krona_import_text(runner, output_path, temp_output)
 
         objects_created = None
         obj_type = get_obj_type (params.ref, cli)
         if check_obj_type_assembly (obj_type) or check_obj_type_genome (obj_type):
-            objects_created = update_genome_assembly_objs_class (params.ref, classification, params.overwrite_tax, self.gtdb_ver, self.taxon_assignment_field, cli)
+            objects_created = update_genome_assembly_objs_class (params.workspace_id,
+                                                                 params.ref,
+                                                                 classification,
+                                                                 params.overwrite_tax,
+                                                                 self.gtdb_ver,
+                                                                 self.taxon_assignment_field,
+                                                                 cli)
         
         output = generate_report(cli, output_path, params.workspace_id, objects_created)
 
