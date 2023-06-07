@@ -45,6 +45,7 @@ class kb_gtdbtk:
         self.callback_url = os.environ['SDK_CALLBACK_URL']
         self.shared_folder = Path(config['scratch'])
         self.ws_url = config['workspace-url']
+        self.hs_url = config['handle-service-url']
         self.cpus = config['cpus']  # bigmem 32 cpus & 251 GB RAM
         self.gtdb_ver = config['gtdb_ver']
         self.taxon_assignment_field = config['taxon_assignment_field']
@@ -117,7 +118,7 @@ class kb_gtdbtk:
         fasta_path = self.shared_folder / 'fastas'
         fasta_path.mkdir(parents=True, exist_ok=True)
 
-        cli = KBClients(self.callback_url, self.ws_url, ctx['token'])
+        cli = KBClients(self.callback_url, self.ws_url, self.hs_url, ctx['token'])
 
         path_to_filename = download_sequence(params.ref, fasta_path, cli)
         for path, fn in path_to_filename.items():

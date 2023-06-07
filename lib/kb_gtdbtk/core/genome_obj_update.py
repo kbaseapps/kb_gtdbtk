@@ -127,7 +127,7 @@ def update_genome_assembly_objs_class(
         else:
             raise ValueError(f'{obj_type} type is not supported')
 
-        return process_genome_objs(top_obj, upa, upas, classification, overwrite_tax, gtdb_ver, taxon_assignment_field, clients)
+        return process_genome_objs(primary_wsid, top_obj, upa, upas, classification, overwrite_tax, gtdb_ver, taxon_assignment_field, clients)
 
     elif check_obj_type_assembly (obj_type):
         if 'KBaseSets.AssemblySet' == obj_type:
@@ -137,7 +137,7 @@ def update_genome_assembly_objs_class(
         else:
             raise ValueError(f'{obj_type} type is not supported')
 
-        return process_assembly_objs(top_obj, upa, upas, classification, overwrite_tax, gtdb_ver, taxon_assignment_field, clients)
+        return process_assembly_objs(primary_wsid, top_obj, upa, upas, classification, overwrite_tax, gtdb_ver, taxon_assignment_field, clients)
 
     else:
         raise ValueError(f'{obj_type} type is not supported')
@@ -145,7 +145,7 @@ def update_genome_assembly_objs_class(
 
 # process_genome_objs()
 #
-def process_genome_objs(top_obj, upa, upas, classification, overwrite_tax, gtdb_ver, taxon_assignment_field, clients):
+def process_genome_objs(primary_wsid, top_obj, upa, upas, classification, overwrite_tax, gtdb_ver, taxon_assignment_field, clients):
     objects_created = []
     updated_genome_refs = dict()
     genomeset_query = False
@@ -229,7 +229,7 @@ def process_genome_objs(top_obj, upa, upas, classification, overwrite_tax, gtdb_
 
 # process_assembly_objs()
 #
-def process_assembly_objs(top_obj, upa, upas, classification, overwrite_tax, gtdb_ver, taxon_assignment_field, clients):
+def process_assembly_objs(primary_wsid, top_obj, upa, upas, classification, overwrite_tax, gtdb_ver, taxon_assignment_field, clients):
     objects_created = []
     updated_assembly_refs = dict()
     assemblyset_query = False
@@ -316,6 +316,10 @@ def get_std_lineages (this_classification, gtdb_ver, this_taxon_id):
 # save_genome_obj ()
 #
 def save_genome_obj (primary_wsid, genome_name, genome_obj_data, clients):
+
+    genome_handle_fields = ['genbank_handle_ref', 'gff_handle_ref']
+    genome_obj_data = fix_unowned_shock_handles (genome_obj_data, genome_handle_fields, clients)
+
     updated_obj_info = clients.dfu().save_objects(
         { 'id': primary_wsid,
           'objects': [{ 'type': 'KBaseGenomes.Genome',
@@ -333,6 +337,9 @@ def update_and_save_assembly (primary_wsid, assembly_obj, std_lineages, clients)
     #this_wsid = assembly_obj['info'][WSID_I]
     assembly_name = assembly_obj['info'][NAME_I]
 
+    assembly_handle_fields = ['reads_handle_ref', 'fasta_handle_ref']
+    assembly_obj['data'] = fix_unowned_shock_handles (assembly_obj['data'], assembly_handle_fields, clients)
+    
     updated_assembly_obj_info = clients.dfu().save_objects({ 'id': primary_wsid,
                                                              'objects': [{ 'type': 'KBaseGenomeAnnotations.Assembly',
                                                                            'name': assembly_name,
@@ -430,6 +437,22 @@ def update_and_save_assemblyset (primary_wsid, assemblyset_obj, updated_assembly
           }]})[0]
     new_ref = upa_from_info(updated_obj_info)
     return new_ref
+
+
+# fix_unowned_shock_handles ()
+#
+def fix_unowned_shock_handles (obj_data, handle_fields, clients):
+
+    for h_field in handle_fields:
+        if obj_data.get(h_field,'') != '':
+            h_id = obj_data[h_field]
+            s_id = clients.hs().hids_to_handles ([h_id])[0]['id']
+            own_node_output = clients.dfu().own_shock_node({'shock_id': s_id, 'make_handle': 1})
+            new_s_id = own_node_output['shock_id']
+            new_h_id = own_node_output['handle']['hid']
+            obj_data[h_field] = new_h_id
+
+    return obj_data
 
 
 # upa_from_info ()
