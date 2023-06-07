@@ -220,13 +220,13 @@ class kb_gtdbtkTest(unittest.TestCase):
     # test bacterial assembly input against order-level subtrees (takes about 1 hr)
     # HIDE @unittest.skip("skipped test_classify_wf_assembly()")  # uncomment to skip
     def test_classify_wf_assembly(self):
-        report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, {
-            'workspace_id': self.wsid,
-            'input_object_ref': self.single_assy,
-            'full_tree': 0,
-            'keep_intermediates': 0,
-            'overwrite_tax': 0
-        })[0]
+        report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, { \
+                                                                'workspace_id': self.wsid,
+                                                                'input_object_ref': self.single_assy,
+                                                                'full_tree': 0,
+                                                                'keep_intermediates': 0,
+                                                                'overwrite_tax': 0
+                                                            })[0]
         assert self.isUpa (report['report_ref'])
 
         # can't easily maintain md5s through repeated updates.  don't require
@@ -249,13 +249,13 @@ class kb_gtdbtkTest(unittest.TestCase):
     # SKIP THIS!!!
     @unittest.skip("skipped test_classify_wf_binnedcontigs_fulltree()")  # uncomment to skip
     def test_classify_wf_binnedcontigs_fulltree(self):
-        report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, {
-            'workspace_id': self.wsid,
-            'input_object_ref': self.binned_contigs,
-            'full_tree': 1,
-            'keep_intermediates': 0,
-            'overwrite_tax': 0
-        })[0]
+        report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, { \
+                                                                'workspace_id': self.wsid,
+                                                                'input_object_ref': self.binned_contigs,
+                                                                'full_tree': 1,
+                                                                'keep_intermediates': 0,
+                                                                'overwrite_tax': 0
+                                                            })[0]
         # TODO: after shrinking data to fit on dev1, test report content
         assert self.isUpa (report['report_ref'])
         
@@ -263,13 +263,13 @@ class kb_gtdbtkTest(unittest.TestCase):
     # test binnedcontigs input with order-level subtrees (takes about 1 hr)
     # HIDE @unittest.skip("skipped test_classify_wf_binnedcontigs_subtrees()")  # uncomment to skip
     def test_classify_wf_binnedcontigs_subtrees(self):
-        report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, {
-            'workspace_id': self.wsid,
-            'input_object_ref': self.binned_contigs,
-            'full_tree': 0,
-            'keep_intermediates': 0,
-            'overwrite_tax': 0
-        })[0]
+        report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, { \
+                                                                'workspace_id': self.wsid,
+                                                                'input_object_ref': self.binned_contigs,
+                                                                'full_tree': 0,
+                                                                'keep_intermediates': 0,
+                                                                'overwrite_tax': 0
+                                                            })[0]
         # TODO: after shrinking data to fit on dev1, test report content
         assert self.isUpa (report['report_ref'])
         
@@ -277,13 +277,13 @@ class kb_gtdbtkTest(unittest.TestCase):
     # test archaeal assemblySet input (takes a few minutes)
     # HIDE @unittest.skip("skipped test_classify_wf_assemblyset()")  # uncomment to skip
     def test_classify_wf_assemblyset(self):
-        report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, {
-            'workspace_id': self.wsid,
-            'input_object_ref': self.arch_assemblySet,
-            'full_tree': 0,
-            'keep_intermediates': 1,
-            'overwrite_tax': 1
-        })[0]
+        report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, { \
+                                                                'workspace_id': self.wsid,
+                                                                'input_object_ref': self.arch_assemblySet,
+                                                                'full_tree': 0,
+                                                                'keep_intermediates': 1,
+                                                                'overwrite_tax': 1
+                                                            })[0]
         # TODO: test report content
         assert self.isUpa (report['report_ref'])
         
@@ -291,13 +291,13 @@ class kb_gtdbtkTest(unittest.TestCase):
     # test archaeal genome input (takes a few minutes)
     # HIDE @unittest.skip("skipped test_classify_wf_genome()")  # uncomment to skip
     def test_classify_wf_genome(self):
-        report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, {
-            'workspace_id': self.wsid,
-            'input_object_ref': self.arch_genomes[0],
-            'full_tree': 0,
-            'keep_intermediates': 1,
-            'overwrite_tax': 0
-        })[0]
+        report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, { \
+                                                                'workspace_id': self.wsid,
+                                                                'input_object_ref': self.arch_genomes[0],
+                                                                'full_tree': 0,
+                                                                'keep_intermediates': 1,
+                                                                'overwrite_tax': 0
+                                                            })[0]
         # TODO: test report content
         assert self.isUpa (report['report_ref'])
 
@@ -305,13 +305,13 @@ class kb_gtdbtkTest(unittest.TestCase):
     # test archaeal genomeSet input (takes a few minutes)
     # HIDE @unittest.skip("skipped test_classify_wf_genomeset()")  # uncomment to skip
     def test_classify_wf_genomeset(self):
-        report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, {
-            'workspace_id': self.wsid,
-            'input_object_ref': self.arch_genomeSet,
-            'full_tree': 1,
-            'keep_intermediates': 1,
-            'overwrite_tax': '1'
-        })[0]
+        report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, { \
+                                                                'workspace_id': self.wsid,
+                                                                'input_object_ref': self.arch_genomeSet,
+                                                                'full_tree': 1,
+                                                                'keep_intermediates': 1,
+                                                                'overwrite_tax': '1'
+                                                            })[0]
         # TODO: test report content
         assert self.isUpa (report['report_ref'])
 

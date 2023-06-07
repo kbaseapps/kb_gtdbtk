@@ -8,6 +8,7 @@ from installed_clients.DataFileUtilClient import DataFileUtil
 from installed_clients.KBaseReportClient import KBaseReport
 from installed_clients.MetagenomeUtilsClient import MetagenomeUtils
 from installed_clients.WorkspaceClient import Workspace
+from installed_clients.SetAPIClient import SetAPI
 
 # DEV NOTES: This is not tested in travis and must be tested manually.
 
@@ -31,6 +32,7 @@ class KBClients:
         self._mgu = MetagenomeUtils(callback_url, token=user_token)
         self._report = KBaseReport(callback_url, token=user_token)
         self._ws = Workspace(workspace_url, token=user_token)
+        self._setAPI = SetAPI(callback_url, token=user_token)
 
     # Using methods rather than instance variables since create_autospec doesn't play nicely
     # with instance variables.
@@ -69,3 +71,10 @@ class KBClients:
         :returns: the client.
         '''
         return self._report
+
+    def setAPI(self):
+        '''
+        Get the SetAPI client.
+        :returns: the client.
+        '''
+        return self._setAPI

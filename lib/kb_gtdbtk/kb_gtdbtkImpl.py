@@ -12,7 +12,7 @@ from kb_gtdbtk.core.kb_client_set import KBClients
 from kb_gtdbtk.core.gtdbtk_runner import run_gtdbtk
 from kb_gtdbtk.core.krona_runner import run_krona_import_text
 from kb_gtdbtk.core.kb_report_generation import generate_report
-from kb_gtdbtk.core.genome_obj_update import check_obj_type_genome, update_genome_objs_class
+from kb_gtdbtk.core.genome_obj_update import get_obj_type, check_obj_type_genome, check_obj_type_assembly, update_genome_assembly_objs_class
 #END_HEADER
 
 
@@ -31,9 +31,9 @@ class kb_gtdbtk:
     # state. A method could easily clobber the state set by another while
     # the latter method is running.
     ######################################### noqa
-    VERSION = "1.2.0"
+    VERSION = "1.2.3"
     GIT_URL = "https://github.com/kbaseapps/kb_gtdbtk"
-    GIT_COMMIT_HASH = "418986b4e1ae778a2b9417878b24926da7101946"
+    GIT_COMMIT_HASH = "2a582e6c2dd227de2ee212ba1175b76c32a54c5c"
 
     #BEGIN_CLASS_HEADER
     #END_CLASS_HEADER
@@ -45,7 +45,10 @@ class kb_gtdbtk:
         self.callback_url = os.environ['SDK_CALLBACK_URL']
         self.shared_folder = Path(config['scratch'])
         self.ws_url = config['workspace-url']
-        self.cpus = 32  # bigmem 32 cpus & 251 GB RAM
+        self.cpus = config['cpus']  # bigmem 32 cpus & 251 GB RAM
+        self.gtdb_ver = config['gtdb_ver']
+        self.taxon_assignment_field = config['taxon_assignment_field']
+        
         logging.basicConfig(format='%(created)s %(levelname)s: %(message)s',
                             level=logging.INFO)
         #END_CONSTRUCTOR
@@ -139,8 +142,9 @@ class kb_gtdbtk:
         run_krona_import_text(runner, output_path, temp_output)
 
         objects_created = None
-        if check_obj_type_genome (params.ref, cli):
-            objects_created = update_genome_objs_class (params.ref, classification, params.overwrite_tax, cli)
+        obj_type = get_obj_type (params.ref, cli)
+        if check_obj_type_assembly (obj_type) or check_obj_type_genome (obj_type):
+            objects_created = update_genome_assembly_objs_class (params.ref, classification, params.overwrite_tax, self.gtdb_ver, self.taxon_assignment_field, cli)
         
         output = generate_report(cli, output_path, params.workspace_id, objects_created)
 

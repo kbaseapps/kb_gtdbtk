@@ -13,6 +13,9 @@ RUN pip install pip --upgrade
 RUN pip install pytest pytest-cov mypy coveralls flake8 --upgrade \
     && pip install jsonrpcbase requests pandas --upgrade
 
+# Prodigal barfing on newer numpy from np.bool
+RUN pip install --upgrade numpy==1.23.1
+
 # GTDB-Tk install
 ENV GTDBTK_VERSION='2.1.0'
 RUN pip install gtdbtk==${GTDBTK_VERSION}
