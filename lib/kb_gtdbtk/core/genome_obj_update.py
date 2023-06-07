@@ -177,7 +177,7 @@ def process_genome_objs(top_obj, upa, upas, classification, overwrite_tax, gtdb_
         std_lineages = get_std_lineages (this_classification, gtdb_ver, this_taxon_id)
 
         # update and save assembly and give genome obj new assembly upa
-        new_assembly_ref = update_and_save_assembly (assembly_obj, std_lineages)
+        new_assembly_ref = update_and_save_assembly (assembly_obj, std_lineages, clients)
 
         # update genome obj with std_lineages and new assembly obj ref
         genome_obj['data']['assembly_ref'] = new_assembly_ref
@@ -204,7 +204,7 @@ def process_genome_objs(top_obj, upa, upas, classification, overwrite_tax, gtdb_
         this_wsid = genome_obj['info'][WSID_I]
         if genomeset_query:
             this_wsid = top_wsid
-        new_ref = save_genome_obj (this_wsid, genome_name, genome_obj['data'])
+        new_ref = save_genome_obj (this_wsid, genome_name, genome_obj['data'], clients)
         updated_genome_refs[original_upa] = new_ref
         desc = 'Taxonomy unchanged, taxon_assignment added GTDB'
         if this_genome_tax_written:
@@ -214,7 +214,7 @@ def process_genome_objs(top_obj, upa, upas, classification, overwrite_tax, gtdb_
         
     # update refs in genomeset
     if genomeset_query:
-        new_genomeset_ref = update_and_save_genomeset (top_wsid, genomeset_obj, updated_genome_refs)
+        new_genomeset_ref = update_and_save_genomeset (top_wsid, genomeset_obj, updated_genome_refs, clients)
         desc = 'Taxonomy unchanged, taxon_assignment added GTDB'
         if any_genome_updated:
             desc = 'Taxonomy and taxon_assignment updated with GTDB'
@@ -261,7 +261,7 @@ def process_assembly_objs(top_obj, upa, upas, classification, overwrite_tax, gtd
         std_lineages = get_std_lineages (this_classification, gtdb_ver, this_taxon_id)
 
         # update and save assembly
-        new_assembly_ref = update_and_save_assembly (assembly_obj, std_lineages)
+        new_assembly_ref = update_and_save_assembly (assembly_obj, std_lineages, clients)
         updated_assembly_refs[original_upa] = new_assembly_ref
         desc = 'Added GTDB lineage'
         objects_created.append({'ref': new_assembly_ref, 'description': desc})
@@ -271,7 +271,8 @@ def process_assembly_objs(top_obj, upa, upas, classification, overwrite_tax, gtd
     if assemblyset_query and any_assembly_updated:
         new_assemblyset_ref = update_and_save_assemblyset (top_wsid,
                                                            assemblyset_obj,
-                                                           updated_assembly_refs)
+                                                           updated_assembly_refs,
+                                                           clients)
         desc = 'Added GTDB lineage'
         objects_created.append({'ref': new_assemblyset_ref, 'description': desc})
         
@@ -310,7 +311,7 @@ def get_std_lineages (this_classification, gtdb_ver, this_taxon_id):
 
 # save_genome_obj ()
 #
-def save_genome_obj (this_wsid, genome_name, genome_obj_data):
+def save_genome_obj (this_wsid, genome_name, genome_obj_data, clients):
     updated_obj_info = clients.dfu().save_objects(
         { 'id': this_wsid,
           'objects': [{ 'type': 'KBaseGenomes.Genome',
@@ -323,7 +324,7 @@ def save_genome_obj (this_wsid, genome_name, genome_obj_data):
 
 # update_and_save_assembly ()
 #
-def update_and_save_assembly (assembly_obj, std_lineages):
+def update_and_save_assembly (assembly_obj, std_lineages, clients):
     assembly_obj['data']['std_lineages'] = std_lineages
     this_wsid = assembly_obj['info'][WSID_I]
     assembly_name = assembly_obj['info'][NAME_I]
@@ -339,7 +340,7 @@ def update_and_save_assembly (assembly_obj, std_lineages):
 
 # update_and_save_genomeset ()
 #
-def update_and_save_genomeset (top_wsid, genomeset_obj, updated_genome_refs):
+def update_and_save_genomeset (top_wsid, genomeset_obj, updated_genome_refs, clients):
     new_genomeset_data = dict()
     genomeset_name = genomeset_obj['info'][NAME_I]
     genomeset_type = genomeset_obj['info'][TYPE_I].split('-')[0]
@@ -391,7 +392,7 @@ def update_and_save_genomeset (top_wsid, genomeset_obj, updated_genome_refs):
 
 # update_and_save_assemblyset ()
 #
-def update_and_save_assemblyset (top_wsid, assemblyset_obj, updated_assembly_refs):
+def update_and_save_assemblyset (top_wsid, assemblyset_obj, updated_assembly_refs, clients):
     new_assemblyset_data = dict()
     assemblyset_name = assemblyset_obj['info'][NAME_I]
     assemblyset_type = assemblyset_obj['info'][TYPE_I].split('-')[0]
