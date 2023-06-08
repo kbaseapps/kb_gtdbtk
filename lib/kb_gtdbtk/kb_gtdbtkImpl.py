@@ -31,7 +31,7 @@ class kb_gtdbtk:
     # state. A method could easily clobber the state set by another while
     # the latter method is running.
     ######################################### noqa
-    VERSION = "1.2.3"
+    VERSION = "1.2.4"
     GIT_URL = "https://github.com/kbaseapps/kb_gtdbtk"
     GIT_COMMIT_HASH = "2a582e6c2dd227de2ee212ba1175b76c32a54c5c"
 
@@ -45,6 +45,7 @@ class kb_gtdbtk:
         self.callback_url = os.environ['SDK_CALLBACK_URL']
         self.shared_folder = Path(config['scratch'])
         self.ws_url = config['workspace-url']
+        self.hs_url = config['handle-service-url']
         self.cpus = config['cpus']  # bigmem 32 cpus & 251 GB RAM
         self.gtdb_ver = config['gtdb_ver']
         self.taxon_assignment_field = config['taxon_assignment_field']
@@ -117,7 +118,7 @@ class kb_gtdbtk:
         fasta_path = self.shared_folder / 'fastas'
         fasta_path.mkdir(parents=True, exist_ok=True)
 
-        cli = KBClients(self.callback_url, self.ws_url, ctx['token'])
+        cli = KBClients(self.callback_url, self.ws_url, self.hs_url, ctx['token'])
 
         path_to_filename = download_sequence(params.ref, fasta_path, cli)
         for path, fn in path_to_filename.items():
@@ -136,15 +137,27 @@ class kb_gtdbtk:
             # should print to stdout/stderr
             subprocess.run(args, check=True, env=env)
 
-        classification = run_gtdbtk(
-            runner, path_to_filename, output_path, temp_output, params.min_perc_aa, params.full_tree, params.keep_intermediates, self.cpus)
+        classification = run_gtdbtk (runner,
+                                     path_to_filename,
+                                     output_path,
+                                     temp_output,
+                                     params.min_perc_aa,
+                                     params.full_tree,
+                                     params.keep_intermediates,
+                                     self.cpus)
 
         run_krona_import_text(runner, output_path, temp_output)
 
         objects_created = None
         obj_type = get_obj_type (params.ref, cli)
         if check_obj_type_assembly (obj_type) or check_obj_type_genome (obj_type):
-            objects_created = update_genome_assembly_objs_class (params.ref, classification, params.overwrite_tax, self.gtdb_ver, self.taxon_assignment_field, cli)
+            objects_created = update_genome_assembly_objs_class (params.workspace_id,
+                                                                 params.ref,
+                                                                 classification,
+                                                                 params.overwrite_tax,
+                                                                 self.gtdb_ver,
+                                                                 self.taxon_assignment_field,
+                                                                 cli)
         
         output = generate_report(cli, output_path, params.workspace_id, objects_created)
 

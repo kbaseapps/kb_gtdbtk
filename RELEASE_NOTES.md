@@ -1,6 +1,11 @@
 # kb_gtdbtk release notes
 =========================
 
+1.2.4
+_____
+* save all updated objects to calling workspace
+* change all handles to user owned
+
 1.2.3
 _____
 * record lineage info from GTDB_R07-RS207 in genome obj and assembly obj
