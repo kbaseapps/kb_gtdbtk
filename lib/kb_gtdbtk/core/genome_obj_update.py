@@ -444,7 +444,7 @@ def update_and_save_assemblyset (primary_wsid, assemblyset_obj, updated_assembly
 def fix_unowned_shock_handles (obj_data, handle_fields, clients):
 
     for h_field in handle_fields:
-        if obj_data.get(h_field,'') != '':
+        if obj_data.get(h_field):
             h_id = obj_data[h_field]
             s_id = clients.hs().hids_to_handles ([h_id])[0]['id']
             own_node_output = clients.dfu().own_shock_node({'shock_id': s_id, 'make_handle': 1})
