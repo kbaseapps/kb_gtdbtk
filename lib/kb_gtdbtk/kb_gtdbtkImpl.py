@@ -33,7 +33,7 @@ class kb_gtdbtk:
     ######################################### noqa
     VERSION = "1.3.0"
     GIT_URL = "https://github.com/kbaseapps/kb_gtdbtk"
-    GIT_COMMIT_HASH = "2a582e6c2dd227de2ee212ba1175b76c32a54c5c"
+    GIT_COMMIT_HASH = "451b172d144fb052493a115875a962da9cb5125f"
 
     #BEGIN_CLASS_HEADER
     #END_CLASS_HEADER
@@ -67,9 +67,10 @@ class kb_gtdbtk:
            saved. Optional: min_perc_aa: the minimum sequence alignment as a
            percent, default 10.) -> structure: parameter "input_object_ref"
            of String, parameter "workspace_id" of Long, parameter
-           "min_perc_aa" of Double, parameter "full_tree" of type "bool",
-           parameter "keep_intermediates" of type "bool", parameter
-           "overwrite_tax" of type "bool"
+           "copy_proximals" of type "bool", parameter "min_perc_aa" of
+           Double, parameter "full_tree" of type "bool", parameter
+           "keep_intermediates" of type "bool", parameter "overwrite_tax" of
+           type "bool"
         :returns: instance of type "ReportResults" (The results of the
            GTDB-tk run. report_name: The name of the report object in the
            workspace. report_ref: The UPA of the report object, e.g.
@@ -100,9 +101,10 @@ class kb_gtdbtk:
            saved. Optional: min_perc_aa: the minimum sequence alignment as a
            percent, default 10.) -> structure: parameter "input_object_ref"
            of String, parameter "workspace_id" of Long, parameter
-           "min_perc_aa" of Double, parameter "full_tree" of type "bool",
-           parameter "keep_intermediates" of type "bool", parameter
-           "overwrite_tax" of type "bool"
+           "copy_proximals" of type "bool", parameter "min_perc_aa" of
+           Double, parameter "full_tree" of type "bool", parameter
+           "keep_intermediates" of type "bool", parameter "overwrite_tax" of
+           type "bool"
         :returns: instance of type "ReportResults" (The results of the
            GTDB-tk run. report_name: The name of the report object in the
            workspace. report_ref: The UPA of the report object, e.g.
@@ -169,7 +171,7 @@ class kb_gtdbtk:
 
 
         ### Step 04: copy over GTDB Species Rep Genomes to calling WS and make GenomeSets
-        if check_obj_type_genome (obj_type):
+        if params.copy_proximals and check_obj_type_genome (obj_type):
             objects_created.extend (copy_gtdb_species_reps (params.workspace_id,
                                                             params.ref,
                                                             self.genome_upas_map_file,

@@ -36,6 +36,11 @@ parameters :
             Minimum Alignment Percent
         short-hint : |
             Filter out genomes with an insufficient percentage of AAs in the MSA (default: 10)
+    copy_proximals :
+        ui-name : |
+            Copy GTDB hits
+        short-hint : |
+            Copy proximal GTDB hits to this narrative and create GenomeSets for each query and overall.
     full_tree :
         ui-name : |
             Full Tree

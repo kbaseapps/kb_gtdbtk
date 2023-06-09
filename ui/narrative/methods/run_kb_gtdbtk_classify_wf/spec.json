@@ -25,6 +25,30 @@
             }
         },
         {
+            "id": "copy_proximals",
+            "optional": false,
+            "advanced": false,
+            "allow_multiple": false,
+            "default_values": [ 0 ],
+            "field_type": "dropdown",
+            "dropdown_options": {
+                "options": [
+                    {
+                        "value": 0,
+                        "display": "DON'T copy GTDB proximal genome objects",
+                        "id": "copy_proximals-NO",
+                        "ui-name": "copy_proximals-NO"
+                    },
+                    {
+                        "value": 1,
+                        "display": "DO copy GTDB proximal genome objects",
+                        "id": "copy_proximals-YES",
+                        "ui-name": "copy_proximals-YES"
+                    }
+                ]
+            }
+        },	
+        {
             "id": "min_perc_aa",
             "optional": true,
             "advanced": true,
