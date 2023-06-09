@@ -99,6 +99,7 @@ def run_gtdbtk(
 def _process_output_files(temp_output, out_dir, id_to_name):
 
     classification = dict()
+    summary_tables = dict()
 
     # copy over all created output
     """
@@ -115,25 +116,33 @@ def _process_output_files(temp_output, out_dir, id_to_name):
     copytree(temp_output, sub_out_dir, symlinks=True)
     
     # make json files for html tables
+    base_files = ['gtdbtk.ar53.summary.tsv',
+                  'gtdbtk.bac120.summary.tsv',
+                  'gtdbtk.ar53.markers_summary.tsv',
+                  'gtdbtk.bac120.markers_summary.tsv',
+                  'gtdbtk.ar53.classify.tree',
+                  'gtdbtk.bac120.classify.tree',
+                  'gtdbtk.backbone.bac120.classify.tree']
     file_folder = {'gtdbtk.ar53.summary.tsv': 'classify',
                    'gtdbtk.bac120.summary.tsv': 'classify',
                    'gtdbtk.ar53.markers_summary.tsv': 'identify',
                    'gtdbtk.bac120.markers_summary.tsv': 'identify',
                    'gtdbtk.ar53.classify.tree': 'classify',
-                   'gtdbtk.bac120.classify.tree': 'classify'
+                   'gtdbtk.bac120.classify.tree': 'classify',
+                   'gtdbtk.backbone.bac120.classify.tree': 'classify'
                   }
-    for file_ in ('gtdbtk.ar53.summary.tsv',
-                  'gtdbtk.bac120.summary.tsv',
-                  'gtdbtk.ar53.markers_summary.tsv',
-                  'gtdbtk.bac120.markers_summary.tsv',
-                  'gtdbtk.ar53.classify.tree',
-                  'gtdbtk.bac120.classify.tree'
+    extra_bac_files = []
+    for i in range(10000):
+        order_level_tree_file = 'gtdbtk.bac120.classify.tree.'+str(i)+'.tree'
+        extra_bac_files.append(order_level_tree_file)
+        file_folder[order_level_tree_file] = 'classify'
+    for file_ in base_files + extra_bac_files:
                   # skip filtered for now, unused
                   # 'gtdbtk.filtered.tsv'
-                  ):
         tmppath = temp_output / file_folder[file_] / file_
         if not tmppath.is_file():
-            logging.info('No such file, skipping: ' + str(tmppath))
+            #logging.info('No such file, skipping: ' + str(tmppath))
+            continue
         else:
             path = out_dir / file_
             copyfile(tmppath, path)
@@ -173,4 +182,8 @@ def _process_output_files(temp_output, out_dir, id_to_name):
             with open(outfile, 'w') as out:
                 out.write(json.dumps(sj))
 
-    return classification
+            # return rest of summary table data
+            summary_tables[file_] = sj
+
+            
+    return (classification, summary_tables)

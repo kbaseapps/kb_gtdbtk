@@ -12,7 +12,7 @@ from kb_gtdbtk.core.kb_client_set import KBClients
 from kb_gtdbtk.core.gtdbtk_runner import run_gtdbtk
 from kb_gtdbtk.core.krona_runner import run_krona_import_text
 from kb_gtdbtk.core.kb_report_generation import generate_report
-from kb_gtdbtk.core.genome_obj_update import get_obj_type, check_obj_type_genome, check_obj_type_assembly, update_genome_assembly_objs_class
+from kb_gtdbtk.core.genome_obj_update import copy_gtdb_species_reps, get_obj_type, check_obj_type_genome, check_obj_type_assembly, update_genome_assembly_objs_class
 #END_HEADER
 
 
@@ -31,7 +31,7 @@ class kb_gtdbtk:
     # state. A method could easily clobber the state set by another while
     # the latter method is running.
     ######################################### noqa
-    VERSION = "1.2.3"
+    VERSION = "1.3.0"
     GIT_URL = "https://github.com/kbaseapps/kb_gtdbtk"
     GIT_COMMIT_HASH = "2a582e6c2dd227de2ee212ba1175b76c32a54c5c"
 
@@ -49,6 +49,7 @@ class kb_gtdbtk:
         self.cpus = config['cpus']  # bigmem 32 cpus & 251 GB RAM
         self.gtdb_ver = config['gtdb_ver']
         self.taxon_assignment_field = config['taxon_assignment_field']
+        self.genome_upas_map_file = config['genome_upas_map_file']
         
         logging.basicConfig(format='%(created)s %(levelname)s: %(message)s',
                             level=logging.INFO)
@@ -112,6 +113,7 @@ class kb_gtdbtk:
         # return variables are: output
         #BEGIN run_kb_gtdbtk_classify_wf
 
+        ### Step 00: Init
         params = get_gtdbtk_params(params)
 
         logging.info("Get Genome Seqs\n")
@@ -131,23 +133,29 @@ class kb_gtdbtk:
         output_path.mkdir(parents=True, exist_ok=True)
         temp_output.mkdir(parents=True, exist_ok=True)
 
+        
+        ### Step 01: run GTDB-Tk Classify WF
         def runner(args):
             env = dict(os.environ)
             env['TEMP_DIR'] = str(self.shared_folder / 'tmp')
             # should print to stdout/stderr
             subprocess.run(args, check=True, env=env)
 
-        classification = run_gtdbtk (runner,
-                                     path_to_filename,
-                                     output_path,
-                                     temp_output,
-                                     params.min_perc_aa,
-                                     params.full_tree,
-                                     params.keep_intermediates,
-                                     self.cpus)
+        (classification, summary_tables) = run_gtdbtk (runner,
+                                                       path_to_filename,
+                                                       output_path,
+                                                       temp_output,
+                                                       params.min_perc_aa,
+                                                       params.full_tree,
+                                                       params.keep_intermediates,
+                                                       self.cpus)
 
+
+        ### Step 02: Make Krona plot
         run_krona_import_text(runner, output_path, temp_output)
 
+
+        ### Step 03: Save Genome and/or Assembly objects with updated lineage
         objects_created = None
         obj_type = get_obj_type (params.ref, cli)
         if check_obj_type_assembly (obj_type) or check_obj_type_genome (obj_type):
@@ -158,7 +166,22 @@ class kb_gtdbtk:
                                                                  self.gtdb_ver,
                                                                  self.taxon_assignment_field,
                                                                  cli)
+
+
+        ### Step 04: copy over GTDB Species Rep Genomes to calling WS and make GenomeSets
+        if check_obj_type_genome (obj_type):
+            objects_created.extend (copy_gtdb_species_reps (params.workspace_id,
+                                                            params.ref,
+                                                            self.genome_upas_map_file,
+                                                            summary_tables,
+                                                            cli))
+
         
+        
+        ### (TODO: Step 05: prune trees)
+
+
+        ### Step 06: make report
         output = generate_report(cli, output_path, params.workspace_id, objects_created)
 
         #END run_kb_gtdbtk_classify_wf

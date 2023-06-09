@@ -24,6 +24,10 @@ from installed_clients.AbstractHandleClient import AbstractHandle
 # TODO add tests for copy of a copy
 # TODO add a few failing case tests (most covered by unit tests)
 
+# !!!!!!!!!
+# NOTE: tests with genome query inputs requires running on PROD where GTDB workspaces are
+
+
 WORKDIR = '/kb/module/work/tmp/'
 
 
@@ -110,6 +114,7 @@ class kb_gtdbtkTest(unittest.TestCase):
         tempdir = cls.scratch / 'tempstuff'
         tempdir.mkdir(parents=True, exist_ok=True)
 
+
         # single bacterial assembly
         this_filename = 'Rhodo_contigs.fa.gz'
         single_assyfile = tempdir / this_filename
@@ -147,6 +152,7 @@ class kb_gtdbtkTest(unittest.TestCase):
                 }
             ]})[0]
         cls.binned_contigs = cls.ref_from_info(bin_obj_info)
+
         
         # 3 archaeal assemblies and genomes, assembly set and genome set
         cls.arch_genomes = []

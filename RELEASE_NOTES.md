@@ -1,6 +1,10 @@
 # kb_gtdbtk release notes
 =========================
 
+1.3.0
+_____
+* copy GTDB species rep genome and assembly objects to local workspace
+
 1.2.4
 _____
 * save all updated objects to calling workspace
