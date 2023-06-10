@@ -35,13 +35,13 @@
                 "options": [
                     {
                         "value": 0,
-                        "display": "DON'T copy GTDB proximal genome objects",
+                        "display": "DON'T copy GTDB proximal genomes",
                         "id": "copy_proximals-NO",
                         "ui-name": "copy_proximals-NO"
                     },
                     {
                         "value": 1,
-                        "display": "DO copy GTDB proximal genome objects",
+                        "display": "DO copy GTDB proximal genomes",
                         "id": "copy_proximals-YES",
                         "ui-name": "copy_proximals-YES"
                     }
@@ -147,6 +147,9 @@
                     "input_parameter": "input_object_ref",
                     "target_property": "input_object_ref",
                     "target_type_transform":"ref"
+                },{
+                    "input_parameter": "copy_proximals",
+                    "target_property": "copy_proximals"
                 },{
                     "input_parameter": "min_perc_aa",
                     "target_property": "min_perc_aa"
