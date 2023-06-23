@@ -20,23 +20,23 @@ elif [ "${1}" = "init" ] ; then
   echo "Initialize module"
   cd /data
 
-  GTDB_VER_INT = '207'
-  GTDB_VER_FLT = '207.0'
+  export GTDB_VER_INT = '207'
+  export GTDB_VER_FLT = '207.0'
   
   echo "Getting GTDB-Tk databases"
-  GTDB_TK_DATA_DB = "gtdbtk_r${GTDB_VER_INT}_v2_data.tar.gz"
+  export GTDB_TK_DATA_DB = "gtdbtk_r${GTDB_VER_INT}_v2_data.tar.gz"
   curl -O https://data.gtdb.ecogenomic.org/releases/release${GTDB_VER_INT}/${GTDB_VER_FLT}/auxillary_files/${GTDB_TK_DATA_DB}
   tar xvzf ${GTDB_TK_DATA_DB} --strip 1
   rm ${GTDB_TK_DATA_DB}
 
   echo "Getting GTDB Archaea metadata"
-  ARC_METADATA = "ar53_metadata_r${GTDB_VER_INT}.tar.gz"
+  export ARC_METADATA = "ar53_metadata_r${GTDB_VER_INT}.tar.gz"
   curl -O https://data.gtdb.ecogenomic.org/releases/release${GTDB_VER_INT}/${GTDB_VER_FLT}/${ARC_METADATA}
   tar xvzf ${ARC_METADATA}
   rm ${ARC_METADATA}
 
   echo "Getting GTDB Bacteria metadata"
-  BAC_METADATA = "bac120_metadata_r${GTDB_VER_INT}.tar.gz"
+  export BAC_METADATA = "bac120_metadata_r${GTDB_VER_INT}.tar.gz"
   curl -O https://data.gtdb.ecogenomic.org/releases/release${GTDB_VER_INT}/${GTDB_VER_FLT}/${BAC_METADATA}
   tar xvzf ${BAC_METADATA}
   rm ${BAC_METADATA}
