@@ -33,6 +33,14 @@ WORKDIR /kb
 RUN git clone https://github.com/marbl/Krona.git && \
     cd Krona/KronaTools/ && \
     ./install.pl
+
+# Install ETE3
+RUN apt-get update && \
+    apt-get -y install xvfb
+RUN pip install --upgrade pip
+# Note: You must use PyQt5==5.11.3 on debian
+RUN pip install ete3==3.1.3 PyQt5==5.11.3 numpy==1.23.1
+
 # -----------------------------------------
 
 COPY ./ /kb/module

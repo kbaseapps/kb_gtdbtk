@@ -41,11 +41,16 @@ parameters :
             Copy GTDB hits (for genomes)
         short-hint : |
             Copy proximal GTDB hits to this narrative and create GenomeSets for each query and overall.
+    save_trees :
+        ui-name : |
+            Save Trees (for genomes)
+        short-hint : |
+            Save all trimmed GTDB trees as KBase objects.  Does not save full tree with all leaves, just what is displayed in report.  Copies over genome objects in trees.
     full_tree :
         ui-name : |
             Full Tree
         short-hint : |
-            Perform tree placement with full tree or order-level subtrees
+            Perform tree placement with full tree or class-level subtrees
     keep_intermediates :
         ui-name : |
             Keep Intermediate Files

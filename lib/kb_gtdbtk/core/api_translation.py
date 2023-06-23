@@ -19,11 +19,14 @@ class GTDBTKParams(_NamedTuple):
     copy_proximals: int
     ''' Boolean copy proximal hit GTDB genome objects '''
     
+    save_trees: int
+    ''' Boolean save trees as objects and copy GTDB sp rep genomes in trees '''
+    
     min_perc_aa: float
     ''' The mimimum sequence alignment in percent. '''
 
     full_tree: int
-    ''' Boolean use full tree or order-level subtrees '''
+    ''' Boolean use full tree or class-level subtrees '''
     
     keep_intermediates: int
     ''' Boolean retain intermediate files in classify_wf '''
@@ -62,6 +65,10 @@ def get_gtdbtk_params(input_params: Dict[str, object]) -> GTDBTKParams:
     if type(copy_proximals) != int or (copy_proximals != 0 and copy_proximals != 1):
         raise ValueError('copy_proximals is required and must be an integer [0,1]')
     
+    save_trees = int(input_params.get('save_trees', 0))
+    if type(save_trees) != int or (save_trees != 0 and save_trees != 1):
+        raise ValueError('copy_proximals is required and must be an integer [0,1]')
+    
     min_perc_aa = input_params.get('min_perc_aa', 10)
     if type(min_perc_aa) != float and type(min_perc_aa) != int:
         raise ValueError('min_perc_aa must be a float')
@@ -83,6 +90,7 @@ def get_gtdbtk_params(input_params: Dict[str, object]) -> GTDBTKParams:
     return GTDBTKParams(_cast(str, ref),
                         _cast(int, wsid),
                         _cast(int, copy_proximals),
+                        _cast(int, save_trees),
                         _cast(float, min_perc_aa) * 1.0,
                         _cast(int, full_tree),
                         _cast(int, keep_intermediates),

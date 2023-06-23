@@ -6,6 +6,8 @@ from typing import Dict
 import os
 import json
 import pandas as pd
+import subprocess
+import ete3
 
 from kb_gtdbtk.core.kb_client_set import KBClients
 
@@ -13,6 +15,28 @@ from kb_gtdbtk.core.kb_client_set import KBClients
 # global indices for KBase obj info list
 [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I,
  WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple    
+
+
+# get_obj_info ()
+def get_obj_info (
+        wsid: int,
+        objname: str,
+        clients: KBClients
+        ):
+    '''
+    Get obj type from info
+
+    :param wsid: int with KBase workspace id
+    :param objname: string with KBase obj name
+    :returns: string with obj type
+    '''
+
+    obj_info = None
+    try:
+        obj_info = clients.ws().get_object_info3({'objects': [{'wsid':wsid,'name':objname}]})['infos'][0]
+    except:
+        pass
+    return obj_info
 
 
 # get_obj_type()
@@ -30,6 +54,23 @@ def get_obj_type(
     obj_info = clients.ws().get_object_info3({'objects': [{'ref':upa}]})['infos'][0]
     obj_type = obj_info[TYPE_I].split('-')[0]
     return obj_type
+
+
+# get_obj_name()
+#
+def get_obj_type(
+        upa: str,
+        clients: KBClients
+        ):
+    '''
+    Get obj type from info
+
+    :param upa: string with KBase obj ref
+    :returns: string with obj type
+    '''
+    obj_info = clients.ws().get_object_info3({'objects': [{'ref':upa}]})['infos'][0]
+    obj_name = obj_info[NAME_I].split('-')[0]
+    return obj_name
 
 
 # check_obj_type_genome()
@@ -83,6 +124,324 @@ def check_obj_type_assembly(
         return True
     else:
         return False
+
+    
+# _format_gtdbtk_tree_to_itol ()
+#
+def _format_gtdbtk_tree_to_itol (in_tree_path):
+    print ("making ITOL format tree "+str(in_tree_path))
+    gtdbtk_bin = os.path.join ('/opt', 'conda3', 'bin', 'gtdbtk')
+    itol_tree_path = str(in_tree_path).replace('.tree','-ITOL.tree')
+
+    convert_cmd = [gtdbtk_bin, 'convert_to_itol',
+                   '--input_tree', in_tree_path,
+                   '--output_tree', itol_tree_path
+                   ]
+    env = dict(os.environ)
+    subprocess.run(convert_cmd, check=True, env=env)
+
+    return itol_tree_path
+
+    
+# _trim_tree()
+#
+def _trim_tree (in_tree_path, leaflist_file, leaflist_outfile):
+    print ("trimming tree "+str(in_tree_path))
+    trim_bin = os.path.join ('/kb', 'module', 'bin', 'trim_tree_to_target_leaves.py')
+
+    out_tree_paths = []
+    
+    # just proximal sp rep hits
+    out_tree_path = str(in_tree_path).replace('.tree','-proximals.tree')
+    out_tree_paths.append(out_tree_path)
+    trim_cmd = [trim_bin,
+                '--intree', str(in_tree_path),
+                '--outtree', str(out_tree_path),
+                '--leaflist', str(leaflist_file),
+                '--targetleafoutfile', str(leaflist_outfile)
+                ]
+    print ("RUNNING: "+" ".join(trim_cmd))
+    env = dict(os.environ)
+    subprocess.run(trim_cmd, check=True, env=env)
+
+    # with sister context branches
+    out_tree_path = str(in_tree_path).replace('.tree','-trimmed.tree')
+    out_tree_paths.append(out_tree_path)
+    trim_cmd = [trim_bin,
+                '--intree', str(in_tree_path),
+                '--outtree', str(out_tree_path),
+                '--leaflist', str(leaflist_file),
+                '--targetleafoutfile', str(leaflist_outfile)
+                ]
+    trim_cmd.append('--sisters')
+    print ("RUNNING: "+" ".join(trim_cmd))
+    env = dict(os.environ)
+    subprocess.run(trim_cmd, check=True, env=env)
+
+    return out_tree_paths
+
+
+# _write_tree_image_file()
+#
+def _write_tree_image_file (trimmed_tree_path, query_leaflist_file, leaflist_file):
+    print ("making images for trimmed tree "+str(trimmed_tree_path))
+    write_image_bin = os.path.join ('/kb', 'module', 'bin', 'make_tree_images.py')
+
+    out_img_base = trimmed_tree_path
+    trimmed_tree_image_paths = [ out_img_base+'-rectangle.PNG',
+                                 out_img_base+'-rectangle.PDF',
+                                 out_img_base+'-circle.PNG',
+                                 out_img_base+'-circle.PDF'
+                               ]
+
+    write_image_cmd = [write_image_bin,
+                       '--intree', trimmed_tree_path,
+                       '--outimgbase', out_img_base,
+                       '--queryleaflist', query_leaflist_file,
+                       '--leaflist', leaflist_file
+                       ]
+    env = dict(os.environ)
+    subprocess.run(write_image_cmd, check=True, env=env)
+
+    return trimmed_tree_image_paths
+
+
+# process_tree_files()
+#
+def process_tree_files (top_upa,
+                        out_dir,
+                        summary_tables,
+                        clients):
+    upload_files = []
+    file_links = []
+
+    id_map_path = os.path.join(out_dir, 'id_to_name.map')
+    tree_files = ['gtdbtk.ar53.classify.tree',
+                  'gtdbtk.bac120.classify.tree']
+    extra_bac_tree_files = []
+    for i in range(10000):
+        subtree_file = 'gtdbtk.bac120.classify.tree.'+str(i)+'.tree'
+        extra_bac_tree_files.append(subtree_file)
+
+    # add species hits to id_map
+    top_obj = clients.dfu().get_objects({'object_refs': [top_upa]})['data'][0]
+    query_assembly_to_genome_name = get_query_assembly_to_genome_name (top_obj, clients)
+    (all_sp_reps, sp_reps_by_query) = get_sp_rep_hits(summary_tables, query_assembly_to_genome_name)
+
+    # change id map to genome names
+    id_map_buf = []
+    with open(id_map_path, 'r') as id_map_h:
+        for line in id_map_h:
+            (qid, assembly_name) = line.rstrip().split("\t") 
+            new_name = assembly_name
+            if assembly_name in query_assembly_to_genome_name:
+                new_name = query_assembly_to_genome_name[assembly_name]
+            id_map_buf.append("\t".join([qid,new_name]))
+    new_id_map_path = str(id_map_path).replace('.map','-genomes.map')
+    with open(new_id_map_path, 'w') as id_map_h:
+        id_map_h.write("\n".join(id_map_buf)+"\n")
+            
+    # add sp rep hits too 
+    for sp_rep_id in sorted(all_sp_reps.keys()):
+        id_map_buf.append("\t".join([sp_rep_id,sp_rep_id]))
+    id_map_with_sp_rep_hits_path = os.path.join(out_dir, 'id_to_name_with_sp_reps.map')
+    with open(id_map_with_sp_rep_hits_path, 'w') as id_map_h:
+        id_map_h.write("\n".join(id_map_buf)+"\n")
+
+    # make itol format files
+    for tree_file in tree_files + extra_bac_tree_files:
+        in_tree_path = out_dir / tree_file
+        if os.path.isfile(in_tree_path):
+            itol_tree_path = _format_gtdbtk_tree_to_itol (in_tree_path)
+            itol_tree_file = os.path.basename(itol_tree_path)
+            upload_files.append({ 'path': in_tree_path,
+                                  'name': tree_file,
+                                  'description': tree_file+' - whole tree GTDB formatted Newick'})
+            upload_files.append({ 'path': itol_tree_path,
+                                  'name': itol_tree_file,
+                                  'description': itol_tree_file+' - whole tree ITOL formatted Newick'})
+
+            
+    # trim tree files and make tree image files
+    upload_files = []
+    for tree_file in tree_files + extra_bac_tree_files:
+        in_tree_path = out_dir / tree_file
+        if os.path.isfile(in_tree_path):
+
+            new_id_map_with_sp_rep_hits_path = str(in_tree_path).replace('.tree', '.id_to_name_with_sp_reps-newleafnames.map')
+
+            trimmed_tree_paths = _trim_tree (in_tree_path, id_map_with_sp_rep_hits_path, new_id_map_with_sp_rep_hits_path)
+
+            for trimmed_tree_path in trimmed_tree_paths:
+
+                # proximals failing.  fix later
+                if 'proximals' in trimmed_tree_path:
+                    continue
+
+                trimmed_tree_image_paths = _write_tree_image_file (trimmed_tree_path, new_id_map_path, new_id_map_with_sp_rep_hits_path)
+
+                trimmed_tree_file = os.path.basename (trimmed_tree_path)
+                upload_files.append({ 'path': trimmed_tree_path,
+                                      'name': trimmed_tree_file,
+                                      'description': trimmed_tree_file+' - Newick'
+                                    })
+                for trimmed_tree_image_path in trimmed_tree_image_paths:
+                    trimmed_tree_image_file = os.path.basename (trimmed_tree_image_path)
+                    upload_files.append({ 'path': trimmed_tree_image_path,
+                                          'name': trimmed_tree_image_file,
+                                          'description': trimmed_tree_file+'- image'
+                                        })
+            
+
+    # upload files and make file links for report
+    #
+    file_links = []
+    for f in upload_files:
+        upload_ret = clients.dfu().file_to_shock({'file_path': f['path'],
+                                                  'make_handle': 0})
+        file_links.append({'shock_id': upload_ret['shock_id'],
+                           'name': f['name'],
+                           'description': f['description']})
+
+    return file_links
+
+
+# get_genome_to_upa_map()
+#
+def get_genome_to_upa_map(genome_upas_map_file):
+    genome_id_to_upa_map = dict()
+    this_file = genome_upas_map_file
+    if this_file.lower().endswith('.gz'):
+        f = gzip.open(this_file, 'rt')
+    else:
+        f = open(this_file, 'r')
+    for line in f:
+        line = line.rstrip()
+        (genome_id, upa) = line.split("\t")
+        genome_id_to_upa_map[genome_id] = upa
+    f.close()
+
+    return genome_id_to_upa_map
+
+
+# _save_tree_obj_and_copy_genomes()
+#
+def  _save_tree_obj_and_copy_genomes(this_tree_path,
+                                     tree_name,
+                                     obj_name,
+                                     tree_short_desc,
+                                     top_upa,
+                                     workspace_id,
+                                     clients):
+
+    tree_full_desc = tree_file+' '+tree_short_desc
+    
+    tree = ete3.Tree (this_tree_path, quoted_node_names=True, format=1)
+    tree.ladderize()
+    newick_buf = tree.write(features=[])
+    if not newick_buf.endswith(';'):
+        newick_buf += ';'
+    leaf_list = []
+    genome_ids = []
+    for leaf_name in tree.get_leaf_names():
+        leaf_list.append(leaf_name)
+        genome_ids.append(leaf_name.split(' ')[0])
+
+    # make local copies of genomes
+    genome_refs = copy_gtdb_genome_objs (genome_ids, genome_id_to_upa_map, 'GTDB_SP_REP-', workspace_id, clients)
+
+    ws_refs = dict()
+    default_node_labels = dict()
+    for genome_i,leaf_name in enumerate(leaf_list):
+        default_node_labels[leaf_name] = leaf_name
+        genome_ref = genome_refs[genome_i]
+        ws_refs[leaf_name] = dict()
+        ws_refs[leaf_name]['g'] = [genome_ref]
+    tree_data = { 'name': tree_name,
+                  'description': tree_full_desc,
+                  'type': 'SpeciesTree',
+                  'tree': newick_buf,
+                  'leaf_list': leaf_list,
+                  'default_node_labels': default_node_labels,
+                  'ws_refs': ws_refs
+    }
+    # save tree
+    provenance = [{}]
+    provenance[0]['input_ws_objects'] = [top_upa]
+    provenance[0]['input_ws_objects'].extend(genome_refs)
+    provenance[0]['service'] = 'kb_gtdbtk'
+    provenance[0]['method'] = 'run_kb_gtdbtk_classify_wf'
+    try:
+        tree_out_obj_info = clients.dfu().save_objects({
+            'workspace_id': workspace_id,
+            'objects':[{
+                'type': 'KBaseTrees.Tree',
+                'data': tree_data,
+                'name': obj_name,
+                'meta': {},
+                'provenance': provenance
+            }]})[0]
+    except Exception as e:
+        raise ValueError('Unable to save tree '+params['output_tree_name']+' object to workspace '+str(params['workspace_name'])+': ' + str(e))
+
+    output_tree_ref = upa_from_info (tree_out_obj_info)
+    new_objects_created.append({'ref': output_tree_ref, 'description': tree_short_desc})
+
+    return new_objects_created
+
+
+# save_gtdb_tree_objs()
+#
+def save_gtdb_tree_objs (workspace_id,
+                         top_upa,
+                         output_dir,
+                         genome_upas_map_file,
+                         clients):
+    new_objects_created = []
+
+    # get upas by genome id
+    genome_id_to_upa_map = get_genome_to_upa_map(genome_upas_map_file)
+
+    # read trees and collect contained genomes
+    tree_files = ['gtdbtk.ar53.classify.tree',
+                  'gtdbtk.bac120.classify.tree']
+    extra_bac_tree_files = []
+    for i in range(10000):
+        subtree_file = 'gtdbtk.bac120.classify.tree.'+str(i)+'.tree'
+        extra_bac_tree_files.append(subtree_file)
+
+    for tree_file in tree_files + extra_bac_tree_files:
+        in_tree_path = out_dir / tree_file
+        if os.path.isfile(in_tree_path):
+
+            # proximal tree
+            proximal_tree_path = str(in_tree_path).replace('.tree', '-proximal.tree')
+            tree_name = tree_file+'-proximals.tree'
+            obj_name = output_basename+'.'+tree_name
+            tree_short_desc = 'with proximal GTDB species reps'
+
+            new_objects_created.append(_save_tree_obj_and_copy_genomes(proximal_tree_path,
+                                                                       tree_name,
+                                                                       obj_name,
+                                                                       tree_short_desc,
+                                                                       top_upa,
+                                                                       workspace_id,
+                                                                       clients))
+            # trimed tree
+            trimmed_tree_path = str(in_tree_path).replace('.tree', '-trimmed.tree')
+            tree_name = tree_file+'-trimmed.tree'
+            obj_name = output_basename+'.'+tree_name
+            tree_short_desc = 'trimmed with sister context'
+
+            new_objects_created.append(_save_tree_obj_and_copy_genomes(trimmed_tree_path,
+                                                                       tree_name,
+                                                                       obj_name,
+                                                                       tree_short_desc,
+                                                                       top_upa,
+                                                                       workspace_id,
+                                                                       clients))
+
+    return new_objects_created
 
 
 # update_genome_assembly_objs_class()
@@ -316,6 +675,32 @@ def get_std_lineages (this_classification, gtdb_ver, this_taxon_id):
     }
 
 
+# copy_gtdb_genome_objs ()
+#
+def copy_gtdb_genome_objs (genome_ids, genome_id_to_upa_map, new_obj_name_prefix, dst_ws_id, clients):
+    genome_refs = []
+
+    for genome_id in genome_ids:
+        src_upa = genome_id_to_upa_map[genome_id]
+        src_obj_name = get_object_name(src_upa, clients)
+
+        dst_obj_name = src_obj_name
+        if new_obj_name_prefix:
+            dst_obj_name = new_obj_name_prefix+dst_obj_name
+            
+        existing_obj_info = get_obj_info (dst_ws_id, dst_obj_name, clients)
+        if existing_obj_info:
+            genome_obj_info = existing_obj_info
+        else:
+            genome_obj_info = _copy_genome_obj(src_upa,
+                                               dst_ws_id,
+                                               dst_obj_name,
+                                               clients)
+        genome_refs.append(upa_from_info(genome_obj_info))
+
+    return genome_refs
+
+            
 # save_genome_obj ()
 #
 def save_genome_obj (primary_wsid, genome_name, genome_obj_data, clients):
@@ -440,62 +825,15 @@ def update_and_save_assemblyset (primary_wsid, assemblyset_obj, updated_assembly
     return new_ref
 
 
-# copy_gtdb_species_reps()
+# get_sp_rep_hits()
 #
-def copy_gtdb_species_reps (primary_wsid, top_upa, genome_upas_map_file, summary_tables, clients):
-    new_objects_created = []
+def get_sp_rep_hits (summary_tables, query_assembly_to_genome_name):
+    sp_reps_by_query = dict()
+    all_sp_reps = dict()
 
     single_sp_rep_fields = ['fastani_reference', 'closest_placement_reference']
     multi_sp_rep_field = 'other_related_references(genome_id,species_name,radius,ANI,AF)'
-    
-    # get upas by genome id
-    genome_id_to_upa_map = dict()
-    this_file = genome_upas_map_file
-    if this_file.lower().endswith('.gz'):
-        f = gzip.open(this_file, 'rt')
-    else:
-        f = open(this_file, 'r')
-    for line in f:
-        line = line.rstrip()
-        (genome_id, upa) = line.split("\t")
-        genome_id_to_upa_map[genome_id] = upa
-    f.close()
 
-    # get query assembly name to genome name mapping
-    #  Note: redundant calls: could make global map earlier
-    #
-    top_obj = clients.dfu().get_objects({'object_refs': [top_upa]})['data'][0]
-    # normalize upa just in case it's a ref vs. an upa
-    top_upa = upa_from_info(top_obj['info'])
-    top_name = top_obj['info'][NAME_I]
-    obj_data = top_obj['data']
-    obj_type = top_obj['info'][TYPE_I].split('-')[0]
-
-    query_assembly_to_genome_name = dict()
-    if check_obj_type_genome (obj_type):
-        if 'KBaseSets.GenomeSet' == obj_type:
-            upas = [gsi['ref'] for gsi in obj_data['items']]
-        elif 'KBaseSearch.GenomeSet' == obj_type:
-            upas = [gse['ref'] for gse in obj_data['elements'].values()]
-        elif 'KBaseGenomes.Genome' == obj_type:
-            upas = [top_upa]
-        else:
-            raise ValueError(f'{obj_type} type is not supported')
-
-        for query_upa in upas:
-            (this_wsid_str, this_objid_str, this_ver) = query_upa.split('/')
-            query_genome_obj = clients.ws().get_objects2({'objects': [{'wsid':int(this_wsid_str),'objid':int(this_objid_str)}]})['data'][0]
-            genome_name = query_genome_obj['info'][NAME_I]
-            genome_upa = upa_from_info (query_genome_obj['info'])
-            assembly_upa = query_genome_obj['data'].get('contigset_ref') or query_genome_obj['data'].get('assembly_ref')
-            assembly_info = clients.ws().get_object_info3({'objects': [{'ref':assembly_upa}]})['infos'][0]
-            assembly_name = assembly_info[NAME_I]
-            query_assembly_to_genome_name[assembly_name] = genome_name
-
-            
-    # get species reps by query id
-    sp_reps_by_query = dict()
-    all_sp_reps = dict()
     for summary_file in ['gtdbtk.bac120.summary.tsv', 'gtdbtk.ar53.summary.tsv']:
         if summary_file not in summary_tables:
             continue
@@ -535,8 +873,89 @@ def copy_gtdb_species_reps (primary_wsid, top_upa, genome_upas_map_file, summary
                     all_sp_reps[sp_rep_id] = True
                     if sp_rep_id not in sp_reps_by_query[this_genome_id]:
                         sp_reps_by_query[this_genome_id].append(sp_rep_id)
-                    
 
+    return (all_sp_reps, sp_reps_by_query)
+
+
+# get_upas_from_set()
+#
+def get_upas_from_set(top_obj):
+
+    # normalize upa just in case it's a ref vs. an upa
+    top_upa = upa_from_info(top_obj['info'])
+    top_name = top_obj['info'][NAME_I]
+    obj_data = top_obj['data']
+    obj_type = top_obj['info'][TYPE_I].split('-')[0]
+
+    if check_obj_type_genome (obj_type):
+        if 'KBaseSets.GenomeSet' == obj_type:
+            upas = [gsi['ref'] for gsi in obj_data['items']]
+        elif 'KBaseSearch.GenomeSet' == obj_type:
+            upas = [gse['ref'] for gse in obj_data['elements'].values()]
+        elif 'KBaseGenomes.Genome' == obj_type:
+            upas = [top_upa]
+        else:
+            raise ValueError(f'{obj_type} type is not supported')
+
+    return upas
+
+
+def get_query_assembly_to_genome_name (top_obj, clients):
+    query_assembly_to_genome_name = dict()
+
+    obj_type = top_obj['info'][TYPE_I].split('-')[0]
+    
+    if check_obj_type_genome (obj_type):
+        upas = get_upas_from_set (top_obj)
+
+        for query_upa in upas:
+            (this_wsid_str, this_objid_str, this_ver) = query_upa.split('/')
+            query_genome_obj = clients.ws().get_objects2({'objects': [{'wsid':int(this_wsid_str),'objid':int(this_objid_str)}]})['data'][0]
+            genome_name = query_genome_obj['info'][NAME_I]
+            genome_upa = upa_from_info (query_genome_obj['info'])
+            assembly_upa = query_genome_obj['data'].get('contigset_ref') or query_genome_obj['data'].get('assembly_ref')
+            assembly_info = clients.ws().get_object_info3({'objects': [{'ref':assembly_upa}]})['infos'][0]
+            assembly_name = assembly_info[NAME_I]
+            query_assembly_to_genome_name[assembly_name] = genome_name
+
+    return query_assembly_to_genome_name
+
+
+# _copy_genome_obj()
+#
+def _copy_genome_obj(src_upa,
+                     dst_ws_id,
+                     dst_obj_name,
+                     clients):
+
+    (src_wsid_str, src_objid_str, src_ver) = src_upa.split('/')
+    
+    dst_genome_obj_info = clients.ws().copy_object({'from':{'wsid':int(src_wsid_str), 'objid':int(src_objid_str)}, 'to':{'wsid':dst_ws_id,'name':dst_obj_name}})
+
+    return dst_genome_obj_info
+
+
+# copy_gtdb_species_reps()
+#
+def copy_gtdb_species_reps (primary_wsid, top_upa, genome_upas_map_file, summary_tables, clients):
+    new_objects_created = []
+
+    # get upas by genome id
+    genome_id_to_upa_map = get_genome_to_upa_map(genome_upas_map_file)
+
+    # get query assembly name to genome name mapping
+    #  Note: redundant calls: could make global map earlier
+    #
+    top_obj = clients.dfu().get_objects({'object_refs': [top_upa]})['data'][0]
+    top_name = top_obj['info'][NAME_I]
+    upas = get_upas_from_set (top_obj)
+    query_assembly_to_genome_name = get_query_assembly_to_genome_name (top_obj, clients)
+
+
+    # get species reps by query id
+    (all_sp_reps, sp_reps_by_query) = get_sp_rep_hits(summary_tables, query_assembly_to_genome_name)
+
+    
     # copy over genome objs
     sp_rep_dst_upa = dict()
     for sp_rep_id in sorted(all_sp_reps.keys()):
@@ -561,7 +980,11 @@ def copy_gtdb_species_reps (primary_wsid, top_upa, genome_upas_map_file, summary
             raise ValueError ("unable to find available object name for GTDB Species Rep {}".format(sp_rep_id))
 
         # copy the object, using newest version (or does copy_object barf on assembly handle too?)
-        dst_genome_obj_info = clients.ws().copy_object({'from':{'wsid':int(src_wsid_str), 'objid':int(src_objid_str)}, 'to':{'wsid':primary_wsid,'name':dst_obj_name}})
+        dst_genome_obj_info =  _copy_genome_obj(sp_rep_src_upa,
+                                                primary_wsid,
+                                                dst_obj_name,
+                                                clients)
+        #dst_genome_obj_info = clients.ws().copy_object({'from':{'wsid':int(src_wsid_str), 'objid':int(src_objid_str)}, 'to':{'wsid':primary_wsid,'name':dst_obj_name}})
 
         sp_rep_dst_upa[sp_rep_id] = upa_from_info (dst_genome_obj_info)
 
@@ -594,7 +1017,7 @@ def copy_gtdb_species_reps (primary_wsid, top_upa, genome_upas_map_file, summary
     # build genomesets and save them, adding to created objects
     for query_name in sorted(per_query_genomeset_elements.keys()):
         genomeset_desc = 'Proximal GTDB species reps for '+query_name
-        genomeset_name = query_name+'.GTDB_sp_reps.GenomeSet'
+        genomeset_name = 'GTDB_SP_REPS.'+query_name+'.GenomeSet'
         genomeset_type = 'KBaseSearch.GenomeSet'
         genomeset_data = {'description': genomeset_desc,
                           'elements': per_query_genomeset_elements[query_name]
@@ -610,8 +1033,8 @@ def copy_gtdb_species_reps (primary_wsid, top_upa, genome_upas_map_file, summary
         new_objects_created.append({'ref': new_ref, 'description': obj_desc})
 
     # make genomeset with all genome objs
-    genomeset_desc = 'Proximal GTDB species reps for ALL query genomes'+query_name
-    genomeset_name = top_name+'.ALL_GTDB_sp_reps.GenomeSet'
+    genomeset_desc = 'Proximal GTDB species reps for ALL query genomes in '+top_name
+    genomeset_name = 'GTDB_SP_REPS-ALL.'+top_name+'.GenomeSet'
     genomeset_type = 'KBaseSearch.GenomeSet'
     genomeset_data = {'description': genomeset_desc,
                       'elements': all_genomeset_elements

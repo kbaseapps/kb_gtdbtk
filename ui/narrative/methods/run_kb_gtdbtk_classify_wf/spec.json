@@ -49,6 +49,30 @@
             }
         },	
         {
+            "id": "save_trees",
+            "optional": false,
+            "advanced": false,
+            "allow_multiple": false,
+            "default_values": [ 0 ],
+            "field_type": "dropdown",
+            "dropdown_options": {
+                "options": [
+                    {
+                        "value": 0,
+                        "display": "DON'T save Trees and copy GTDB tree genomes",
+                        "id": "save_trees-NO",
+                        "ui-name": "save_trees-NO"
+                    },
+                    {
+                        "value": 1,
+                        "display": "DO save Trees and copy GTDB tree genomes",
+                        "id": "save_trees-YES",
+                        "ui-name": "save_trees-YES"
+                    }
+                ]
+            }
+        },	
+        {
             "id": "min_perc_aa",
             "optional": true,
             "advanced": true,
@@ -72,7 +96,7 @@
                 "options": [
                     {
                         "value": 0,
-                        "display": "use order-level subtrees",
+                        "display": "use class-level subtrees",
                         "id": "full_tree-NO",
                         "ui-name": "full_tree-NO"
                     },
@@ -150,6 +174,9 @@
                 },{
                     "input_parameter": "copy_proximals",
                     "target_property": "copy_proximals"
+                },{
+                    "input_parameter": "save_trees",
+                    "target_property": "save_trees"
                 },{
                     "input_parameter": "min_perc_aa",
                     "target_property": "min_perc_aa"

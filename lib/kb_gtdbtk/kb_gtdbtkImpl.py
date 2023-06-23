@@ -12,7 +12,7 @@ from kb_gtdbtk.core.kb_client_set import KBClients
 from kb_gtdbtk.core.gtdbtk_runner import run_gtdbtk
 from kb_gtdbtk.core.krona_runner import run_krona_import_text
 from kb_gtdbtk.core.kb_report_generation import generate_report
-from kb_gtdbtk.core.genome_obj_update import copy_gtdb_species_reps, get_obj_type, check_obj_type_genome, check_obj_type_assembly, update_genome_assembly_objs_class
+from kb_gtdbtk.core.genome_obj_update import copy_gtdb_species_reps, get_obj_type, check_obj_type_genome, check_obj_type_assembly, update_genome_assembly_objs_class, process_tree_files, save_gtdb_tree_objs
 #END_HEADER
 
 
@@ -33,7 +33,7 @@ class kb_gtdbtk:
     ######################################### noqa
     VERSION = "1.3.0"
     GIT_URL = "https://github.com/kbaseapps/kb_gtdbtk"
-    GIT_COMMIT_HASH = "451b172d144fb052493a115875a962da9cb5125f"
+    GIT_COMMIT_HASH = "8cee3f49a4d835b236ad4fdee62ef862d68aaf28"
 
     #BEGIN_CLASS_HEADER
     #END_CLASS_HEADER
@@ -67,10 +67,10 @@ class kb_gtdbtk:
            saved. Optional: min_perc_aa: the minimum sequence alignment as a
            percent, default 10.) -> structure: parameter "input_object_ref"
            of String, parameter "workspace_id" of Long, parameter
-           "copy_proximals" of type "bool", parameter "min_perc_aa" of
-           Double, parameter "full_tree" of type "bool", parameter
-           "keep_intermediates" of type "bool", parameter "overwrite_tax" of
-           type "bool"
+           "copy_proximals" of type "bool", parameter "save_trees" of type
+           "bool", parameter "min_perc_aa" of Double, parameter "full_tree"
+           of type "bool", parameter "keep_intermediates" of type "bool",
+           parameter "overwrite_tax" of type "bool"
         :returns: instance of type "ReportResults" (The results of the
            GTDB-tk run. report_name: The name of the report object in the
            workspace. report_ref: The UPA of the report object, e.g.
@@ -101,10 +101,10 @@ class kb_gtdbtk:
            saved. Optional: min_perc_aa: the minimum sequence alignment as a
            percent, default 10.) -> structure: parameter "input_object_ref"
            of String, parameter "workspace_id" of Long, parameter
-           "copy_proximals" of type "bool", parameter "min_perc_aa" of
-           Double, parameter "full_tree" of type "bool", parameter
-           "keep_intermediates" of type "bool", parameter "overwrite_tax" of
-           type "bool"
+           "copy_proximals" of type "bool", parameter "save_trees" of type
+           "bool", parameter "min_perc_aa" of Double, parameter "full_tree"
+           of type "bool", parameter "keep_intermediates" of type "bool",
+           parameter "overwrite_tax" of type "bool"
         :returns: instance of type "ReportResults" (The results of the
            GTDB-tk run. report_name: The name of the report object in the
            workspace. report_ref: The UPA of the report object, e.g.
@@ -171,20 +171,42 @@ class kb_gtdbtk:
 
 
         ### Step 04: copy over GTDB Species Rep Genomes to calling WS and make GenomeSets
+        (classification, summary_tables) = run_gtdbtk (runner,
+                                                       path_to_filename,
+                                                       output_path,
+                                                       temp_output,
+                                                       params.min_perc_aa,
+                                                       params.full_tree,
+                                                       params.keep_intermediates,
+                                                       self.cpus)
         if params.copy_proximals and check_obj_type_genome (obj_type):
             objects_created.extend (copy_gtdb_species_reps (params.workspace_id,
                                                             params.ref,
                                                             self.genome_upas_map_file,
                                                             summary_tables,
                                                             cli))
-
         
         
-        ### (TODO: Step 05: prune trees)
+        ### Step 05: copy tree genomes and save tree object
+        file_links = process_tree_files (params.ref,
+                                         output_path,
+                                         summary_tables,
+                                         cli)
 
+        if params.save_trees and check_obj_type_genome (obj_type):
+            objects_created.extend (save_gtdb_tree_objs (params.workspace_id,
+                                                         params.ref,
+                                                         output_path,
+                                                         self.genome_upas_map_file,
+                                                         cli))
+        
 
         ### Step 06: make report
-        output = generate_report(cli, output_path, params.workspace_id, objects_created)
+        output = generate_report(cli,
+                                 output_path,
+                                 params.workspace_id,
+                                 objects_created,
+                                 file_links)
 
         #END run_kb_gtdbtk_classify_wf
 

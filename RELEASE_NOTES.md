@@ -4,6 +4,7 @@
 1.3.0
 _____
 * copy GTDB species rep genome and assembly objects to local workspace
+* trim GTDB tree to query genomes, proximal genomes, and one rep per sister branch
 
 1.2.4
 _____

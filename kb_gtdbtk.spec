@@ -20,6 +20,7 @@ module kb_gtdbtk {
         string input_object_ref;
         int workspace_id;
 	bool copy_proximals;
+	bool save_trees;
         float min_perc_aa;
 	bool full_tree;
 	bool keep_intermediates;
