@@ -5,6 +5,8 @@
 _____
 * copy GTDB species rep genome and assembly objects to local workspace
 * trim GTDB tree to query genomes, proximal genomes, and one rep per sister branch
+* made trees and images available as file link downloads
+* added tree images to HTML report
 
 1.2.4
 _____

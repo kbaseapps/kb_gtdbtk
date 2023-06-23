@@ -48,7 +48,7 @@ def generate_report(
         'path': str(gtdbtk_output_dir),
         'name': 'index.html',
         'label': 'index.html',
-        'description': 'HTML report for GTDBTk Classify'
+        'description': 'GTDB-Tk Classify Report'
         }
 
     report_params = {

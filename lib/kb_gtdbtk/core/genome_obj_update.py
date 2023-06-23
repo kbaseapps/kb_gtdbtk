@@ -194,8 +194,10 @@ def _write_tree_image_file (trimmed_tree_path, query_leaflist_file, leaflist_fil
                                  out_img_base+'-circle.PDF'
                                ]
 
+    title = os.path.basename(out_img_base)
     write_image_cmd = [write_image_bin,
                        '--intree', trimmed_tree_path,
+                       '--title', title,
                        '--outimgbase', out_img_base,
                        '--queryleaflist', query_leaflist_file,
                        '--leaflist', leaflist_file
@@ -204,6 +206,92 @@ def _write_tree_image_file (trimmed_tree_path, query_leaflist_file, leaflist_fil
     subprocess.run(write_image_cmd, check=True, env=env)
 
     return trimmed_tree_image_paths
+
+
+# _write_gtdb_tree_html_file ()
+#
+def _write_gtdb_tree_html_file (out_dir, files_for_html):
+    tree_html_path = os.path.join (out_dir, 'gtdb_trees.html')  # if updated, the index.html file should also be updated accordingly
+
+    tax_order = ['p', 'c', 'o', 'f', 'g']  # not handling domain or species
+    
+    html_buf = []
+    table_buf = []
+    for file_for_html in files_for_html:
+        tree_newick_path = file_for_html['newick_path']
+        tree_png_file = file_for_html['png_file']
+        taxon_colors_path = file_for_html['taxon_colors_path']
+
+        # add tree image
+        table_buf += ['<tr>']
+        table_buf += ['<td align=left valign=top border=0><img src="{}" border=0></td>'.format(tree_png_file)]
+
+        # get taxon colors
+        taxon_color = dict()
+        with open (taxon_colors_path, 'r') as taxon_colors_h:
+            for line in taxon_colors_h:
+                (taxon, color) = line.rstrip().split("\t")
+                taxon_color[taxon] = color
+
+        lineages = dict()
+        tree = ete3.Tree(tree_newick_path, quoted_node_names=True, format=1)
+        for leaf_node in tree.get_leaves():
+            last_taxon = None
+            for ancestor_node in reversed(leaf_node.get_ancestors()):
+                if ancestor_node.name:
+                    if not last_taxon:
+                        lineages[ancestor_node.name] = dict()
+                    else:
+                        lineages[last_taxon][ancestor_node.name] = True
+                    last_taxon = ancestor_node.name
+                    if last_taxon not in lineages:
+                        lineages[last_taxon] = dict()
+
+        indent = ''
+        key_box_size = '50px'
+        table_buf += ['<td align=left valign=top border=0><table border=0>']
+        for taxon in sorted (lineages.keys()):
+            table_buf += ['<tr><td>']
+            if taxon in taxon_color:
+                table_buf += ['<table><tr><td style="width:{};height:{};background-color:#{}"></td><tr></table>'.format(key_box_size, key_box_size, taxon_color[taxon])]
+            table_buf += [' taxon'] 
+            table_buf += ['</td></tr>']
+            for child_taxon in sorted(lineages[taxon].keys()):
+                table_buf += add_child_key (child_taxon, lineages, taxon_color, indent, key_box_size)
+        table_buf += ['</table>']
+        table_buf += ['</td></tr>']
+
+        
+    # build html
+    html_buf += ['<html><head><title>GTDB-Tk Trees</title></head><body>']
+    html_buf += table_buf
+    html_buf += ['</body></html>']
+    with open (tree_html_path, 'w') as tree_h:
+        tree_h.write("\n".join(html_buf)+"\n")
+        
+    return tree_html_path
+
+
+# add_child_key ()
+#
+def add_child_key (taxon, lineages, taxon_color, indent, key_box_size):
+    key_buf = []
+    indent += '&nbsp;&nbsp;'
+
+    key_buf += ['<tr><td>']
+    key_buf += [indent]
+    if taxon in taxon_color:
+        key_buf += ['<table><tr><td style="width:{};height:{};background-color:#{}"></td><tr></table>'.format(key_box_size, key_box_size, taxon_color[taxon])]
+    key_buf += [' taxon'] 
+    key_buf += ['</td></tr>']
+
+    if taxon not in lineages:
+        return key_buf
+
+    for child_taxon in sorted(lineages[taxon].keys()):
+        key_buf += add_child_key (child_taxon, lineages, taxon_color, indent, key_box_size)
+
+    return key_buf
 
 
 # process_tree_files()
@@ -264,6 +352,7 @@ def process_tree_files (top_upa,
             
     # trim tree files and make tree image files
     upload_files = []
+    files_for_html = []
     for tree_file in tree_files + extra_bac_tree_files:
         in_tree_path = out_dir / tree_file
         if os.path.isfile(in_tree_path):
@@ -291,8 +380,14 @@ def process_tree_files (top_upa,
                                           'name': trimmed_tree_image_file,
                                           'description': trimmed_tree_file+'- image'
                                         })
-            
 
+                    if '-trimmed.tree-circle.PNG' in trimmed_tree_image_file:
+                        taxon_colors_path = str(trimmed_tree_image_path).replace('-circle.PNG','-taxon_colors.map')
+                        files_for_html.append({'newick_path': trimmed_tree_path,
+                                               'png_file': trimmed_tree_image_file,
+                                               'taxon_colors_path': taxon_colors_path})
+
+                        
     # upload files and make file links for report
     #
     file_links = []
@@ -303,6 +398,12 @@ def process_tree_files (top_upa,
                            'name': f['name'],
                            'description': f['description']})
 
+
+    # Make GTDB Tree html to go in html report
+    #
+    tree_html_file = _write_gtdb_tree_html_file (out_dir, files_for_html)
+        
+        
     return file_links
 
 

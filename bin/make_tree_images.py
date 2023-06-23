@@ -32,6 +32,7 @@ def getargs():
     parser = argparse.ArgumentParser(description="trim tree to target leaves")
 
     parser.add_argument("-i", "--intree", help="tree to trim in newick format")
+    parser.add_argument("-t", "--title", help="title for tree images")
     parser.add_argument("-o", "--outimgbase", help="image file base (will make circle and rectangle PNG and PDF)")
     parser.add_argument("-q", "--queryleaflist", help="query file with list of query leaves")
     parser.add_argument("-l", "--leaflist", help="file with list of leaves to retain")
@@ -162,7 +163,7 @@ def tax_box_layout(node):
 
 # write_tree_img_to_files()
 #
-def write_tree_img_to_files (t, outimgbase, query_target_leaves, target_leaves):
+def write_tree_img_to_files (t, title_disp, outimgbase, query_target_leaves, target_leaves):
     out_files = dict()
 
     t.ladderize()
@@ -175,7 +176,8 @@ def write_tree_img_to_files (t, outimgbase, query_target_leaves, target_leaves):
     #ts.scale = 50 # 50 pixels per branch length unit
     ts.branch_vertical_margin = 5  # pixels between adjacent branches
     #title_disp = intree_name
-    title_disp = 'FIXME'
+    if title_disp is None:
+        title_disp = os.path.basename (outimgbase)
     ts.title.add_face(ete3.TextFace(title_disp, fsize=10), column=0)
     
     # color targets
@@ -306,7 +308,7 @@ def main() -> int:
     get_taxon_colors (args.intree, args.outimgbase)
 
     # write tree img to files
-    out_files = write_tree_img_to_files (tree, args.outimgbase, query_target_leaves, target_leaves)
+    out_files = write_tree_img_to_files (tree, args.title, args.outimgbase, query_target_leaves, target_leaves)
     
     print ("DONE")
     return 0

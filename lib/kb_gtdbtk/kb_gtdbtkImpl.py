@@ -192,7 +192,6 @@ class kb_gtdbtk:
                                          output_path,
                                          summary_tables,
                                          cli)
-
         if params.save_trees and check_obj_type_genome (obj_type):
             objects_created.extend (save_gtdb_tree_objs (params.workspace_id,
                                                          params.ref,
