@@ -259,12 +259,16 @@ def _write_gtdb_tree_html_file (out_dir, files_for_html):
         key_font_size = key_box_size
         table_buf += ['<td align=left valign=middle><table border=0>']
         tax_level_order = ['d', 'p', 'c', 'o', 'f', 'g']
+        first_row = True
         for tax_level in tax_level_order:
             for taxon in sorted (lineages.keys()):
                 if taxon[0] != tax_level:
                     continue
                 if taxon not in tree_key_taxon_seen:
-                    table_buf += ['<tr><td>&nbsp;</td></tr>']
+                    if first_row:
+                        first_row = False
+                    else:
+                        table_buf += ['<tr><td>&nbsp;</td></tr>']
                     table_buf += add_tree_key_row (taxon, lineages, taxon_color, indent_cnt, key_box_size, key_font_size)
         table_buf += ['</table>']
         table_buf += ['</td></tr>']

@@ -464,6 +464,16 @@ def replace_leaf_id_with_name (tree, taxa, target_leaves, sister_leaves=None):
 def add_internal_node_names (tree, taxa):
 
     nodes_to_unname = dict()
+
+
+    # DEBUG
+    for short_leaf_name in sorted(taxa.keys()):
+        print ("TAXA FOR {}".format(short_leaf_name))
+        for tax_level_i,taxon in enumerate(taxa[short_leaf_name]):
+            for indent_i in range(tax_level_i):
+                print("\t")
+            print (taxon)
+
     
     # set lowest common taxon for each internal node
     for n in tree.traverse():
@@ -484,30 +494,33 @@ def add_internal_node_names (tree, taxa):
             continue
 
         # trim leaf names to ids in taxa
-        leaf_names = []
+        gtdb_defined_leaf_names = []
         for leaf_name in n.get_leaf_names():
             short_leaf_name = re.sub (' .*$', '', leaf_name)
             short_leaf_name = short_leaf_name.lstrip('"')
             if short_leaf_name in taxa:
-                leaf_names.append(short_leaf_name)
+                gtdb_defined_leaf_names.append(short_leaf_name)
 
         # determine common taxon level
-        common_taxon = None
-        for tax_i,taxon_0 in enumerate(taxa[leaf_names[0]]):
-            #print ("NODE {} TAXON_0: {} from base leaf {}".format(n.name, taxon_0, leaf_names[0])) # DEBUG
-            level_match = True
-            for leaf_name in leaf_names:
-                #print ("NODE {} TAXON: {} from leaf {}".format(n.name, taxa[leaf_name][tax_i], leaf_name)) # DEBUG
-                if taxa[leaf_name][tax_i] != taxon_0:
-                    level_match = False
-                    break
-            if level_match:
-                common_taxon = taxon_0
-                #print ("NODE {} SETTING COMMON TAXON to {}".format(n.name, common_taxon))  # DEBUG
-            else:
-                break
-        n.name += ' taxon: '+common_taxon
-
+        if len(gtdb_defined_leaf_names) > 0:
+            common_taxon = None
+            for tax_i,taxon_0 in enumerate(taxa[gtdb_defined_leaf_names[0]]):
+                #print ("NODE {} TAXON_0: {} from base leaf {}".format(n.name, taxon_0, gtdb_defined_leaf_names[0])) # DEBUG
+                level_match = True
+                for leaf_name in gtdb_defined_leaf_names:
+                    #print ("NODE {} TAXON: {} from leaf {}".format(n.name, taxa[leaf_name][tax_i], leaf_name)) # DEBUG
+                    if taxa[leaf_name][tax_i] != taxon_0:
+                        level_match = False
+                        break
+                    if level_match:
+                        common_taxon = taxon_0
+                        #print ("NODE {} SETTING COMMON TAXON to {}".format(n.name, common_taxon))  # DEBUG
+                    else:
+                        break
+            n.name += ' taxon: '+common_taxon
+        else:
+            nodes_to_unname[n.name] = True
+                    
     # remove internal nodes names with same taxon as a parent node
     for leaf in tree.get_leaves():
         for n in leaf.get_ancestors():

@@ -341,6 +341,23 @@ class kb_gtdbtkTest(unittest.TestCase):
         # TODO: test report content
         assert self.isUpa (report['report_ref'])
 
+
+    # test passalid error
+    #
+    @unittest.skip("skipped test_classify_wf_genomeset()")  # uncomment to skip
+    def test_passalid_errors(self):
+        report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, { \
+                                                                'workspace_id': 114952,
+                                                                'input_object_ref': '114952/491/3',
+                                                                'copy_proximals': 0,
+                                                                'save_trees': 0,
+                                                                'full_tree': 0,
+                                                                'keep_intermediates': 1,
+                                                                'overwrite_tax': 0
+                                                            })[0]
+        # TODO: test report content
+        assert self.isUpa (report['report_ref'])
+
         
     ################
     # HELPER FUNCS #
