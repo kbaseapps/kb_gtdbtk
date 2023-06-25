@@ -178,7 +178,7 @@ def write_tree_img_to_files (t, title_disp, outimgbase, query_target_leaves, tar
     #title_disp = intree_name
     if title_disp is None:
         title_disp = os.path.basename (outimgbase)
-    ts.title.add_face(ete3.TextFace(title_disp, fsize=10), column=0)
+    ts.title.add_face(ete3.TextFace(title_disp, fsize=30, fgcolor="#606060"), column=0)
     
     # color targets
     leaf_colors = dict()
@@ -203,7 +203,7 @@ def write_tree_img_to_files (t, title_disp, outimgbase, query_target_leaves, tar
     
     leaf_style = ete3.NodeStyle()
     leaf_style["fgcolor"] = "#ffffff"  # for node balls
-    leaf_style["size"] = 2  # for node balls (we're using it to add space)
+    leaf_style["size"] = 3  # for node balls (we're using it to add space)
     leaf_style["vt_line_color"] = "#606060"  # unecessary
     leaf_style["hz_line_color"] = "#606060"
     leaf_style["vt_line_width"] = 2
@@ -223,8 +223,10 @@ def write_tree_img_to_files (t, title_disp, outimgbase, query_target_leaves, tar
             node_id = leaf_name.split(' ')[0].lstrip('"')
             if node_id in query_target_leaves:
                 style["bgcolor"] = default_user_genome_color
+                style["fgcolor"] = default_user_genome_color  # for spacer ball
             elif node_id in target_leaves:
                 style["bgcolor"] = default_reference_genome_color
+                style["fgcolor"] = default_reference_genome_color  # for spacer ball
                 
         node.set_style(style)
 

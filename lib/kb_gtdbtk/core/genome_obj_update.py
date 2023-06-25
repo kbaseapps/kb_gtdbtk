@@ -16,6 +16,9 @@ from kb_gtdbtk.core.kb_client_set import KBClients
 [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I,
  WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple    
 
+# global for tree html
+tree_key_taxon_seen = dict()
+
 
 # get_obj_info ()
 def get_obj_info (
@@ -223,8 +226,11 @@ def _write_gtdb_tree_html_file (out_dir, files_for_html):
         taxon_colors_path = file_for_html['taxon_colors_path']
 
         # add tree image
+        tree_img_width = 500
+        tree_img_height = 500
         table_buf += ['<tr>']
-        table_buf += ['<td align=left valign=top border=0><img src="{}" border=0></td>'.format(tree_png_file)]
+        table_buf += ['<td align=left valign=top border=0><img src="{}" border=0 width={} height={}></td>'.format(tree_png_file, tree_img_width, tree_img_height)]
+        table_buf += ['<td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>']
 
         # get taxon colors
         taxon_color = dict()
@@ -233,63 +239,76 @@ def _write_gtdb_tree_html_file (out_dir, files_for_html):
                 (taxon, color) = line.rstrip().split("\t")
                 taxon_color[taxon] = color
 
+        # determine lineage structure
         lineages = dict()
         tree = ete3.Tree(tree_newick_path, quoted_node_names=True, format=1)
+        tree.ladderize()
         for leaf_node in tree.get_leaves():
             last_taxon = None
             for ancestor_node in reversed(leaf_node.get_ancestors()):
                 if ancestor_node.name:
-                    if not last_taxon:
-                        lineages[ancestor_node.name] = dict()
-                    else:
+                    if last_taxon:
+                        if last_taxon not in lineages:
+                            lineages[last_taxon] = dict()
                         lineages[last_taxon][ancestor_node.name] = True
                     last_taxon = ancestor_node.name
-                    if last_taxon not in lineages:
-                        lineages[last_taxon] = dict()
 
-        indent = ''
-        key_box_size = '50px'
-        table_buf += ['<td align=left valign=top border=0><table border=0>']
-        for taxon in sorted (lineages.keys()):
-            table_buf += ['<tr><td>']
-            if taxon in taxon_color:
-                table_buf += ['<table><tr><td style="width:{};height:{};background-color:#{}"></td><tr></table>'.format(key_box_size, key_box_size, taxon_color[taxon])]
-            table_buf += [' taxon'] 
-            table_buf += ['</td></tr>']
-            for child_taxon in sorted(lineages[taxon].keys()):
-                table_buf += add_child_key (child_taxon, lineages, taxon_color, indent, key_box_size)
+        # build key
+        indent_cnt = 0
+        key_box_size = '15px'
+        key_font_size = key_box_size
+        table_buf += ['<td align=left valign=middle><table border=0>']
+        tax_level_order = ['d', 'p', 'c', 'o', 'f', 'g']
+        for tax_level in tax_level_order:
+            for taxon in sorted (lineages.keys()):
+                if taxon[0] != tax_level:
+                    continue
+                if taxon not in tree_key_taxon_seen:
+                    table_buf += ['<tr><td>&nbsp;</td></tr>']
+                    table_buf += add_tree_key_row (taxon, lineages, taxon_color, indent_cnt, key_box_size, key_font_size)
         table_buf += ['</table>']
         table_buf += ['</td></tr>']
 
         
     # build html
-    html_buf += ['<html><head><title>GTDB-Tk Trees</title></head><body>']
+    html_buf += ['<html><head><title>GTDB-Tk Trees</title></head>']
+    html_buf += ['<body><table border=0>']
     html_buf += table_buf
-    html_buf += ['</body></html>']
+    html_buf += ['</table></body></html>']
     with open (tree_html_path, 'w') as tree_h:
         tree_h.write("\n".join(html_buf)+"\n")
         
     return tree_html_path
 
 
-# add_child_key ()
+# add_tree_key_row ()
 #
-def add_child_key (taxon, lineages, taxon_color, indent, key_box_size):
+def add_tree_key_row (taxon, lineages, taxon_color, indent_cnt, key_box_size, key_font_size):
     key_buf = []
-    indent += '&nbsp;&nbsp;'
 
+    if taxon in tree_key_taxon_seen:
+        return []
+    elif taxon[0] == 's':
+        return []
+    else:
+        tree_key_taxon_seen[taxon] = True
+        
     key_buf += ['<tr><td>']
-    key_buf += [indent]
+    key_buf += ['<table border=0><tr>']
+    for indent_i in range(indent_cnt):
+        key_buf += ['<td>&nbsp;</td><td>&nbsp;</td>']
     if taxon in taxon_color:
-        key_buf += ['<table><tr><td style="width:{};height:{};background-color:#{}"></td><tr></table>'.format(key_box_size, key_box_size, taxon_color[taxon])]
-    key_buf += [' taxon'] 
+        key_buf += ['<td style="width:{};height:{};background-color:#{}"></td>'.format(key_box_size, key_box_size, taxon_color[taxon])]
+    key_buf += ['<td><p style="font-size:{}">'.format(key_font_size)+taxon+'</p></td>']
+    key_buf += ['</tr></table>'] 
     key_buf += ['</td></tr>']
 
     if taxon not in lineages:
         return key_buf
 
+    indent_cnt += 1
     for child_taxon in sorted(lineages[taxon].keys()):
-        key_buf += add_child_key (child_taxon, lineages, taxon_color, indent, key_box_size)
+        key_buf += add_tree_key_row (child_taxon, lineages, taxon_color, indent_cnt, key_box_size, key_font_size)
 
     return key_buf
 

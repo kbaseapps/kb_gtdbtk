@@ -75,43 +75,54 @@ def get_taxon_colors (t, out_file):
 
     t.ladderize()
         
-    # configure taxa boxes
-    base_colors = [ ('OrangeRed', 'FF4500'),
-                    ('DodgerBlue', '1E90FF'),
-                    ('DarkViolet', '9400D3'),
-                    ('Crimson', 'DC143C'),
-                    ('MediumBlue', '0000CD'),
-                    ('SeaGreen', '2E8B57'),
-                    ('LightCoral', 'F08080'),
-                    ('Magenta', 'FF00FF'),
-                    ('DarkOrange', 'FF8C00'),
-                    ('DeepSkyBlue', '00BFFF'),
-                    ('MediumAquaMarine', '66CDAA'),
-                    ('MediumVioletRed', 'C71585'),
-                    ('Violet', 'EE82EE'),
-                    ('Coral', 'FF7F50'),
-                    ('Navy', '000080'),
-                    ('Teal', '008080'),
-                    ('PaleVioletRed', 'DB7093'),
-                    ('Gold', 'FFD700'),
-                    ('Green', '008000'),
-                    ('LightSalmon', 'FFA07A'),
-                    ('Purple', '800080'),
-                    ('MediumSlateBlue', '7B68EE'),
-                    ('Tomato', 'FF6347'),
-                    ('CornflowerBlue', '6495ED'),
-                    ('Lime', '00FF00'),
-                    ('FireBrick', 'B22222'),
-                    ('Indigo', '4B0082'),
-                    ('Moccasin', 'FFE4B5'),
-                    ('DarkGreen', '006400'),
-                    ('DarkRed', '8B0000'),
-                    ('Plum', 'DDA0DD'),
-                    ('Yellow', 'FFFF00'),
-                    ('DeepPink', 'FF1493'),
-                    ('PaleVioletRed', 'DB8093'),
-                    ('Salmon', 'FA8072')
-                  ]
+    # color options
+    base_colors = [
+        [   # blues
+            ('DodgerBlue', '1E90FF'),
+            ('MediumBlue', '0000CD'),
+            ('DeepSkyBlue', '00BFFF'),
+            ('Navy', '000080'),
+            ('MediumSlateBlue', '7B68EE'),
+            ('CornflowerBlue', '6495ED'),
+        ],
+        [   # reds
+            ('Crimson', 'DC143C'),
+            ('PaleVioletRed', 'DB7093'),
+            ('LightSalmon', 'FFA07A'),
+            ('Tomato', 'FF6347'),
+            ('FireBrick', 'B22222'),
+            ('DarkRed', '8B0000'),
+            ('DeepPink', 'FF1493'),
+            ('PaleVioletRed', 'DB8093'),
+            ('Salmon', 'FA8072')
+        ],
+        [   # purples / violets
+            ('DarkViolet', '9400D3'),
+            ('Magenta', 'FF00FF'),
+            ('MediumVioletRed', 'C71585'),
+            ('Violet', 'EE82EE'),
+            ('Purple', '800080'),
+            ('Indigo', '4B0082'),
+            ('Plum', 'DDA0DD'),
+        ],
+        [   # oranges / yellows
+            ('OrangeRed', 'FF4500'),
+            ('LightCoral', 'F08080'),
+            ('DarkOrange', 'FF8C00'),
+            ('Coral', 'FF7F50'),
+            ('Gold', 'FFD700'),
+            ('Moccasin', 'FFE4B5'),
+            ('Yellow', 'FFFF00'),
+        ]
+        #[   # greens  (skip to support red/green color blindness
+        #    ('SeaGreen', '2E8B57'),
+        #    ('MediumAquaMarine', '66CDAA'),
+        #    ('Teal', '008080'),
+        #    ('Green', '008000'),
+        #    ('Lime', '00FF00'),
+        #    ('DarkGreen', '006400'),
+        #]
+    ]
 
     tax_levels_supported = [ 'p', 'c', 'o', 'f', 'g']  # skipping domain and species
 
@@ -132,6 +143,7 @@ def get_taxon_colors (t, out_file):
                         tax_lineages[tax_level][taxon] = dict()
                     if last_taxon:
                         tax_lineages[tax_level][taxon][last_taxon] = True
+                        parent[last_taxon] = taxon
                     last_taxon = taxon
                     
     # get colors
@@ -139,22 +151,29 @@ def get_taxon_colors (t, out_file):
     num_levels = 5
     taxon_color = dict()
     top_taxon_color = dict()
-    base_color_i = -1
+    base_colors_used = []
+    for base_color_i in range(len(base_colors)):
+        base_colors_used.append ({})
     hex_to_val = {'A':10, 'B':11, 'C':12, 'D':13, 'E':14, 'F':15}
     val_to_hex = {10:'A', 11:'B', 12:'C', 13:'D', 14:'E', 15:'F'}
     for i in range(10):
         hex_to_val[str(i)] = i
         val_to_hex[i] = str(i)
-    
+
+    base_color_i = 0
+    color_shift_map = dict()
     for tax_level in tax_levels_supported:  # order matters!
         if tax_level not in tax_lineages:
             continue
         for taxon in sorted(tax_lineages[tax_level].keys()):
             if taxon not in taxon_color:
+
+                (taxon_color[taxon], base_colors_used) = get_taxon_color (taxon,
+                                                                          base_color_i,
+                                                                          base_colors,
+                                                                          base_colors_used)
                 base_color_i += 1
-                if not base_color_i < len(base_colors):
-                    raise ValueError ("Ran out of colors for taxa")
-                taxon_color[taxon] = base_colors[base_color_i][1]  # use the hex string
+                base_color_i = base_color_i % len(base_colors)
                 top_taxon_color[taxon] = taxon_color[taxon]
                 row = "\t".join([taxon, taxon_color[taxon]])
                 print (row)
@@ -162,47 +181,60 @@ def get_taxon_colors (t, out_file):
 
             this_top_taxon_color = top_taxon_color[taxon]
             parent_color = taxon_color[taxon]
+            
             for child_i,child_taxon in enumerate(sorted(tax_lineages[tax_level][taxon].keys())):
                 top_taxon_color[child_taxon] = top_taxon_color[taxon]
-                
-                val_i = [0, 0, 0, 0, 0, 0]
-                ci = child_i % 3
-                if child_i < 3:
-                    val_i[2*ci] = 1
-                elif child_i < 6:
-                    val_i[2*ci] = 1
-                    if ci == 0 or ci == 1:
-                        j = 2
-                    else:
-                        j = 0
-                    val_i[2*j] = 1
-                elif child_i < 9:
-                    val_i[2*ci] = 1
-                    val_i[2*ci+1] = 1
-                elif child_i < 12:
-                    val_i[2*ci] = 1
-                    val_i[2*ci+1] = 1
-                    if ci == 0 or ci == 1:
-                        j = 2
-                    else:
-                        j = 0
-                    val_i[2*j] = 1
-                    val_i[2*j+1] = 1
-                elif child_i < 15:
-                    val_i[2*ci+1] = 1
-                elif child_i < 18:
-                    val_i[2*ci+1] = 1
-                    if ci == 0 or ci == 1:
-                        j = 2
-                    else:
-                        j = 0
-                    val_i[2*j+1] = 1
-                else:
-                    cj = child_i % 6
-                    val_i[cj] = 1
-                    for k in range(cj):
-                        val_i[k] = 1
 
+                if child_i == 0 and taxon in color_shift_map:
+                    val_i = color_shift_map[taxon]
+                else:
+                    val_i = [0, 0, 0, 0, 0, 0]
+                    ci = child_i % 3
+                    if child_i < 3:
+                        #val_i[2*ci] = 1
+                        if child_i == 0:
+                            val_i[4] = 1
+                        elif child_i == 1:
+                            val_i[0] = 1
+                        else:
+                            val_i[2] = 1
+                    elif child_i < 6:
+                        val_i[2*ci] = 1
+                        if ci == 0 or ci == 1:
+                            j = 2
+                        else:
+                            j = 0
+                        val_i[2*j] = 1
+                    elif child_i < 9:
+                        val_i[2*ci] = 1
+                        val_i[2*ci+1] = 1
+                    elif child_i < 12:
+                        val_i[2*ci] = 1
+                        val_i[2*ci+1] = 1
+                        if ci == 0 or ci == 1:
+                            j = 2
+                        else:
+                            j = 0
+                        val_i[2*j] = 1
+                        val_i[2*j+1] = 1
+                    elif child_i < 15:
+                        val_i[2*ci+1] = 1
+                    elif child_i < 18:
+                        val_i[2*ci+1] = 1
+                        if ci == 0 or ci == 1:
+                            j = 2
+                        else:
+                            j = 0
+                        val_i[2*j+1] = 1
+                    else:
+                        cj = child_i % 6
+                        val_i[cj] = 1
+                        for k in range(cj):
+                            val_i[k] = 1
+
+                # save val_i vector
+                color_shift_map[child_taxon] = val_i
+                        
                 # make new color
                 child_color = ''
                 for k in range(6):
@@ -237,6 +269,52 @@ def get_taxon_colors (t, out_file):
             out_h.write("\n".join(out_buf)+"\n")
 
     return out_file
+
+
+# get_taxon_color():
+#
+def get_taxon_color(taxon, this_base_color_i, base_colors, base_colors_used):
+    this_taxon_color = None
+    base_colors_unused = []
+    for base_color_i in range(len(base_colors)):
+        base_colors_unused.append([])
+    for base_color_i in range(len(base_colors)):
+        for color_tuple in base_colors[base_color_i]:
+            hex_color = color_tuple[1]
+            if hex_color not in base_colors_used[base_color_i]:
+                base_colors_unused[base_color_i].append(hex_color)
+
+    all_base_colors_used = True
+    for base_color_i in range(len(base_colors)):
+        if len(base_colors_unused[base_color_i]) > 0:
+            all_base_colors_used = False
+            break
+    if all_base_colors_used:
+        for base_color_i in range(len(base_colors)):
+            base_colors_unused.append([])
+            base_colors_used.append({})
+        for base_color_i in range(len(base_colors)):
+            for base_color_j in range(len(base_colors[base_color_i])):
+                base_colors_unused[base_color_i].append(base_colors[base_color_i][base_color_j][1])
+
+    # pick an unused color
+    hash_taxon = hash(taxon)
+    base_color_i = this_base_color_i
+    if len(base_colors_unused[base_color_i]) == 0:
+        for alt_i in range(len(base_colors_unused)):
+            if len(base_colors_unused[alt_i]) != 0:
+                base_color_i = alt_i
+                break
+    if len(base_colors_unused[base_color_i]) == 1:
+        base_color_j = 0
+    else:
+        base_color_j = hash_taxon % len(base_colors_unused[base_color_i])
+
+    # set the pick
+    this_taxon_color = base_colors_unused[base_color_i][base_color_j]
+    base_colors_used[base_color_i][this_taxon_color] = True
+
+    return (this_taxon_color, base_colors_used)
 
 
 # main()
