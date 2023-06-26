@@ -257,7 +257,7 @@ class kb_gtdbtkTest(unittest.TestCase):
     # NOT ABLE TO RUN ON DEV1.  Too much memory required.  Need to shrink number of bins
     #
     # SKIP THIS!!!
-    @unittest.skip("skipped test_classify_wf_binnedcontigs_fulltree()")  # uncomment to skip
+    # HIDE @unittest.skip("skipped test_classify_wf_binnedcontigs_fulltree()")  # uncomment to skip
     def test_classify_wf_binnedcontigs_fulltree(self):
         report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, { \
                                                                 'workspace_id': self.wsid,

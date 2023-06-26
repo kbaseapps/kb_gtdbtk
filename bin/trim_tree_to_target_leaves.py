@@ -103,6 +103,7 @@ def write_new_target_leaves (new_target_leaves, leaflist_outfile):
 
     outbuf = []
     for target_id in sorted(new_target_leaves.keys()):
+        #print ("TARGET: {}".format(target_id))  # DEBUG
         outbuf.append("\t".join([target_id, new_target_leaves[target_id]]))
     
     with open (leaflist_outfile, 'w') as leaflist_h:
@@ -287,6 +288,7 @@ def get_gtdb_rep_scores (genome_ids, gtdb_metadata):
     gtdb_rep_scores = dict()
 
     # GTDB pref score (adding genus rep +1,000,000
+    #  from: https://gtdb.ecogenomic.org/methods#updating-gtdb-species-representatives
     """
     Type species of genome	                       100,000
     Effective type strain of species according to NCBI	10,000
@@ -440,21 +442,25 @@ def replace_leaf_id_with_name (tree, taxa, target_leaves, sister_leaves=None):
     print ("adjusting leaf names ...")
 
     new_target_leaves = dict()
-    
-    for n in tree.traverse():
-        if n.is_leaf():
-            target_leaf_orig_name = None
-            if n.name in target_leaves:
-                target_leaf_orig_name = n.name
-                n.name = target_leaves[n.name]
-            if sister_leaves is not None and n.name in sister_leaves:
-                n.name = sister_leaves[n.name]
 
-            if n.name in taxa:
-                n.name = '"'+n.name+' - '+taxa[n.name][-1]+'"'
+    # DEBUG
+    #for target_id in sorted(target_leaves.keys()):
+    #    print ("TARGET_ID: '{}'".format(target_id))
+    
+    for leaf in tree.get_leaves():
+        target_leaf_orig_name = None
+        #print ("LEAF_NAME: '{}'".format(leaf.name))  # DEBUG
+        if leaf.name in target_leaves:
+            target_leaf_orig_name = leaf.name
+            leaf.name = target_leaves[leaf.name]
+        if sister_leaves is not None and leaf.name in sister_leaves:
+            leaf.name = sister_leaves[leaf.name]
+
+        if leaf.name in taxa:
+            leaf.name = '"'+leaf.name+' - '+taxa[leaf.name][-1]+'"'
             
-            if target_leaf_orig_name:
-                new_target_leaves[target_leaf_orig_name] = n.name
+        if target_leaf_orig_name:
+            new_target_leaves[target_leaf_orig_name] = leaf.name
                 
     return (tree, new_target_leaves)
 
@@ -467,13 +473,15 @@ def add_internal_node_names (tree, taxa):
 
 
     # DEBUG
+    """
     for short_leaf_name in sorted(taxa.keys()):
         print ("TAXA FOR {}".format(short_leaf_name))
         for tax_level_i,taxon in enumerate(taxa[short_leaf_name]):
+            indent = ''
             for indent_i in range(tax_level_i):
-                print("\t")
-            print (taxon)
-
+                indent += "\t"
+            print (indent+taxon)
+    """
     
     # set lowest common taxon for each internal node
     for n in tree.traverse():
@@ -481,17 +489,18 @@ def add_internal_node_names (tree, taxa):
             continue
 
         # don't name nodes with a query leaf child
-        unname_this = False
-        for child in n.get_children():
-            if child.is_leaf():
-                short_leaf_name = re.sub (' .*$', '', child.name)
-                short_leaf_name = short_leaf_name.lstrip('"')
-                if short_leaf_name not in taxa:
-                    nodes_to_unname[n.name] = True
-                    unname_this = True
-                    break
-        if unname_this:
-            continue
+        if n.name:
+            unname_this = False
+            for child in n.get_children():
+                if child.is_leaf():
+                    short_leaf_name = re.sub (' .*$', '', child.name)
+                    short_leaf_name = short_leaf_name.lstrip('"')
+                    if short_leaf_name not in taxa:
+                        nodes_to_unname[n.name] = True
+                        unname_this = True
+                        break
+            if unname_this:
+                continue
 
         # trim leaf names to ids in taxa
         gtdb_defined_leaf_names = []
@@ -500,7 +509,8 @@ def add_internal_node_names (tree, taxa):
             short_leaf_name = short_leaf_name.lstrip('"')
             if short_leaf_name in taxa:
                 gtdb_defined_leaf_names.append(short_leaf_name)
-
+                #print ("ADDING {}".format(short_leaf_name))  # DEBUG
+                
         # determine common taxon level
         if len(gtdb_defined_leaf_names) > 0:
             common_taxon = None
@@ -512,13 +522,14 @@ def add_internal_node_names (tree, taxa):
                     if taxa[leaf_name][tax_i] != taxon_0:
                         level_match = False
                         break
-                    if level_match:
-                        common_taxon = taxon_0
-                        #print ("NODE {} SETTING COMMON TAXON to {}".format(n.name, common_taxon))  # DEBUG
-                    else:
-                        break
+                if level_match:
+                    common_taxon = taxon_0
+                    #print ("NODE {} SETTING COMMON TAXON to {}".format(n.name, common_taxon))  # DEBUG
+                else:
+                    break
             n.name += ' taxon: '+common_taxon
         else:
+            #print ("UNNAMING {}".format(n.name))
             nodes_to_unname[n.name] = True
                     
     # remove internal nodes names with same taxon as a parent node
@@ -530,11 +541,14 @@ def add_internal_node_names (tree, taxa):
                 if this_taxon == up_taxon:
                     nodes_to_unname[n.name] = True
     for n in tree.traverse():
-        if n.name in nodes_to_unname:
-            n.name = ''
-        else:
-            n.name = re.sub('^.* taxon: ','',n.name)
-            
+        if not n.is_leaf():
+            if n.name in nodes_to_unname:
+                #print ("NODE TO UNNAME: '{}'".format(n.name))  # DEBUG
+                n.name = ''
+            else:
+                #print ("SETTING TAXON FOR NODE '{}'".format(n.name))  # DEBUG
+                n.name = re.sub('^.* taxon: ','',n.name)
+
     return tree
 
 

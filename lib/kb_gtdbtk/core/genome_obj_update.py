@@ -151,7 +151,9 @@ def _format_gtdbtk_tree_to_itol (in_tree_path):
 def _trim_tree (in_tree_path, leaflist_file, leaflist_outfile):
     print ("trimming tree "+str(in_tree_path))
     trim_bin = os.path.join ('/kb', 'module', 'bin', 'trim_tree_to_target_leaves.py')
-
+    patience = 600
+    sleep_interval = 10
+    
     out_tree_paths = []
     
     # just proximal sp rep hits
@@ -167,7 +169,23 @@ def _trim_tree (in_tree_path, leaflist_file, leaflist_outfile):
     env = dict(os.environ)
     subprocess.run(trim_cmd, check=True, env=env)
 
-    # with sister context branches
+    found_output = False
+    time_spent = 0
+    while time_spent <= patience:
+        if not os.path.exists(out_tree_path) or not os.path.getsize(out_tree_path) > 0 or \
+           not os.path.exists(leaflist_outfile) or not os.path.getsize(leaflist_outfile) > 0:
+
+            print ("waiting for {} seconds...".format(sleep_interval))
+            time.sleep(sleep_interval)
+            time_spent += sleep_interval
+        else:
+            found_output = True
+            break
+    if not found_output:
+        raise ValueError ("program {} never produced output in {} seconds".format('trim tree proximals', patience))
+    
+            
+    # with sister context branches.  Note that leaflist_outfile is updated with context sp reps
     out_tree_path = str(in_tree_path).replace('.tree','-trimmed.tree')
     out_tree_paths.append(out_tree_path)
     trim_cmd = [trim_bin,
@@ -181,6 +199,22 @@ def _trim_tree (in_tree_path, leaflist_file, leaflist_outfile):
     env = dict(os.environ)
     subprocess.run(trim_cmd, check=True, env=env)
 
+    found_output = False
+    time_spent = 0
+    while time_spent <= patience:
+        if not os.path.exists(out_tree_path) or not os.path.getsize(out_tree_path) > 0 or \
+           not os.path.exists(leaflist_outfile) or not os.path.getsize(leaflist_outfile) > 0:
+
+            print ("waiting for {} seconds...".format(sleep_interval))
+            time.sleep(sleep_interval)
+            time_spent += sleep_interval
+        else:
+            found_output = True
+            break
+    if not found_output:
+        raise ValueError ("program {} never produced output in {} seconds".format('trim tree context', patience))
+    
+    
     return out_tree_paths
 
 
@@ -355,7 +389,7 @@ def process_tree_files (top_upa,
     # add sp rep hits too 
     for sp_rep_id in sorted(all_sp_reps.keys()):
         id_map_buf.append("\t".join([sp_rep_id,sp_rep_id]))
-    id_map_with_sp_rep_hits_path = os.path.join(out_dir, 'id_to_name_with_sp_reps.map')
+    id_map_with_sp_rep_hits_path = os.path.join(out_dir, 'id_to_name-with_proximal_sp_reps.map')
     with open(id_map_with_sp_rep_hits_path, 'w') as id_map_h:
         id_map_h.write("\n".join(id_map_buf)+"\n")
 
@@ -380,7 +414,7 @@ def process_tree_files (top_upa,
         in_tree_path = out_dir / tree_file
         if os.path.isfile(in_tree_path):
 
-            new_id_map_with_sp_rep_hits_path = str(in_tree_path).replace('.tree', '.id_to_name_with_sp_reps-newleafnames.map')
+            new_id_map_with_sp_rep_hits_path = str(in_tree_path).replace('.tree', '.id_to_name-with_all_sp_reps-newleafnames.map')
 
             trimmed_tree_paths = _trim_tree (in_tree_path, id_map_with_sp_rep_hits_path, new_id_map_with_sp_rep_hits_path)
 
