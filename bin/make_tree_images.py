@@ -35,13 +35,14 @@ def getargs():
     parser.add_argument("-t", "--title", help="title for tree images")
     parser.add_argument("-o", "--outimgbase", help="image file base (will make circle and rectangle PNG and PDF)")
     parser.add_argument("-q", "--queryleaflist", help="query file with list of query leaves")
-    parser.add_argument("-l", "--leaflist", help="file with list of leaves to retain")
+    parser.add_argument("-l", "--leaflist", help="file with list of target leaves )not all)")
+    parser.add_argument("-g", "--gtdblineagefile", help="file with lineage for all leaves")
     
     args = parser.parse_args()
 
     args_pass = True
 
-    if len(sys.argv) < 7:
+    if len(sys.argv) < 9:
         parser.print_help()
         sys.exit (-1)
 
@@ -72,7 +73,15 @@ def getargs():
          not os.path.getsize(args.leaflist) > 0:
         print ("--{} {} must exist and not be empty\n".format('leaflist', args.leaflist))
         args_pass = False
-        
+    if args.gtdblineagefile is None:
+        print ("must specify --{}\n".format('gtdblineagefile'))
+        args_pass = False
+    elif not os.path.exists(args.gtdblineagefile) or \
+         not os.path.isfile(args.gtdblineagefile) or \
+         not os.path.getsize(args.gtdblineagefile) > 0:
+        print ("--{} {} must exist and not be empty\n".format('gtdblineagefile', args.gtdblineagefile))
+        args_pass = False
+
     if not args_pass:
         parser.print_help()
         sys.exit (-1)
@@ -96,13 +105,42 @@ def get_target_leaves (leaflist_file):
     for line in f:
         line = line.rstrip()
 
-        (old_leaf_id, leaf_name) = line.split("\t")
-
+        leaf_info = line.split("\t")
+        if len(leaf_info) == 2:
+            (leaf_id, leaf_name) = leaf_info
+        else:
+            (leaf_id, leaf_name, this_lineage) = leaf_info
+            
         base_leaf_id = leaf_name.split(' ')[0].lstrip('"')
         target_leaves[base_leaf_id] = leaf_name  # note: id has been replaced by trim program
     f.close()
 
     return target_leaves
+
+
+# get_target_lineages ()
+#
+def get_target_lineages (lineage_file):
+
+    print ("reading target lineages from file {} ...".format(lineage_file))
+
+    target_lineages = dict()
+    
+    if lineage_file.lower().endswith('.gz'):
+        f = gzip.open(lineage_file, 'rt')
+    else:
+        f = open(lineage_file, 'r')
+
+    for line in f:
+        line = line.rstrip()
+
+        (leaf_name, this_lineage) = line.split("\t")
+
+        base_leaf_id = leaf_name.split(' ')[0].lstrip('"')
+        target_lineages[base_leaf_id] = this_lineage
+    f.close()
+
+    return target_lineages
 
 
 # get_tree_obj_from_file ()
@@ -118,7 +156,7 @@ def get_tree_obj_from_file (tree_file):
 
 # get_taxon_colors()
 #
-def get_taxon_colors (in_tree_path, outimgbase):
+def get_taxon_colors (in_tree_path, lineage_file, outimgbase):
 
     # taxon colors bin
     get_taxon_colors_bin = os.path.join ('/kb', 'module', 'bin', 'get_taxon_colors.py')
@@ -126,8 +164,9 @@ def get_taxon_colors (in_tree_path, outimgbase):
     # configure taxon box color
     out_color_path = outimgbase + '-'+'taxon_colors.map'
     get_taxon_colors_cmd = [get_taxon_colors_bin,
-                           '--intree', in_tree_path,
-                           '--outcolorfile', out_color_path
+                            '--intree', in_tree_path,
+                            '--gtdblineagefile', lineage_file,
+                            '--outcolorfile', out_color_path
                         ]
     env = dict(os.environ)
     subprocess.run(get_taxon_colors_cmd, check=True, env=env)
@@ -136,6 +175,21 @@ def get_taxon_colors (in_tree_path, outimgbase):
             line = line.rstrip()
             (taxon, hex_color) = line.split("\t")
             taxon_color[taxon] = hex_color
+
+
+# get_parents ()
+#
+def get_parents (target_lineages):
+    parent_taxon_map = dict()
+
+    for leaf_id in target_lineages.keys():
+        lineage = target_lineages[leaf_id].split(';')
+
+        for tax_i,taxon in enumerate(lineage):
+            if tax_i > 0:
+                parent_taxon_map[taxon] = lineage[tax_i-1]
+
+    return parent_taxon_map
 
             
 # Creates my own layout function.
@@ -163,7 +217,12 @@ def tax_box_layout(node):
 
 # write_tree_img_to_files()
 #
-def write_tree_img_to_files (t, title_disp, outimgbase, query_target_leaves, target_leaves):
+def write_tree_img_to_files (t,
+                             title_disp,
+                             outimgbase,
+                             query_target_leaves,
+                             target_leaves,
+                             target_lineages):
     out_files = dict()
 
     t.ladderize()
@@ -230,27 +289,49 @@ def write_tree_img_to_files (t, title_disp, outimgbase, query_target_leaves, tar
                 
         node.set_style(style)
 
-        
+
+    # get complete lineages for taxa of interest
+    full_parent_lineages = get_parents (target_lineages)
+
+    
     # set taxon box to leaves of this node
     tax_column_I = { 'g': 2, 'f': 3, 'o': 4, 'c': 5, 'p': 6}
+    taxon_added = dict()
     for n in t.traverse():
         if not n.is_leaf():
             if n.name:
                 taxon = n.name
-                print ("adding tax ring for: {}".format(taxon))
-                tax_level = taxon[0]
-                if tax_level not in tax_column_I:  # mostly 'd' but may also 's' someday
-                    continue
-                taxon_column[taxon] = tax_column_I[tax_level]
+                taxon_added[taxon] = True
 
-                for leaf_node in n.get_leaves():
-                    leaf_name = leaf_node.name
-                    #print ("ADDING TAX PLOT TO LEAF {}".format(leaf_name))  # DEBUG
-                    if leaf_name not in leaf_taxa:
-                        leaf_taxa[leaf_name] = []
-                    # may have 2 leaves with same name
-                    if taxon not in leaf_taxa[leaf_name]:
-                        leaf_taxa[leaf_name].append(taxon)
+                # add lineage up to phylum
+                parent_taxa = []
+                if taxon in full_parent_lineages:
+                    parent_taxon = full_parent_lineages[taxon]
+                    if parent_taxon not in taxon_added:
+                        parent_taxa.append(parent_taxon)
+                        taxon_added[parent_taxon] = True
+                    while parent_taxon in full_parent_lineages:
+                        parent_taxon = full_parent_lineages[parent_taxon]
+                        if parent_taxon not in taxon_added:
+                            parent_taxa.append(parent_taxon)
+                            taxon_added[parent_taxon] = True
+
+                # decorate leaves below this node
+                for this_taxon in [taxon] + parent_taxa:
+                    print ("adding tax ring for: {}".format(this_taxon))
+                    tax_level = this_taxon[0]
+                    if tax_level not in tax_column_I:  # mostly 'd' but maybe also 's' someday
+                        continue
+                    taxon_column[this_taxon] = tax_column_I[tax_level]
+
+                    for leaf_node in n.get_leaves():
+                        leaf_name = leaf_node.name
+                        #print ("ADDING TAX PLOT TO LEAF {}".format(leaf_name))  # DEBUG
+                        if leaf_name not in leaf_taxa:
+                            leaf_taxa[leaf_name] = []
+                        # may have 2 leaves with same name
+                        if this_taxon not in leaf_taxa[leaf_name]:
+                            leaf_taxa[leaf_name].append(this_taxon)
 
     ts.layout_fn = tax_box_layout
 
@@ -303,14 +384,22 @@ def main() -> int:
     # read all target leaves
     target_leaves = get_target_leaves (args.leaflist)
 
+    # read all target lineages
+    target_lineages = get_target_lineages (args.gtdblineagefile)
+
     # read full tree input
     tree = get_tree_obj_from_file (args.intree)
 
     # get taxon colors for nodes in tree
-    get_taxon_colors (args.intree, args.outimgbase)
+    get_taxon_colors (args.intree, args.gtdblineagefile, args.outimgbase)
 
     # write tree img to files
-    out_files = write_tree_img_to_files (tree, args.title, args.outimgbase, query_target_leaves, target_leaves)
+    out_files = write_tree_img_to_files (tree,
+                                         args.title,
+                                         args.outimgbase,
+                                         query_target_leaves,
+                                         target_leaves,
+                                         target_lineages)
     
     print ("DONE")
     return 0

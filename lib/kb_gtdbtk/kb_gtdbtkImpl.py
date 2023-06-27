@@ -191,6 +191,7 @@ class kb_gtdbtk:
         file_links = process_tree_files (params.ref,
                                          output_path,
                                          summary_tables,
+                                         classification,
                                          cli)
         if params.save_trees and check_obj_type_genome (obj_type):
             objects_created.extend (save_gtdb_tree_objs (params.workspace_id,

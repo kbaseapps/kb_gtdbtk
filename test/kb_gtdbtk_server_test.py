@@ -257,7 +257,7 @@ class kb_gtdbtkTest(unittest.TestCase):
     # NOT ABLE TO RUN ON DEV1.  Too much memory required.  Need to shrink number of bins
     #
     # SKIP THIS!!!
-    # HIDE @unittest.skip("skipped test_classify_wf_binnedcontigs_fulltree()")  # uncomment to skip
+    @unittest.skip("skipped test_classify_wf_binnedcontigs_fulltree()")  # uncomment to skip
     def test_classify_wf_binnedcontigs_fulltree(self):
         report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, { \
                                                                 'workspace_id': self.wsid,
@@ -334,7 +334,7 @@ class kb_gtdbtkTest(unittest.TestCase):
                                                                 'input_object_ref': self.arch_genomeSet,
                                                                 'copy_proximals': 1,
                                                                 'save_trees': 1,
-                                                                'full_tree': 1,
+                                                                'full_tree': 0,
                                                                 'keep_intermediates': 1,
                                                                 'overwrite_tax': '1'
                                                             })[0]
@@ -343,6 +343,7 @@ class kb_gtdbtkTest(unittest.TestCase):
 
 
     # test passalid error
+    # Note: This must be run as user 'dylan'
     #
     @unittest.skip("skipped test_classify_wf_genomeset()")  # uncomment to skip
     def test_passalid_errors(self):

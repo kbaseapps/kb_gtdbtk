@@ -26,6 +26,7 @@ def getargs():
     parser.add_argument("-o", "--outtree", help="output tree in newick format")
     parser.add_argument("-l", "--leaflist", help="file with list of leaves to retain")
     parser.add_argument("-t", "--targetleafoutfile", help="output file with list of leaves with their new names")
+    parser.add_argument("-g", "--gtdblineageoutfile", help="output file with lineage for leaves")
     parser.add_argument("-s", "--sisters", help="retain one leaf per sister lineage from target branches", action='store_true')
     parser.add_argument("-a", "--archaea_metadata_file", help="gtdb metadta for archaea (def: /data/ar53_metadata_r207.tsv)")
     parser.add_argument("-b", "--bacteria_metadata_file", help="gtdb metadta for bacteria (def: /data/bac210_metadata_r207.tsv)")
@@ -79,6 +80,7 @@ def get_target_leaves (leaflist_file):
     print ("reading target leaves from file {} ...".format(leaflist_file))
 
     target_leaves = dict()
+    target_lineages = dict()
     
     if leaflist_file.lower().endswith('.gz'):
         f = gzip.open(leaflist_file, 'rt')
@@ -88,11 +90,17 @@ def get_target_leaves (leaflist_file):
     for line in f:
         line = line.rstrip()
 
-        (leaf_id, genome_name) = line.split("\t")
+        leaf_info = line.split("\t")
+        if len(leaf_info) == 2:
+            (leaf_id, genome_name) = leaf_info
+        else:
+            (leaf_id, genome_name, this_lineage) = leaf_info
+            target_lineages[genome_name] = this_lineage
+
         target_leaves[leaf_id] = genome_name
     f.close()
 
-    return target_leaves
+    return (target_leaves, target_lineages)
 
 
 # write_new_target_leaves ()
@@ -110,6 +118,27 @@ def write_new_target_leaves (new_target_leaves, leaflist_outfile):
         leaflist_h.write("\n".join(outbuf)+"\n")
 
     return leaflist_outfile
+
+
+# write_gtdb_lineage_outfile ()
+#
+def write_gtdb_lineage_outfile (tree, taxa, target_lineages, gtdblineage_outfile):
+
+    print ("writing new target lineages to file {} ...".format(gtdblineage_outfile))
+
+    gtdb_lineage_outbuf = []
+    for leaf in tree.get_leaves():
+        leaf_id = leaf.name.strip('"')
+        leaf_id = re.sub(' .*$', '', leaf_id)
+        if leaf_id in taxa:
+            gtdb_lineage_outbuf.append("\t".join([leaf_id, ";".join(taxa[leaf_id])]))
+        elif leaf_id in target_lineages:
+            gtdb_lineage_outbuf.append("\t".join([leaf_id, target_lineages[leaf_id]]))
+            
+    with open (gtdblineage_outfile, 'w') as lineage_h:
+        lineage_h.write("\n".join(gtdb_lineage_outbuf)+"\n")
+        
+    return gtdblineage_outfile
 
 
 # get_tree_obj_from_file ()
@@ -558,14 +587,15 @@ def main() -> int:
     args = getargs()
 
     # read target leaves
-    target_leaves = get_target_leaves (args.leaflist)
+    (target_leaves, target_lineages) = get_target_leaves (args.leaflist)
 
     # read full tree input
     tree = get_tree_obj_from_file (args.intree)
 
     # read gtdb metadata and taxa
-    (taxa, gtdb_metadata) = read_gtdb_metadata (args.archaea_metadata_file, args.bacteria_metadata_file) 
-    
+    (taxa, gtdb_metadata) = read_gtdb_metadata (args.archaea_metadata_file,
+                                                args.bacteria_metadata_file) 
+
     # determine extra leaves to act as sister reps
     sister_leaves = None
     if (args.sisters):
@@ -576,13 +606,26 @@ def main() -> int:
                                            gtdb_metadata)
         
     # trim to target leaves
-    tree = trim_tree_to_target_leaves (tree, target_leaves, sister_leaves)
+    tree = trim_tree_to_target_leaves (tree,
+                                       target_leaves,
+                                       sister_leaves)
 
     # fix id names to genome names
-    (tree, new_target_leaves) = replace_leaf_id_with_name (tree, taxa, target_leaves, sister_leaves)
+    (tree, new_target_leaves) = replace_leaf_id_with_name (tree,
+                                                           taxa,
+                                                           target_leaves,
+                                                           sister_leaves)
 
     # write new target leaves
-    write_new_target_leaves (new_target_leaves, args.targetleafoutfile)
+    write_new_target_leaves (new_target_leaves,
+                             args.targetleafoutfile)
+    
+    # write gtdb taxa file
+    if args.gtdblineageoutfile:
+        gtdb_lineage_path = write_gtdb_lineage_outfile (tree,
+                                                        taxa,
+                                                        target_lineages,
+                                                        args.gtdblineageoutfile)
     
     # add internal node names
     tree = add_internal_node_names (tree, taxa)

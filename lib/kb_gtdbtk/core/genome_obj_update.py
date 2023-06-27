@@ -5,6 +5,7 @@ Downloads sequence data from KBase services.
 from typing import Dict
 import os
 import json
+import re
 import pandas as pd
 import subprocess
 import ete3
@@ -128,13 +129,35 @@ def check_obj_type_assembly(
     else:
         return False
 
+
+# pause()
+#
+def pause(patience, sleep_interval, target_files):
+    
+    time_spent = 0
+    while time_spent <= patience:
+        found_output = True
+        for this_file in target_files:
+            if not os.path.exists(this_file) or not os.path.getsize(this_file) > 0:
+                found_output = False
+                print ("waiting for {} seconds...".format(sleep_interval))
+                time.sleep(sleep_interval)
+                time_spent += sleep_interval
+            if found_output:
+                break
+    if not found_output:
+        raise ValueError ("Never produced output in {} seconds".format(patience))
+
+    return
+
     
 # _format_gtdbtk_tree_to_itol ()
 #
 def _format_gtdbtk_tree_to_itol (in_tree_path):
     print ("making ITOL format tree "+str(in_tree_path))
     gtdbtk_bin = os.path.join ('/opt', 'conda3', 'bin', 'gtdbtk')
-    itol_tree_path = str(in_tree_path).replace('.tree','-ITOL.tree')
+    #itol_tree_path = str(in_tree_path).replace('.tree','-ITOL.tree')
+    itol_tree_path = re.sub('.tree$', '-ITOL.tree', str(in_tree_path))
 
     convert_cmd = [gtdbtk_bin, 'convert_to_itol',
                    '--input_tree', in_tree_path,
@@ -142,22 +165,22 @@ def _format_gtdbtk_tree_to_itol (in_tree_path):
                    ]
     env = dict(os.environ)
     subprocess.run(convert_cmd, check=True, env=env)
+    pause(600, 10, [itol_tree_path])
 
     return itol_tree_path
 
     
 # _trim_tree()
 #
-def _trim_tree (in_tree_path, leaflist_file, leaflist_outfile):
+def _trim_tree (in_tree_path, leaflist_file, leaflist_outfile, lineage_outfile):
     print ("trimming tree "+str(in_tree_path))
     trim_bin = os.path.join ('/kb', 'module', 'bin', 'trim_tree_to_target_leaves.py')
-    patience = 600
-    sleep_interval = 10
     
     out_tree_paths = []
     
     # just proximal sp rep hits
-    out_tree_path = str(in_tree_path).replace('.tree','-proximals.tree')
+    #out_tree_path = str(in_tree_path).replace('.tree','-proximals.tree')
+    out_tree_path = re.sub('.tree$', '-proximals.tree', str(in_tree_path))
     out_tree_paths.append(out_tree_path)
     trim_cmd = [trim_bin,
                 '--intree', str(in_tree_path),
@@ -168,59 +191,32 @@ def _trim_tree (in_tree_path, leaflist_file, leaflist_outfile):
     print ("RUNNING: "+" ".join(trim_cmd))
     env = dict(os.environ)
     subprocess.run(trim_cmd, check=True, env=env)
+    pause(600, 10, [out_tree_path, leaflist_outfile])
 
-    found_output = False
-    time_spent = 0
-    while time_spent <= patience:
-        if not os.path.exists(out_tree_path) or not os.path.getsize(out_tree_path) > 0 or \
-           not os.path.exists(leaflist_outfile) or not os.path.getsize(leaflist_outfile) > 0:
-
-            print ("waiting for {} seconds...".format(sleep_interval))
-            time.sleep(sleep_interval)
-            time_spent += sleep_interval
-        else:
-            found_output = True
-            break
-    if not found_output:
-        raise ValueError ("program {} never produced output in {} seconds".format('trim tree proximals', patience))
     
-            
     # with sister context branches.  Note that leaflist_outfile is updated with context sp reps
-    out_tree_path = str(in_tree_path).replace('.tree','-trimmed.tree')
+    #out_tree_path = str(in_tree_path).replace('.tree','-trimmed.tree')
+    out_tree_path = re.sub('.tree$', '-trimmed.tree', str(in_tree_path))
     out_tree_paths.append(out_tree_path)
     trim_cmd = [trim_bin,
                 '--intree', str(in_tree_path),
                 '--outtree', str(out_tree_path),
                 '--leaflist', str(leaflist_file),
-                '--targetleafoutfile', str(leaflist_outfile)
+                '--targetleafoutfile', str(leaflist_outfile),
+                '--gtdblineageoutfile', str(lineage_outfile)
                 ]
     trim_cmd.append('--sisters')
     print ("RUNNING: "+" ".join(trim_cmd))
     env = dict(os.environ)
     subprocess.run(trim_cmd, check=True, env=env)
-
-    found_output = False
-    time_spent = 0
-    while time_spent <= patience:
-        if not os.path.exists(out_tree_path) or not os.path.getsize(out_tree_path) > 0 or \
-           not os.path.exists(leaflist_outfile) or not os.path.getsize(leaflist_outfile) > 0:
-
-            print ("waiting for {} seconds...".format(sleep_interval))
-            time.sleep(sleep_interval)
-            time_spent += sleep_interval
-        else:
-            found_output = True
-            break
-    if not found_output:
-        raise ValueError ("program {} never produced output in {} seconds".format('trim tree context', patience))
-    
+    pause(600, 10, [out_tree_path, leaflist_outfile, lineage_outfile])
     
     return out_tree_paths
 
 
 # _write_tree_image_file()
 #
-def _write_tree_image_file (trimmed_tree_path, query_leaflist_file, leaflist_file):
+def _write_tree_image_file (trimmed_tree_path, query_leaflist_file, leaflist_file, lineage_file):
     print ("making images for trimmed tree "+str(trimmed_tree_path))
     write_image_bin = os.path.join ('/kb', 'module', 'bin', 'make_tree_images.py')
 
@@ -237,10 +233,12 @@ def _write_tree_image_file (trimmed_tree_path, query_leaflist_file, leaflist_fil
                        '--title', title,
                        '--outimgbase', out_img_base,
                        '--queryleaflist', query_leaflist_file,
-                       '--leaflist', leaflist_file
+                       '--leaflist', leaflist_file,
+                       '--gtdblineagefile', lineage_file
                        ]
     env = dict(os.environ)
     subprocess.run(write_image_cmd, check=True, env=env)
+    pause(600, 10, [out_img_base+'-circle.PNG', out_img_base+'-circle.PDF'])
 
     return trimmed_tree_image_paths
 
@@ -258,7 +256,8 @@ def _write_gtdb_tree_html_file (out_dir, files_for_html):
         tree_newick_path = file_for_html['newick_path']
         tree_png_file = file_for_html['png_file']
         taxon_colors_path = file_for_html['taxon_colors_path']
-
+        lineage_path = file_for_html['lineage_path']
+        
         # add tree image
         tree_img_width = 500
         tree_img_height = 500
@@ -273,20 +272,44 @@ def _write_gtdb_tree_html_file (out_dir, files_for_html):
                 (taxon, color) = line.rstrip().split("\t")
                 taxon_color[taxon] = color
 
+        # get full parent mapping from known leaves
+        target_lineages = get_target_lineages (lineage_path)
+        parents = get_parents (target_lineages)
+        
+        
         # determine lineage structure
         lineages = dict()
         tree = ete3.Tree(tree_newick_path, quoted_node_names=True, format=1)
         tree.ladderize()
         for leaf_node in tree.get_leaves():
-            last_taxon = None
-            for ancestor_node in reversed(leaf_node.get_ancestors()):
+            """
+            #last_taxon = None
+            #for ancestor_node in reversed(leaf_node.get_ancestors()):  # phylum -> genus
+            """
+            for ancestor_node in leaf_node.get_ancestors():  # genus -> phylum
                 if ancestor_node.name:
+                    taxon = ancestor_node.name
+                    if taxon not in parents:  # handle phylum
+                        lineages[taxon] = dict()
+                    else:
+                        this_taxon = taxon
+                        if this_taxon not in lineages:  # handle genus
+                            lineages[this_taxon] = dict()
+                        while this_taxon in parents:
+                            parent_taxon = parents[this_taxon]
+                            if parent_taxon not in lineages:
+                                lineages[parent_taxon] = dict()
+                            lineages[parent_taxon][this_taxon] = True
+                            this_taxon = parent_taxon
+
+                    """
                     if last_taxon:
                         if last_taxon not in lineages:
                             lineages[last_taxon] = dict()
                         lineages[last_taxon][ancestor_node.name] = True
                     last_taxon = ancestor_node.name
-
+                    """
+                    
         # build key
         indent_cnt = 0
         key_box_size = '15px'
@@ -317,6 +340,46 @@ def _write_gtdb_tree_html_file (out_dir, files_for_html):
         tree_h.write("\n".join(html_buf)+"\n")
         
     return tree_html_path
+
+
+# get_target_lineages ()
+#
+def get_target_lineages (lineage_file):
+
+    print ("reading target lineages from file {} ...".format(lineage_file))
+
+    target_lineages = dict()
+    
+    if lineage_file.lower().endswith('.gz'):
+        f = gzip.open(lineage_file, 'rt')
+    else:
+        f = open(lineage_file, 'r')
+
+    for line in f:
+        line = line.rstrip()
+
+        (leaf_name, this_lineage) = line.split("\t")
+
+        base_leaf_id = leaf_name.split(' ')[0].lstrip('"')
+        target_lineages[base_leaf_id] = this_lineage
+    f.close()
+
+    return target_lineages
+
+
+# get_parents ()
+#
+def get_parents (target_lineages):
+    parent_taxon_map = dict()
+
+    for leaf_id in target_lineages.keys():
+        lineage = target_lineages[leaf_id].split(';')
+
+        for tax_i,taxon in enumerate(lineage):
+            if tax_i > 0:
+                parent_taxon_map[taxon] = lineage[tax_i-1]
+
+    return parent_taxon_map
 
 
 # add_tree_key_row ()
@@ -356,6 +419,7 @@ def add_tree_key_row (taxon, lineages, taxon_color, indent_cnt, key_box_size, ke
 def process_tree_files (top_upa,
                         out_dir,
                         summary_tables,
+                        classification,
                         clients):
     upload_files = []
     file_links = []
@@ -381,7 +445,10 @@ def process_tree_files (top_upa,
             new_name = assembly_name
             if assembly_name in query_assembly_to_genome_name:
                 new_name = query_assembly_to_genome_name[assembly_name]
-            id_map_buf.append("\t".join([qid,new_name]))
+            this_lineage = '-'
+            if assembly_name in classification:
+                this_lineage = classification[assembly_name]
+            id_map_buf.append("\t".join([qid,new_name,this_lineage]))
     new_id_map_path = str(id_map_path).replace('.map','-genomes.map')
     with open(new_id_map_path, 'w') as id_map_h:
         id_map_h.write("\n".join(id_map_buf)+"\n")
@@ -414,23 +481,35 @@ def process_tree_files (top_upa,
         in_tree_path = out_dir / tree_file
         if os.path.isfile(in_tree_path):
 
-            new_id_map_with_sp_rep_hits_path = str(in_tree_path).replace('.tree', '.id_to_name-with_all_sp_reps-newleafnames.map')
-
-            trimmed_tree_paths = _trim_tree (in_tree_path, id_map_with_sp_rep_hits_path, new_id_map_with_sp_rep_hits_path)
+            #new_id_map_with_sp_rep_hits_path = str(in_tree_path).replace('.tree', '.id_to_name-with_all_sp_reps-newleafnames.map')
+            new_id_map_with_sp_rep_hits_path = re.sub('.tree$', '.id_to_name-with_all_sp_reps-newleafnames.map', str(in_tree_path))
+            lineage_path = re.sub('.tree$', '-lineages.map', str(in_tree_path))
+            
+            trimmed_tree_paths = _trim_tree (in_tree_path, id_map_with_sp_rep_hits_path, new_id_map_with_sp_rep_hits_path, lineage_path)
 
             for trimmed_tree_path in trimmed_tree_paths:
-
-                # proximals failing.  fix later
-                if 'proximals' in trimmed_tree_path:
-                    continue
-
-                trimmed_tree_image_paths = _write_tree_image_file (trimmed_tree_path, new_id_map_path, new_id_map_with_sp_rep_hits_path)
 
                 trimmed_tree_file = os.path.basename (trimmed_tree_path)
                 upload_files.append({ 'path': trimmed_tree_path,
                                       'name': trimmed_tree_file,
                                       'description': trimmed_tree_file+' - Newick'
                                     })
+
+                # proximals failing.  fix later
+                if 'proximals' in trimmed_tree_path:
+                    continue
+
+                lineage_file = os.path.basename (lineage_path)
+                upload_files.append({ 'path': lineage_path,
+                                      'name': lineage_file,
+                                      'description': lineage_file+' - GTDB lineage'
+                                    })
+
+                trimmed_tree_image_paths = _write_tree_image_file (trimmed_tree_path,
+                                                                   new_id_map_path,
+                                                                   new_id_map_with_sp_rep_hits_path,
+                                                                   lineage_path)
+
                 for trimmed_tree_image_path in trimmed_tree_image_paths:
                     trimmed_tree_image_file = os.path.basename (trimmed_tree_image_path)
                     upload_files.append({ 'path': trimmed_tree_image_path,
@@ -442,7 +521,8 @@ def process_tree_files (top_upa,
                         taxon_colors_path = str(trimmed_tree_image_path).replace('-circle.PNG','-taxon_colors.map')
                         files_for_html.append({'newick_path': trimmed_tree_path,
                                                'png_file': trimmed_tree_image_file,
-                                               'taxon_colors_path': taxon_colors_path})
+                                               'taxon_colors_path': taxon_colors_path,
+                                               'lineage_path': lineage_path})
 
                         
     # upload files and make file links for report
@@ -573,7 +653,8 @@ def save_gtdb_tree_objs (workspace_id,
         if os.path.isfile(in_tree_path):
 
             # proximal tree
-            proximal_tree_path = str(in_tree_path).replace('.tree', '-proximal.tree')
+            #proximal_tree_path = str(in_tree_path).replace('.tree', '-proximal.tree')
+            proximal_tree_path = re.sub('.tree$', '-proximal.tree', str(in_tree_path))
             tree_name = tree_file+'-proximals.tree'
             obj_name = output_basename+'.'+tree_name
             tree_short_desc = 'with proximal GTDB species reps'
@@ -586,7 +667,8 @@ def save_gtdb_tree_objs (workspace_id,
                                                                        workspace_id,
                                                                        clients))
             # trimed tree
-            trimmed_tree_path = str(in_tree_path).replace('.tree', '-trimmed.tree')
+            #trimmed_tree_path = str(in_tree_path).replace('.tree', '-trimmed.tree')
+            trimmed_tree_path = re.sub('.tree$', '-trimmed.tree', str(in_tree_path))
             tree_name = tree_file+'-trimmed.tree'
             obj_name = output_basename+'.'+tree_name
             tree_short_desc = 'trimmed with sister context'
