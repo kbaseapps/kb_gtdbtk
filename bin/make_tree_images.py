@@ -118,13 +118,13 @@ def get_target_leaves (leaflist_file):
     return target_leaves
 
 
-# get_target_lineages ()
+# get_all_leaf_lineages ()
 #
-def get_target_lineages (lineage_file):
+def get_all_leaf_lineages (lineage_file):
 
     print ("reading target lineages from file {} ...".format(lineage_file))
 
-    target_lineages = dict()
+    all_leaf_lineages = dict()
     
     if lineage_file.lower().endswith('.gz'):
         f = gzip.open(lineage_file, 'rt')
@@ -137,10 +137,10 @@ def get_target_lineages (lineage_file):
         (leaf_name, this_lineage) = line.split("\t")
 
         base_leaf_id = leaf_name.split(' ')[0].lstrip('"')
-        target_lineages[base_leaf_id] = this_lineage
+        all_leaf_lineages[base_leaf_id] = this_lineage
     f.close()
 
-    return target_lineages
+    return all_leaf_lineages
 
 
 # get_tree_obj_from_file ()
@@ -179,11 +179,11 @@ def get_taxon_colors (in_tree_path, lineage_file, outimgbase):
 
 # get_parents ()
 #
-def get_parents (target_lineages):
+def get_parents (all_leaf_lineages):
     parent_taxon_map = dict()
 
-    for leaf_id in target_lineages.keys():
-        lineage = target_lineages[leaf_id].split(';')
+    for leaf_id in all_leaf_lineages.keys():
+        lineage = all_leaf_lineages[leaf_id].split(';')
 
         for tax_i,taxon in enumerate(lineage):
             if tax_i > 0:
@@ -222,7 +222,7 @@ def write_tree_img_to_files (t,
                              outimgbase,
                              query_target_leaves,
                              target_leaves,
-                             target_lineages):
+                             all_leaf_lineages):
     out_files = dict()
 
     t.ladderize()
@@ -291,7 +291,7 @@ def write_tree_img_to_files (t,
 
 
     # get complete lineages for taxa of interest
-    full_parent_lineages = get_parents (target_lineages)
+    full_parent_lineages = get_parents (all_leaf_lineages)
 
     
     # set taxon box to leaves of this node
@@ -324,8 +324,7 @@ def write_tree_img_to_files (t,
                         continue
                     taxon_column[this_taxon] = tax_column_I[tax_level]
 
-                    for leaf_node in n.get_leaves():
-                        leaf_name = leaf_node.name
+                    for leaf_name in n.get_leaf_names():
                         #print ("ADDING TAX PLOT TO LEAF {}".format(leaf_name))  # DEBUG
                         if leaf_name not in leaf_taxa:
                             leaf_taxa[leaf_name] = []
@@ -333,6 +332,26 @@ def write_tree_img_to_files (t,
                         if this_taxon not in leaf_taxa[leaf_name]:
                             leaf_taxa[leaf_name].append(this_taxon)
 
+    # add taxa to non-target leaves that match expanded rings from lower tax levels
+    for leaf_name in t.get_leaf_names():
+        leaf_id = re.sub(' .*$', '', leaf_name.strip('"'))
+        if leaf_id not in all_leaf_lineages:
+            raise ValueError ("missing lineage for leaf id {}".format(leaf_id))
+        #print ("LEAF_ID: {}".format(leaf_id))  # DEBUG
+        for this_taxon in all_leaf_lineages[leaf_id].split(';'):
+            tax_level = this_taxon[0]
+            if tax_level not in tax_column_I:  # mostly 'd' but maybe also 's' someday
+                continue
+            if this_taxon in taxon_added:
+                if leaf_name not in leaf_taxa:
+                    leaf_taxa[leaf_name] = []
+                    print ("ADDING ADDITIONAL TAXA TO LEAF_NAME: {}".format(leaf_name))  # DEBUG
+                # may have 2 leaves with same name                                       
+                if this_taxon not in leaf_taxa[leaf_name]:
+                    leaf_taxa[leaf_name].append(this_taxon)
+                    print ("ADDING TAXON {} TO LEAF_NAME: {}".format(this_taxon, leaf_name))  # DEBUG
+
+    # key step to make the taxon ring boxes get plotted
     ts.layout_fn = tax_box_layout
 
                                            
@@ -385,7 +404,7 @@ def main() -> int:
     target_leaves = get_target_leaves (args.leaflist)
 
     # read all target lineages
-    target_lineages = get_target_lineages (args.gtdblineagefile)
+    all_leaf_lineages = get_all_leaf_lineages (args.gtdblineagefile)
 
     # read full tree input
     tree = get_tree_obj_from_file (args.intree)
@@ -399,7 +418,7 @@ def main() -> int:
                                          args.outimgbase,
                                          query_target_leaves,
                                          target_leaves,
-                                         target_lineages)
+                                         all_leaf_lineages)
     
     print ("DONE")
     return 0

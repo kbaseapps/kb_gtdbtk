@@ -133,6 +133,7 @@ def check_obj_type_assembly(
 # pause()
 #
 def pause(patience, sleep_interval, target_files):
+    found_output = False
     
     time_spent = 0
     while time_spent <= patience:
@@ -143,8 +144,8 @@ def pause(patience, sleep_interval, target_files):
                 print ("waiting for {} seconds...".format(sleep_interval))
                 time.sleep(sleep_interval)
                 time_spent += sleep_interval
-            if found_output:
-                break
+        if found_output:
+            break
     if not found_output:
         raise ValueError ("Never produced output in {} seconds".format(patience))
 
@@ -165,7 +166,7 @@ def _format_gtdbtk_tree_to_itol (in_tree_path):
                    ]
     env = dict(os.environ)
     subprocess.run(convert_cmd, check=True, env=env)
-    pause(600, 10, [itol_tree_path])
+    #pause(600, 10, [itol_tree_path])
 
     return itol_tree_path
 
@@ -191,7 +192,7 @@ def _trim_tree (in_tree_path, leaflist_file, leaflist_outfile, lineage_outfile):
     print ("RUNNING: "+" ".join(trim_cmd))
     env = dict(os.environ)
     subprocess.run(trim_cmd, check=True, env=env)
-    pause(600, 10, [out_tree_path, leaflist_outfile])
+    #pause(600, 10, [out_tree_path, leaflist_outfile])
 
     
     # with sister context branches.  Note that leaflist_outfile is updated with context sp reps
@@ -209,7 +210,7 @@ def _trim_tree (in_tree_path, leaflist_file, leaflist_outfile, lineage_outfile):
     print ("RUNNING: "+" ".join(trim_cmd))
     env = dict(os.environ)
     subprocess.run(trim_cmd, check=True, env=env)
-    pause(600, 10, [out_tree_path, leaflist_outfile, lineage_outfile])
+    #pause(600, 10, [out_tree_path, leaflist_outfile, lineage_outfile])
     
     return out_tree_paths
 
@@ -238,7 +239,7 @@ def _write_tree_image_file (trimmed_tree_path, query_leaflist_file, leaflist_fil
                        ]
     env = dict(os.environ)
     subprocess.run(write_image_cmd, check=True, env=env)
-    pause(600, 10, [out_img_base+'-circle.PNG', out_img_base+'-circle.PDF'])
+    #pause(600, 10, [out_img_base+'-circle.PNG', out_img_base+'-circle.PDF'])
 
     return trimmed_tree_image_paths
 
@@ -272,9 +273,9 @@ def _write_gtdb_tree_html_file (out_dir, files_for_html):
                 (taxon, color) = line.rstrip().split("\t")
                 taxon_color[taxon] = color
 
-        # get full parent mapping from known leaves
-        target_lineages = get_target_lineages (lineage_path)
-        parents = get_parents (target_lineages)
+        # get full parent mapping from leaves
+        all_leaf_lineages = get_all_leaf_lineages (lineage_path)
+        parents = get_parents (all_leaf_lineages)
         
         
         # determine lineage structure
@@ -295,7 +296,12 @@ def _write_gtdb_tree_html_file (out_dir, files_for_html):
                         this_taxon = taxon
                         if this_taxon not in lineages:  # handle genus
                             lineages[this_taxon] = dict()
+                        level_limit = 5
+                        level_i = 0
                         while this_taxon in parents:
+                            if level_i > level_limit:  # avoid accidental infinite
+                                break
+                            level_i += 1
                             parent_taxon = parents[this_taxon]
                             if parent_taxon not in lineages:
                                 lineages[parent_taxon] = dict()
@@ -315,9 +321,10 @@ def _write_gtdb_tree_html_file (out_dir, files_for_html):
         key_box_size = '15px'
         key_font_size = key_box_size
         table_buf += ['<td align=left valign=middle><table border=0>']
-        tax_level_order = ['d', 'p', 'c', 'o', 'f', 'g']
+        #tax_level_order = ['d', 'p', 'c', 'o', 'f', 'g']
+        tax_level_order = ['p', 'c', 'o', 'f', 'g']
         first_row = True
-        for tax_level in tax_level_order:
+        for tax_level in tax_level_order:  # phylum -> genus
             for taxon in sorted (lineages.keys()):
                 if taxon[0] != tax_level:
                     continue
@@ -342,13 +349,13 @@ def _write_gtdb_tree_html_file (out_dir, files_for_html):
     return tree_html_path
 
 
-# get_target_lineages ()
+# get_all_leaf_lineages ()
 #
-def get_target_lineages (lineage_file):
+def get_all_leaf_lineages (lineage_file):
 
     print ("reading target lineages from file {} ...".format(lineage_file))
 
-    target_lineages = dict()
+    all_leaf_lineages = dict()
     
     if lineage_file.lower().endswith('.gz'):
         f = gzip.open(lineage_file, 'rt')
@@ -361,19 +368,19 @@ def get_target_lineages (lineage_file):
         (leaf_name, this_lineage) = line.split("\t")
 
         base_leaf_id = leaf_name.split(' ')[0].lstrip('"')
-        target_lineages[base_leaf_id] = this_lineage
+        all_leaf_lineages[base_leaf_id] = this_lineage
     f.close()
 
-    return target_lineages
+    return all_leaf_lineages
 
 
 # get_parents ()
 #
-def get_parents (target_lineages):
+def get_parents (all_leaf_lineages):
     parent_taxon_map = dict()
 
-    for leaf_id in target_lineages.keys():
-        lineage = target_lineages[leaf_id].split(';')
+    for leaf_id in all_leaf_lineages.keys():
+        lineage = all_leaf_lineages[leaf_id].split(';')
 
         for tax_i,taxon in enumerate(lineage):
             if tax_i > 0:
@@ -482,7 +489,7 @@ def process_tree_files (top_upa,
         if os.path.isfile(in_tree_path):
 
             #new_id_map_with_sp_rep_hits_path = str(in_tree_path).replace('.tree', '.id_to_name-with_all_sp_reps-newleafnames.map')
-            new_id_map_with_sp_rep_hits_path = re.sub('.tree$', '.id_to_name-with_all_sp_reps-newleafnames.map', str(in_tree_path))
+            new_id_map_with_sp_rep_hits_path = re.sub('.tree$', '.id_to_name-with_proximal_sp_reps-newleafnames.map', str(in_tree_path))
             lineage_path = re.sub('.tree$', '-lineages.map', str(in_tree_path))
             
             trimmed_tree_paths = _trim_tree (in_tree_path, id_map_with_sp_rep_hits_path, new_id_map_with_sp_rep_hits_path, lineage_path)

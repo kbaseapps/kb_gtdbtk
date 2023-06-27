@@ -77,13 +77,13 @@ def get_tree_obj_from_file (tree_file):
     return tree
 
 
-# get_target_lineages ()                                                                     
+# get_all_leaf_lineages ()                                                                     
 #                                                                                            
-def get_target_lineages (lineage_file):
+def get_all_leaf_lineages (lineage_file):
 
     print ("reading target lineages from file {} ...".format(lineage_file))
 
-    target_lineages = dict()
+    all_leaf_lineages = dict()
 
     if lineage_file.lower().endswith('.gz'):
         f = gzip.open(lineage_file, 'rt')
@@ -96,19 +96,19 @@ def get_target_lineages (lineage_file):
         (leaf_name, this_lineage) = line.split("\t")
 
         base_leaf_id = leaf_name.split(' ')[0].lstrip('"')
-        target_lineages[base_leaf_id] = this_lineage
+        all_leaf_lineages[base_leaf_id] = this_lineage
     f.close()
 
-    return target_lineages
+    return all_leaf_lineages
 
 
 # get_parents ()
 #
-def get_parents (target_lineages):
+def get_parents (all_leaf_lineages):
     parent_taxon_map = dict()
 
-    for leaf_id in target_lineages.keys():
-        lineage = target_lineages[leaf_id].split(';')
+    for leaf_id in all_leaf_lineages.keys():
+        lineage = all_leaf_lineages[leaf_id].split(';')
 
         for tax_i,taxon in enumerate(lineage):
             if tax_i > 0:
@@ -150,7 +150,7 @@ def get_complete_tax_lineages (tax_lineages, full_parent_lineages, tax_levels_su
 
 # get_all_taxon_colors()
 #
-def get_all_taxon_colors (t, target_lineages, out_file=None):
+def get_all_taxon_colors (t, all_leaf_lineages, out_file=None):
     out_files = dict()
 
     t.ladderize()
@@ -226,7 +226,7 @@ def get_all_taxon_colors (t, target_lineages, out_file=None):
                     last_taxon = taxon
                     
     # fill in any parent gaps in lineage
-    full_parent_lineages = get_parents (target_lineages)
+    full_parent_lineages = get_parents (all_leaf_lineages)
     complete_tax_lineages = get_complete_tax_lineages (tax_lineages,
                                                        full_parent_lineages,
                                                        tax_levels_supported)
@@ -413,10 +413,10 @@ def main() -> int:
     tree = get_tree_obj_from_file (args.intree)
 
     # read target lineages
-    target_lineages = get_target_lineages (args.gtdblineagefile)
+    all_leaf_lineages = get_all_leaf_lineages (args.gtdblineagefile)
     
     # write tree img to files
-    out_file = get_all_taxon_colors (tree, target_lineages, args.outcolorfile)
+    out_file = get_all_taxon_colors (tree, all_leaf_lineages, args.outcolorfile)
     
     #print ("DONE")
     return 0
