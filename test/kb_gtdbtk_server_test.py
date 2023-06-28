@@ -327,7 +327,7 @@ class kb_gtdbtkTest(unittest.TestCase):
     # test archaeal genomeSet input (takes a few minutes)
     #  Note: this is where we test copy_proximals and save_trees!!!
     #
-    # HIDE # HIDE @unittest.skip("skipped test_classify_wf_genomeset()")  # uncomment to skip
+    # HIDE @unittest.skip("skipped test_classify_wf_genomeset()")  # uncomment to skip
     def test_classify_wf_genomeset(self):
         report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, { \
                                                                 'workspace_id': self.wsid,

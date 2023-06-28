@@ -580,6 +580,8 @@ def  _save_tree_obj_and_copy_genomes(this_tree_path,
                                      clients):
 
     tree_full_desc = tree_file+' '+tree_short_desc
+
+    print ("SAVING TREE OBJ {}".format(obj_name))
     
     tree = ete3.Tree (this_tree_path, quoted_node_names=True, format=1)
     tree.ladderize()
@@ -632,6 +634,9 @@ def  _save_tree_obj_and_copy_genomes(this_tree_path,
     output_tree_ref = upa_from_info (tree_out_obj_info)
     new_objects_created.append({'ref': output_tree_ref, 'description': tree_short_desc})
 
+    # DEBUG
+    print ("SAVED TREE OBJ {} ref: {}".format(obj_name,output_tree_ref))
+    
     return new_objects_created
 
 
@@ -644,6 +649,8 @@ def save_gtdb_tree_objs (workspace_id,
                          clients):
     new_objects_created = []
 
+    print ("SAVING GTDB TREE OBJECTS")
+    
     # get upas by genome id
     genome_id_to_upa_map = get_genome_to_upa_map(genome_upas_map_file)
 

@@ -226,6 +226,7 @@ def write_tree_img_to_files (t,
     out_files = dict()
 
     t.ladderize()
+    t.convert_to_ultrametric()
     ts = ete3.TreeStyle()
 
     # customize
