@@ -533,7 +533,7 @@ def process_tree_files (top_upa,
                     trimmed_tree_image_file = os.path.basename (trimmed_tree_image_path)
                     upload_files.append({ 'path': trimmed_tree_image_path,
                                           'name': trimmed_tree_image_file,
-                                          'description': trimmed_tree_file+'- image'
+                                          'description': trimmed_tree_file+' - Image'
                                         })
 
                     if '-trimmed.tree-circle-ultrametric.PNG' in trimmed_tree_image_file:

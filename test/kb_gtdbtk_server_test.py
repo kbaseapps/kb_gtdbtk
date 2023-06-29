@@ -115,8 +115,6 @@ class kb_gtdbtkTest(unittest.TestCase):
         tempdir.mkdir(parents=True, exist_ok=True)
 
 
-        # DEBUG
-        """
         # single bacterial assembly
         this_filename = 'Rhodo_contigs.fa.gz'
         single_assyfile = tempdir / this_filename
@@ -154,7 +152,6 @@ class kb_gtdbtkTest(unittest.TestCase):
                 }
             ]})[0]
         cls.binned_contigs = cls.ref_from_info(bin_obj_info)
-        """
         
         
         # 3 archaeal assemblies and genomes, assembly set and genome set
@@ -229,7 +226,7 @@ class kb_gtdbtkTest(unittest.TestCase):
     # test bacterial assembly input against order-level subtrees (takes about 1 hr)
     #  Note: single assembly not available from narrative sidget, only direct call by power user
     #
-    @unittest.skip("skipped test_classify_wf_assembly()")  # uncomment to skip
+    # HIDE @unittest.skip("skipped test_classify_wf_assembly()")  # uncomment to skip
     def test_classify_wf_assembly(self):
         report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, { \
                                                                 'workspace_id': self.wsid,
@@ -280,7 +277,7 @@ class kb_gtdbtkTest(unittest.TestCase):
 
     # test binnedcontigs input with order-level subtrees (takes about 1 hr)
     #
-    @unittest.skip("skipped test_classify_wf_binnedcontigs_subtrees()")  # uncomment to skip
+    # HIDE @unittest.skip("skipped test_classify_wf_binnedcontigs_subtrees()")  # uncomment to skip
     def test_classify_wf_binnedcontigs_subtrees(self):
         report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, { \
                                                                 'workspace_id': self.wsid,
@@ -298,7 +295,7 @@ class kb_gtdbtkTest(unittest.TestCase):
 
     # test archaeal assemblySet input (takes a few minutes)
     #
-    @unittest.skip("skipped test_classify_wf_assemblyset()")  # uncomment to skip
+    # HIDE @unittest.skip("skipped test_classify_wf_assemblyset()")  # uncomment to skip
     def test_classify_wf_assemblyset(self):
         report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, { \
                                                                 'workspace_id': self.wsid,
@@ -317,7 +314,7 @@ class kb_gtdbtkTest(unittest.TestCase):
     # test archaeal genome input (takes a few minutes)
     #  Note; single genome not available from narrative sidget, only direct call by power user
     #
-    @unittest.skip("skipped test_classify_wf_genome()")  # uncomment to skip
+    # HIDE @unittest.skip("skipped test_classify_wf_genome()")  # uncomment to skip
     def test_classify_wf_genome(self):
         report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, { \
                                                                 'workspace_id': self.wsid,
