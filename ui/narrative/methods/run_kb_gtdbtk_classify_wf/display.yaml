@@ -31,6 +31,11 @@ parameters :
             A binned contigs object, assembly set, or genome set
         long-hint  : |
             An assembly set or genome set.  Also accepts Binned Contigs object.  Use Build AssemblySet or Build GenomeSet if have just one object.
+    output_tree_basename :
+        ui-name : |
+            Tree Base Name
+        short-hint : |
+            The basename for the Tree objects.  There are often multiple trees, so each tree object name will extend the output Tree Base Name.
     min_perc_aa :
         ui-name : |
             Minimum Alignment Percent

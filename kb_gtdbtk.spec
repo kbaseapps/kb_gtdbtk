@@ -17,8 +17,9 @@ module kb_gtdbtk {
         
     */
     typedef structure {
-        string input_object_ref;
         int workspace_id;
+        string input_object_ref;
+	string output_tree_basename;
 	bool copy_proximals;
 	bool save_trees;
         float min_perc_aa;

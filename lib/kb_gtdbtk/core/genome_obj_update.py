@@ -62,7 +62,7 @@ def get_obj_type(
 
 # get_obj_name()
 #
-def get_obj_type(
+def get_obj_name(
         upa: str,
         clients: KBClients
         ):
@@ -128,6 +128,16 @@ def check_obj_type_assembly(
         return True
     else:
         return False
+
+    
+# get_names_list_from_upas_list ()
+#
+def get_names_list_from_upas_list (upas_list, clients):
+    obj_names_list = []
+    for upa in upas_list:
+        obj_names_list.append(get_obj_name(upa,clients))
+
+    return obj_names_list
 
 
 # pause()
@@ -225,7 +235,9 @@ def _write_tree_image_file (trimmed_tree_path, query_leaflist_file, leaflist_fil
     trimmed_tree_image_paths = [ out_img_base+'-rectangle.PNG',
                                  out_img_base+'-rectangle.PDF',
                                  out_img_base+'-circle.PNG',
-                                 out_img_base+'-circle.PDF'
+                                 out_img_base+'-circle.PDF',
+                                 out_img_base+'-circle-ultrametric.PNG',
+                                 out_img_base+'-circle-ultrametric.PDF'
                                ]
 
     title = os.path.basename(out_img_base)
@@ -524,8 +536,8 @@ def process_tree_files (top_upa,
                                           'description': trimmed_tree_file+'- image'
                                         })
 
-                    if '-trimmed.tree-circle.PNG' in trimmed_tree_image_file:
-                        taxon_colors_path = str(trimmed_tree_image_path).replace('-circle.PNG','-taxon_colors.map')
+                    if '-trimmed.tree-circle-ultrametric.PNG' in trimmed_tree_image_file:
+                        taxon_colors_path = str(trimmed_tree_image_path).replace('-circle-ultrametric.PNG','-taxon_colors.map')
                         files_for_html.append({'newick_path': trimmed_tree_path,
                                                'png_file': trimmed_tree_image_file,
                                                'taxon_colors_path': taxon_colors_path,
@@ -577,12 +589,15 @@ def  _save_tree_obj_and_copy_genomes(this_tree_path,
                                      tree_short_desc,
                                      top_upa,
                                      workspace_id,
+                                     genome_id_to_upa_map,
                                      clients):
 
-    tree_full_desc = tree_file+' '+tree_short_desc
-
     print ("SAVING TREE OBJ {}".format(obj_name))
+
+    new_objects_created = []
+    tree_full_desc = tree_name+' '+tree_short_desc
     
+    # load tree and get leaf naems and genome ids
     tree = ete3.Tree (this_tree_path, quoted_node_names=True, format=1)
     tree.ladderize()
     newick_buf = tree.write(features=[])
@@ -594,14 +609,26 @@ def  _save_tree_obj_and_copy_genomes(this_tree_path,
         leaf_list.append(leaf_name)
         genome_ids.append(leaf_name.split(' ')[0])
 
+    # get query upas
+    query_upas = dict()
+    top_obj = clients.dfu().get_objects({'object_refs': [top_upa]})['data'][0]
+    query_upas_list = get_upas_from_set(top_obj)
+    query_names_list = get_names_list_from_upas_list (query_upas_list, clients)
+    for query_i,query_name in enumerate(query_names_list):
+        query_upas[query_name] = query_upas_list[query_i]
+    
     # make local copies of genomes
-    genome_refs = copy_gtdb_genome_objs (genome_ids, genome_id_to_upa_map, 'GTDB_SP_REP-', workspace_id, clients)
-
+    copied_genome_refs = copy_gtdb_genome_objs (genome_ids, genome_id_to_upa_map, 'GTDB_SP_REP-', workspace_id, clients)
+    
     ws_refs = dict()
     default_node_labels = dict()
-    for genome_i,leaf_name in enumerate(leaf_list):
+    for genome_i,genome_id in enumerate(genome_ids):
+        leaf_name = leaf_list[genome_i]
         default_node_labels[leaf_name] = leaf_name
-        genome_ref = genome_refs[genome_i]
+        if genome_id in copied_genome_refs:
+            genome_ref = copied_genome_refs[genome_id]
+        else:
+            genome_ref = query_upas[genome_id]
         ws_refs[leaf_name] = dict()
         ws_refs[leaf_name]['g'] = [genome_ref]
     tree_data = { 'name': tree_name,
@@ -613,23 +640,25 @@ def  _save_tree_obj_and_copy_genomes(this_tree_path,
                   'ws_refs': ws_refs
     }
     # save tree
-    provenance = [{}]
-    provenance[0]['input_ws_objects'] = [top_upa]
-    provenance[0]['input_ws_objects'].extend(genome_refs)
-    provenance[0]['service'] = 'kb_gtdbtk'
-    provenance[0]['method'] = 'run_kb_gtdbtk_classify_wf'
+    genome_refs_list = []
+    for genome_id in sorted(query_upas.keys()):
+        genome_refs_list.append(query_upas[genome_id])
+    for genome_id in sorted(copied_genome_refs.keys()):
+        genome_refs_list.append(copied_genome_refs[genome_id])
+    extra_provenance_input_refs = [top_upa]
+    extra_provenance_input_refs.extend(genome_refs_list)
     try:
         tree_out_obj_info = clients.dfu().save_objects({
-            'workspace_id': workspace_id,
+            'id': workspace_id,
             'objects':[{
                 'type': 'KBaseTrees.Tree',
                 'data': tree_data,
                 'name': obj_name,
                 'meta': {},
-                'provenance': provenance
+                'extra_provenance_input_refs': extra_provenance_input_refs
             }]})[0]
     except Exception as e:
-        raise ValueError('Unable to save tree '+params['output_tree_name']+' object to workspace '+str(params['workspace_name'])+': ' + str(e))
+        raise ValueError('Unable to save tree '+obj_name+' object to workspace '+str(workspace_id)+': ' + str(e))
 
     output_tree_ref = upa_from_info (tree_out_obj_info)
     new_objects_created.append({'ref': output_tree_ref, 'description': tree_short_desc})
@@ -644,7 +673,8 @@ def  _save_tree_obj_and_copy_genomes(this_tree_path,
 #
 def save_gtdb_tree_objs (workspace_id,
                          top_upa,
-                         output_dir,
+                         out_dir,
+                         output_tree_basename,
                          genome_upas_map_file,
                          clients):
     new_objects_created = []
@@ -668,31 +698,33 @@ def save_gtdb_tree_objs (workspace_id,
 
             # proximal tree
             #proximal_tree_path = str(in_tree_path).replace('.tree', '-proximal.tree')
-            proximal_tree_path = re.sub('.tree$', '-proximal.tree', str(in_tree_path))
+            proximal_tree_path = re.sub('.tree$', '-proximals.tree', str(in_tree_path))
             tree_name = tree_file+'-proximals.tree'
-            obj_name = output_basename+'.'+tree_name
+            obj_name = output_tree_basename+'.'+tree_name
             tree_short_desc = 'with proximal GTDB species reps'
 
-            new_objects_created.append(_save_tree_obj_and_copy_genomes(proximal_tree_path,
+            new_objects_created.extend(_save_tree_obj_and_copy_genomes(proximal_tree_path,
                                                                        tree_name,
                                                                        obj_name,
                                                                        tree_short_desc,
                                                                        top_upa,
                                                                        workspace_id,
+                                                                       genome_id_to_upa_map,
                                                                        clients))
             # trimed tree
             #trimmed_tree_path = str(in_tree_path).replace('.tree', '-trimmed.tree')
             trimmed_tree_path = re.sub('.tree$', '-trimmed.tree', str(in_tree_path))
             tree_name = tree_file+'-trimmed.tree'
-            obj_name = output_basename+'.'+tree_name
+            obj_name = output_tree_basename+'.'+tree_name
             tree_short_desc = 'trimmed with sister context'
 
-            new_objects_created.append(_save_tree_obj_and_copy_genomes(trimmed_tree_path,
+            new_objects_created.extend(_save_tree_obj_and_copy_genomes(trimmed_tree_path,
                                                                        tree_name,
                                                                        obj_name,
                                                                        tree_short_desc,
                                                                        top_upa,
                                                                        workspace_id,
+                                                                       genome_id_to_upa_map,
                                                                        clients))
 
     return new_objects_created
@@ -932,11 +964,13 @@ def get_std_lineages (this_classification, gtdb_ver, this_taxon_id):
 # copy_gtdb_genome_objs ()
 #
 def copy_gtdb_genome_objs (genome_ids, genome_id_to_upa_map, new_obj_name_prefix, dst_ws_id, clients):
-    genome_refs = []
+    genome_refs = dict()
 
     for genome_id in genome_ids:
+        if genome_id not in genome_id_to_upa_map:
+            continue
         src_upa = genome_id_to_upa_map[genome_id]
-        src_obj_name = get_object_name(src_upa, clients)
+        src_obj_name = get_obj_name(src_upa, clients)
 
         dst_obj_name = src_obj_name
         if new_obj_name_prefix:
@@ -950,7 +984,7 @@ def copy_gtdb_genome_objs (genome_ids, genome_id_to_upa_map, new_obj_name_prefix
                                                dst_ws_id,
                                                dst_obj_name,
                                                clients)
-        genome_refs.append(upa_from_info(genome_obj_info))
+        genome_refs[genome_id] = upa_from_info(genome_obj_info)
 
     return genome_refs
 
@@ -1154,6 +1188,8 @@ def get_upas_from_set(top_obj):
     return upas
 
 
+# get_query_assembly_to_genome_name ()
+#
 def get_query_assembly_to_genome_name (top_obj, clients):
     query_assembly_to_genome_name = dict()
 

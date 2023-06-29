@@ -7,6 +7,7 @@ import uuid
 from shutil import copyfile
 from typing import Dict, List, Callable
 from pathlib import Path
+
 from kb_gtdbtk.core.kb_client_set import KBClients
 
 
@@ -58,9 +59,9 @@ def generate_report(
                     'report_object_name': report_name,
                     'workspace_id': workspace_id
     }
-    if objects_created is not None:
+    if objects_created:
         report_params['objects_created'] = objects_created
-    
+
     report_info = clients.report().create_extended_report(report_params)
 
     return {

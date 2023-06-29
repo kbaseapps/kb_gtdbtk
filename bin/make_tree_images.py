@@ -226,7 +226,6 @@ def write_tree_img_to_files (t,
     out_files = dict()
 
     t.ladderize()
-    t.convert_to_ultrametric()
     ts = ete3.TreeStyle()
 
     # customize
@@ -358,11 +357,12 @@ def write_tree_img_to_files (t,
                                            
     # save rectangle tree image as PNG and PDF
     shape = 'rectangle'
-    out_png_file_path = outimgbase + '-'+shape+'.PNG'
-    out_pdf_file_path = outimgbase + '-'+shape+'.PDF'
-    out_files[shape] = { 'png': out_png_file_path,
-                         'pdf': out_pdf_file_path
-                         }
+    um_term = ''
+    out_png_file_path = outimgbase + '-'+shape+um_term+'.PNG'
+    out_pdf_file_path = outimgbase + '-'+shape+um_term+'.PDF'
+    out_files[shape+um_term] = { 'png': out_png_file_path,
+                                 'pdf': out_pdf_file_path
+                               }
     dpi = 600
     img_units = "in"
     img_pix_width = 2400
@@ -375,20 +375,39 @@ def write_tree_img_to_files (t,
 
 
     # save circle tree image as PNG and PDF
-    shape = 'circle'
-    out_png_file_path = outimgbase + '-'+shape+'.PNG'
-    out_pdf_file_path = outimgbase + '-'+shape+'.PDF'
-    out_files[shape] = { 'png': out_png_file_path,
-                         'pdf': out_pdf_file_path
-                         }
     ts.mode = "c"  # circular tree graph <-- THIS IS THE KEY
+    shape = 'circle'
+    um_term = ''
+    out_png_file_path = outimgbase + '-'+shape+um_term+'.PNG'
+    out_pdf_file_path = outimgbase + '-'+shape+um_term+'.PDF'
+    out_files[shape+um_term] = { 'png': out_png_file_path,
+                                 'pdf': out_pdf_file_path
+                               }
     #ts.arc_start = -180 # 0 degrees = 3 o'clock
     #ts.arc_span = 180
     print ("writing tree img to file {} ...".format(out_png_file_path))
     t.render(out_png_file_path, w=img_in_width, units=img_units, dpi=dpi, tree_style=ts)
     print ("writing tree img to file {} ...".format(out_pdf_file_path))
     t.render(out_pdf_file_path, w=img_in_width, units=img_units, tree_style=ts)  # dpi irrelevant
-                        
+
+    
+    # save ultrametric circle tree image as PNG and PDF
+    ts.mode = "c"  # circular tree graph <-- THIS IS THE KEY
+    t.convert_to_ultrametric()  # make a dendrogram <-- THIS IS THE KEY 
+    shape = 'circle'
+    um_term = '-ultrametric'
+    out_png_file_path = outimgbase + '-'+shape+um_term+'.PNG'
+    out_pdf_file_path = outimgbase + '-'+shape+um_term+'.PDF'
+    out_files[shape+um_term] = { 'png': out_png_file_path,
+                                 'pdf': out_pdf_file_path
+                               }
+    #ts.arc_start = -180 # 0 degrees = 3 o'clock
+    #ts.arc_span = 180
+    print ("writing tree img to file {} ...".format(out_png_file_path))
+    t.render(out_png_file_path, w=img_in_width, units=img_units, dpi=dpi, tree_style=ts)
+    print ("writing tree img to file {} ...".format(out_pdf_file_path))
+    t.render(out_pdf_file_path, w=img_in_width, units=img_units, tree_style=ts)  # dpi irrelevant
+    
 
     return out_files
 

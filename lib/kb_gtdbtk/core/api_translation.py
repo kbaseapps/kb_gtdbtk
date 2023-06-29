@@ -16,6 +16,9 @@ class GTDBTKParams(_NamedTuple):
     workspace_id: int
     ''' The ID of the KBase workspace where the report should be saved. '''
 
+    output_tree_basename: str
+    ''' The basename of the output KBase Tree objects. '''
+
     copy_proximals: int
     ''' Boolean copy proximal hit GTDB genome objects '''
     
@@ -61,6 +64,10 @@ def get_gtdbtk_params(input_params: Dict[str, object]) -> GTDBTKParams:
         raise ValueError('input_object_ref is required and must be a string')
     # could check ref format, but the ws will do that for us. YAGNI.
 
+    output_tree_basename = input_params.get('output_tree_basename')
+    if type(output_tree_basename) != str:
+        raise ValueError('output_tree_basename is required and must be a string')
+
     copy_proximals = int(input_params.get('copy_proximals', 0))
     if type(copy_proximals) != int or (copy_proximals != 0 and copy_proximals != 1):
         raise ValueError('copy_proximals is required and must be an integer [0,1]')
@@ -90,6 +97,7 @@ def get_gtdbtk_params(input_params: Dict[str, object]) -> GTDBTKParams:
     
     return GTDBTKParams(_cast(str, ref),
                         _cast(int, wsid),
+                        _cast(str, output_tree_basename),
                         _cast(int, copy_proximals),
                         _cast(int, save_trees),
                         _cast(float, min_perc_aa) * 1.0,

@@ -4,7 +4,7 @@
         "donovan_parks", "aaronmussig", "pchaumeil", "psdehal", "dylan"
     ],
     "contact": "http://www.kbase.us/support/",
-    "categories": ["active", "communities", "annotation"],
+    "categories": ["active", "communities", "annotation", "phylogenetics"],
     "widgets": {
         "input": null,
         "output": "no-display"
@@ -25,6 +25,18 @@
             }
         },
         {
+            "id": "output_tree_basename",
+            "optional": false,
+            "advanced": false,
+            "allow_multiple": false,
+            "default_values": [ "GTDB_Tree" ],
+            "field_type": "text",
+            "text_options": {
+                "is_output_name": true,
+                "valid_ws_types": ["KBaseTrees.Tree"]
+            }
+        },
+	{
             "id": "copy_proximals",
             "optional": false,
             "advanced": false,
@@ -171,6 +183,9 @@
                     "input_parameter": "input_object_ref",
                     "target_property": "input_object_ref",
                     "target_type_transform":"ref"
+                },{
+                    "input_parameter": "output_tree_basename",
+                    "target_property": "output_tree_basename"
                 },{
                     "input_parameter": "copy_proximals",
                     "target_property": "copy_proximals"
