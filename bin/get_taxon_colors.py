@@ -161,7 +161,6 @@ def get_all_taxon_colors (t, all_leaf_lineages, out_file=None):
             ('DodgerBlue', '1E90FF'),
             ('MediumBlue', '0000CD'),
             ('DeepSkyBlue', '00BFFF'),
-            ('Navy', '000080'),
             ('MediumSlateBlue', '7B68EE'),
             ('CornflowerBlue', '6495ED'),
         ],
