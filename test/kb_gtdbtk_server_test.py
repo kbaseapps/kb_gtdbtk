@@ -356,10 +356,10 @@ class kb_gtdbtkTest(unittest.TestCase):
     def test_passalid_errors(self):
         report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, { \
                                                                 'workspace_id': 114952,
-                                                                'input_object_ref': '114952/491/3',
+                                                                'input_object_ref': '114952/487/3',
                                                                 'output_tree_basename': 'GTDB_Tree',
                                                                 'copy_proximals': 0,
-                                                                'save_trees': 0,
+                                                                'save_trees': 1,
                                                                 'full_tree': 0,
                                                                 'keep_intermediates': 1,
                                                                 'overwrite_tax': 0

@@ -73,7 +73,7 @@ def get_obj_name(
     :returns: string with obj type
     '''
     obj_info = clients.ws().get_object_info3({'objects': [{'ref':upa}]})['infos'][0]
-    obj_name = obj_info[NAME_I].split('-')[0]
+    obj_name = obj_info[NAME_I]
     return obj_name
 
 
@@ -135,7 +135,8 @@ def check_obj_type_assembly(
 def get_names_list_from_upas_list (upas_list, clients):
     obj_names_list = []
     for upa in upas_list:
-        obj_names_list.append(get_obj_name(upa,clients))
+        obj_name = get_obj_name(upa,clients)
+        obj_names_list.append(obj_name)
 
     return obj_names_list
 
