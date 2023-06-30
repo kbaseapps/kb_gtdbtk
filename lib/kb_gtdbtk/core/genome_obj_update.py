@@ -495,7 +495,6 @@ def process_tree_files (top_upa,
 
             
     # trim tree files and make tree image files
-    upload_files = []
     files_for_html = []
     for tree_file in tree_files + extra_bac_tree_files:
         in_tree_path = out_dir / tree_file
