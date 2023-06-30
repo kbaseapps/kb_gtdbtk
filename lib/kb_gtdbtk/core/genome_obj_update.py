@@ -486,12 +486,12 @@ def process_tree_files (top_upa,
         if os.path.isfile(in_tree_path):
             itol_tree_path = _format_gtdbtk_tree_to_itol (in_tree_path)
             itol_tree_file = os.path.basename(itol_tree_path)
-            upload_files.append({ 'path': in_tree_path,
-                                  'name': tree_file,
-                                  'description': tree_file+' - whole tree GTDB formatted Newick'})
-            upload_files.append({ 'path': itol_tree_path,
-                                  'name': itol_tree_file,
-                                  'description': itol_tree_file+' - whole tree ITOL formatted Newick'})
+            upload_files.append({ 'path': str(in_tree_path),
+                                  'name': str(tree_file),
+                                  'description': str(tree_file)+' - whole tree GTDB formatted Newick'})
+            upload_files.append({ 'path': str(itol_tree_path),
+                                  'name': str(itol_tree_file),
+                                  'description': str(itol_tree_file)+' - whole tree ITOL formatted Newick'})
 
             
     # trim tree files and make tree image files
@@ -563,9 +563,9 @@ def process_tree_files (top_upa,
     return file_links
 
 
-# get_genome_to_upa_map()
+# get_genome_id_to_upa_map()
 #
-def get_genome_to_upa_map(genome_upas_map_file):
+def get_genome_id_to_upa_map (genome_upas_map_file):
     genome_id_to_upa_map = dict()
     this_file = genome_upas_map_file
     if this_file.lower().endswith('.gz'):
@@ -600,35 +600,50 @@ def  _save_tree_obj_and_copy_genomes(this_tree_path,
     # load tree and get leaf naems and genome ids
     tree = ete3.Tree (this_tree_path, quoted_node_names=True, format=1)
     tree.ladderize()
-    newick_buf = tree.write(features=[])
+    newick_buf = tree.write()
     if not newick_buf.endswith(';'):
         newick_buf += ';'
     leaf_list = []
     genome_ids = []
+    #print ("DEBUGGING TREE GENOMES===============================================")  # DEBUG
     for leaf_name in tree.get_leaf_names():
+        genome_id = leaf_name.split(' ')[0]
         leaf_list.append(leaf_name)
-        genome_ids.append(leaf_name.split(' ')[0])
+        genome_ids.append(genome_id)
+        #print ("TREE LEAF_NAME: '{}'".format(leaf_name))  # DEBUG
+        #print ("TREE GENOME_ID: '{}'".format(genome_id))  # DEBUG
 
     # get query upas
     query_upas = dict()
     top_obj = clients.dfu().get_objects({'object_refs': [top_upa]})['data'][0]
     query_upas_list = get_upas_from_set(top_obj)
+    #print ("UPAS LIST: [{}]".format(" ".join(query_upas_list)))  # DEBUG
     query_names_list = get_names_list_from_upas_list (query_upas_list, clients)
+    #print ("NAMES LIST: [{}]".format(" ".join(query_names_list)))  # DEBUG
     for query_i,query_name in enumerate(query_names_list):
         query_upas[query_name] = query_upas_list[query_i]
     
     # make local copies of genomes
     copied_genome_refs = copy_gtdb_genome_objs (genome_ids, genome_id_to_upa_map, 'GTDB_SP_REP-', workspace_id, clients)
+    # DEBUG
+    #for genome_id in sorted (copied_genome_refs.keys()):
+    #    print ("COPIED GENOME_ID -> REF: {} -> {}".format(genome_id, copied_genome_refs[genome_id]))
     
     ws_refs = dict()
     default_node_labels = dict()
+    #print ("BUILDING TREE OBJ ===================================")  # DEBUG
     for genome_i,genome_id in enumerate(genome_ids):
         leaf_name = leaf_list[genome_i]
+        #print ("GENOME_ID:'{}' LEAF:'{}'".format(genome_id, leaf_name))  # DEBUG
         default_node_labels[leaf_name] = leaf_name
         if genome_id in copied_genome_refs:
             genome_ref = copied_genome_refs[genome_id]
-        else:
+            #print ("COPIED GENOME_ID:'{}' REF:'{}'".format(genome_id, genome_ref))  # DEBUG
+        elif genome_id in query_upas:
             genome_ref = query_upas[genome_id]
+            #print ("QUERY GENOME_ID:'{}' REF:'{}'".format(genome_id, genome_ref))  # DEBUG
+        else:
+            raise ValueError ("missing UPA for genome leaf '{}'".format(leaf_name))
         ws_refs[leaf_name] = dict()
         ws_refs[leaf_name]['g'] = [genome_ref]
     tree_data = { 'name': tree_name,
@@ -664,7 +679,7 @@ def  _save_tree_obj_and_copy_genomes(this_tree_path,
     new_objects_created.append({'ref': output_tree_ref, 'description': tree_short_desc})
 
     # DEBUG
-    print ("SAVED TREE OBJ {} ref: {}".format(obj_name,output_tree_ref))
+    #print ("SAVED TREE OBJ {} ref: {}".format(obj_name,output_tree_ref))
     
     return new_objects_created
 
@@ -682,7 +697,7 @@ def save_gtdb_tree_objs (workspace_id,
     print ("SAVING GTDB TREE OBJECTS")
     
     # get upas by genome id
-    genome_id_to_upa_map = get_genome_to_upa_map(genome_upas_map_file)
+    genome_id_to_upa_map = get_genome_id_to_upa_map (genome_upas_map_file)
 
     # read trees and collect contained genomes
     tree_files = ['gtdbtk.ar53.classify.tree',
@@ -966,7 +981,16 @@ def get_std_lineages (this_classification, gtdb_ver, this_taxon_id):
 def copy_gtdb_genome_objs (genome_ids, genome_id_to_upa_map, new_obj_name_prefix, dst_ws_id, clients):
     genome_refs = dict()
 
+    # DEBUG
+    #print ("READING GENOME IDS in copy_gtdb_genome_objs() ==========================")  # DEBUG
+    for genome_i,genome_id in enumerate(sorted(genome_id_to_upa_map.keys())):
+        if genome_i > 10:
+            break
+        #print ("GENOME_MAP ID -> UPA: '{}' -> '{}'".format(genome_id,genome_id_to_upa_map[genome_id]))
+
+
     for genome_id in genome_ids:
+        #print ("GENOME ID: '{}'".format(genome_id))  # DEBUG
         if genome_id not in genome_id_to_upa_map:
             continue
         src_upa = genome_id_to_upa_map[genome_id]
@@ -1231,7 +1255,7 @@ def copy_gtdb_species_reps (primary_wsid, top_upa, genome_upas_map_file, summary
     new_objects_created = []
 
     # get upas by genome id
-    genome_id_to_upa_map = get_genome_to_upa_map(genome_upas_map_file)
+    genome_id_to_upa_map = get_genome_id_to_upa_map (genome_upas_map_file)
 
     # get query assembly name to genome name mapping
     #  Note: redundant calls: could make global map earlier
