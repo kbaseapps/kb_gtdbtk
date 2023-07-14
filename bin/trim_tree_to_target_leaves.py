@@ -496,10 +496,14 @@ def replace_leaf_id_with_name (tree, taxa, target_leaves, sister_leaves=None):
 
 # add_internal_node_names ()
 #
-def add_internal_node_names (tree, taxa):
+def add_internal_node_names (tree, taxa, target_lineages):
 
     nodes_to_unname = dict()
 
+    # augment taxa with GTDB-Tk Classify defined lineages for queries
+    for short_leaf_name in list(target_lineages.keys()):
+        if short_leaf_name not in taxa:
+            taxa[short_leaf_name] = target_lineages[short_leaf_name].split(';')
 
     # DEBUG
     """
@@ -517,7 +521,8 @@ def add_internal_node_names (tree, taxa):
         if n.is_leaf():
             continue
 
-        # don't name nodes with a query leaf child
+        # don't name nodes without taxonomic lineage
+        #  (note: GTDB-Tk has already given query a lineage)
         if n.name:
             unname_this = False
             for child in n.get_children():
@@ -545,10 +550,15 @@ def add_internal_node_names (tree, taxa):
             common_taxon = None
             for tax_i,taxon_0 in enumerate(taxa[gtdb_defined_leaf_names[0]]):
                 #print ("NODE {} TAXON_0: {} from base leaf {}".format(n.name, taxon_0, gtdb_defined_leaf_names[0])) # DEBUG
+                if len(taxon_0) == 3:
+                    continue
                 level_match = True
                 for leaf_name in gtdb_defined_leaf_names:
                     #print ("NODE {} TAXON: {} from leaf {}".format(n.name, taxa[leaf_name][tax_i], leaf_name)) # DEBUG
-                    if taxa[leaf_name][tax_i] != taxon_0:
+                    if len(taxa[leaf_name][tax_i]) == 3:  # e.g. 'g__'
+                        level_match = False
+                        break
+                    elif taxa[leaf_name][tax_i] != taxon_0:
                         level_match = False
                         break
                 if level_match:
@@ -628,7 +638,7 @@ def main() -> int:
                                                         args.gtdblineageoutfile)
     
     # add internal node names
-    tree = add_internal_node_names (tree, taxa)
+    tree = add_internal_node_names (tree, taxa, target_lineages)
 
     # write tree to file
     write_tree_to_file (tree, args.outtree)    
