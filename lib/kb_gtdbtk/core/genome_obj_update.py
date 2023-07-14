@@ -1374,6 +1374,7 @@ def fix_unowned_shock_handles (obj_type, obj_data, clients):
                     }
 
     for h_field in handle_fields[obj_type]:
+
         if obj_data.get(h_field):
             h_id = obj_data[h_field]
             s_id = clients.hs().hids_to_handles ([h_id])[0]['id']
