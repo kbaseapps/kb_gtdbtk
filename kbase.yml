@@ -11,7 +11,7 @@ module-version:
     1.3.0
 
 owners:
-    [psdehal, donovan_parks, aaronmussig, pchaumeil, gaprice, zcrockett, dylan, tgu2]
+    [dylan, psdehal, donovan_parks, aaronmussig, pchaumeil, gaprice, zcrockett, tgu2]
 
 data-version:
     0.0.9
