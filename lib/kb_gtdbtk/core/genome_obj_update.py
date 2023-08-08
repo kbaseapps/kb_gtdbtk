@@ -556,14 +556,6 @@ def process_tree_files (top_upa,
     with open(new_id_map_path, 'w') as id_map_h:
         id_map_h.write("\n".join(id_map_buf)+"\n")
             
-    """
-    # add sp rep hits too 
-    for sp_rep_id in sorted(all_sp_reps.keys()):
-        id_map_buf.append("\t".join([sp_rep_id,sp_rep_id]))
-    id_map_with_sp_rep_hits_path = os.path.join(out_dir, 'id_to_name-with_proximal_sp_reps.map')
-    with open(id_map_with_sp_rep_hits_path, 'w') as id_map_h:
-        id_map_h.write("\n".join(id_map_buf)+"\n")
-    """
 
     # make itol format files
     for tree_file in tree_files + extra_bac_tree_files:
