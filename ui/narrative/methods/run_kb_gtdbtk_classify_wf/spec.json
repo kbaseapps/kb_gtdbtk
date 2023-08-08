@@ -4,7 +4,7 @@
         "donovan_parks", "aaronmussig", "pchaumeil", "psdehal", "dylan"
     ],
     "contact": "http://www.kbase.us/support/",
-    "categories": ["active", "phylogenetics"],
+    "categories": ["active", "phylogenetics", "comparative_genomics"],
     "widgets": {
         "input": null,
         "output": "no-display"
