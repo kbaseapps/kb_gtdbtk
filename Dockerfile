@@ -34,6 +34,13 @@ RUN git clone https://github.com/marbl/Krona.git && \
     cd Krona/KronaTools/ && \
     ./install.pl
 
+# tree utils install
+WORKDIR /kb/module
+RUN git clone https://github.com/dcchivian/tree_utils.git && \
+    mkdir bin && \
+    mv tree_utils/gtdb/* bin/ && \
+    chmod +x bin/*
+
 # Install ETE3
 RUN apt-get -y install xvfb
 # Note: You must use PyQt5==5.11.3 on debian

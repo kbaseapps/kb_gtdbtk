@@ -364,6 +364,85 @@ def _write_gtdb_tree_html_file (out_dir, files_for_html):
     return tree_html_path
 
 
+# get_sp_rep_hits()
+#
+def get_sp_rep_hits (summary_tables, query_assembly_to_genome_name):
+    sp_reps_by_query = dict()
+    all_sp_reps = dict()
+
+    single_sp_rep_fields = ['fastani_reference', 'closest_placement_reference']
+    multi_sp_rep_field = 'other_related_references(genome_id,species_name,radius,ANI,AF)'
+
+    for summary_file in ['gtdbtk.bac120.summary.tsv', 'gtdbtk.ar53.summary.tsv']:
+        if summary_file not in summary_tables:
+            continue
+        sj = summary_tables[summary_file]
+        for item in sj['data']:
+            # reset id to assembly name
+            # Note: field 'Name' was changed to 'name'
+            #key = 'Name' if 'Name' in item else 'user_genome'
+            if 'name' in item:
+                key = 'name'
+            elif 'user_genome' in item:
+                key = 'user_genome'
+            else:
+                continue
+            #this_assembly_id = item[key].replace('_assembly','')
+            this_assembly_id = item[key]
+            #print ("DEBUG: adding hits for query assembly ID {}".format(this_assembly_id))  # DEBUG
+            this_genome_id = query_assembly_to_genome_name[this_assembly_id]
+            sp_reps_by_query[this_genome_id] = []
+
+            #print ("DEBUG: adding hits for query genome ID {}".format(this_genome_id))  # DEBUG
+            
+            # single value id
+            for sp_rep_f in single_sp_rep_fields:
+                if item.get(sp_rep_f) and item.get(sp_rep_f) != '-':
+                    sp_rep_id = item[sp_rep_f]
+                    all_sp_reps[sp_rep_id] = True
+                    if sp_rep_id not in sp_reps_by_query[this_genome_id]:
+                        sp_reps_by_query[this_genome_id].append(sp_rep_id)
+
+            # multiple hits
+            sp_rep_f = multi_sp_rep_field
+            if item.get(sp_rep_f) and item.get(sp_rep_f) != '-':
+                for sp_rep_hit in item[sp_rep_f].split(';'):
+                    sp_rep_id = sp_rep_hit.split(',')[0]
+                    sp_rep_id = sp_rep_id.strip()
+                    all_sp_reps[sp_rep_id] = True
+                    if sp_rep_id not in sp_reps_by_query[this_genome_id]:
+                        sp_reps_by_query[this_genome_id].append(sp_rep_id)
+
+    return (all_sp_reps, sp_reps_by_query)
+
+
+# get_query_ids_from_tree ()
+#
+def get_query_ids_from_tree (in_tree_path, id_map):
+    query_ids = []
+
+    tree = ete3.Tree (in_tree_path, quoted_node_names=True, format=1)
+
+    for leaf_name in tree.get_leaf_names():
+        if leaf_name.startswith('id'):
+            query_ids.append(id_map[leaf_name])
+            
+    return query_ids
+
+
+# get_sp_reps_for_query_ids ()
+#
+def get_sp_reps_for_query_ids (query_ids, sp_reps_by_query):
+    sp_rep_ids = []
+
+    for genome_name in query_ids:
+        for sp_rep in sp_reps_by_query[genome_name]:
+            if sp_rep not in sp_rep_ids:
+                sp_rep_ids.append(sp_rep)
+                
+    return sp_rep_ids
+
+
 # get_all_leaf_lineages ()
 #
 def get_all_leaf_lineages (lineage_file):
@@ -461,6 +540,7 @@ def process_tree_files (top_upa,
 
     # change id map to genome names
     id_map_buf = []
+    id_map = dict()
     with open(id_map_path, 'r') as id_map_h:
         for line in id_map_h:
             (qid, assembly_name) = line.rstrip().split("\t") 
@@ -470,17 +550,20 @@ def process_tree_files (top_upa,
             this_lineage = '-'
             if assembly_name in classification:
                 this_lineage = classification[assembly_name]
+            id_map[qid] = new_name
             id_map_buf.append("\t".join([qid,new_name,this_lineage]))
     new_id_map_path = str(id_map_path).replace('.map','-genomes.map')
     with open(new_id_map_path, 'w') as id_map_h:
         id_map_h.write("\n".join(id_map_buf)+"\n")
             
+    """
     # add sp rep hits too 
     for sp_rep_id in sorted(all_sp_reps.keys()):
         id_map_buf.append("\t".join([sp_rep_id,sp_rep_id]))
     id_map_with_sp_rep_hits_path = os.path.join(out_dir, 'id_to_name-with_proximal_sp_reps.map')
     with open(id_map_with_sp_rep_hits_path, 'w') as id_map_h:
         id_map_h.write("\n".join(id_map_buf)+"\n")
+    """
 
     # make itol format files
     for tree_file in tree_files + extra_bac_tree_files:
@@ -499,9 +582,22 @@ def process_tree_files (top_upa,
     # trim tree files and make tree image files
     files_for_html = []
     for tree_file in tree_files + extra_bac_tree_files:
-        in_tree_path = out_dir / tree_file
+        in_tree_path = os.path.join (out_dir, tree_file)
         if os.path.isfile(in_tree_path):
 
+
+            # add sp rep hits, separate for each tree so no overlaps without query across trees
+            this_tree_id_map_buf = []
+            this_tree_id_map_buf.extend(id_map_buf)
+            this_tree_query_ids = get_query_ids_from_tree (in_tree_path, id_map)
+            this_tree_sp_rep_ids = get_sp_reps_for_query_ids (this_tree_query_ids, sp_reps_by_query)
+            for sp_rep_id in sorted(this_tree_sp_rep_ids):
+                this_tree_id_map_buf.append("\t".join([sp_rep_id,sp_rep_id]))
+            id_map_with_sp_rep_hits_path = re.sub('.tree$', '.id_to_name-with_proximal_sp_reps.map', str(in_tree_path))
+            with open(id_map_with_sp_rep_hits_path, 'w') as id_map_h:
+                id_map_h.write("\n".join(this_tree_id_map_buf)+"\n")
+
+            
             #new_id_map_with_sp_rep_hits_path = str(in_tree_path).replace('.tree', '.id_to_name-with_all_sp_reps-newleafnames.map')
             new_id_map_with_sp_rep_hits_path = re.sub('.tree$', '.id_to_name-with_proximal_sp_reps-newleafnames.map', str(in_tree_path))
             lineage_path = re.sub('.tree$', '-lineages.map', str(in_tree_path))
@@ -1137,58 +1233,6 @@ def update_and_save_assemblyset (primary_wsid, assemblyset_obj, updated_assembly
           }]})[0]
     new_ref = upa_from_info(updated_obj_info)
     return new_ref
-
-
-# get_sp_rep_hits()
-#
-def get_sp_rep_hits (summary_tables, query_assembly_to_genome_name):
-    sp_reps_by_query = dict()
-    all_sp_reps = dict()
-
-    single_sp_rep_fields = ['fastani_reference', 'closest_placement_reference']
-    multi_sp_rep_field = 'other_related_references(genome_id,species_name,radius,ANI,AF)'
-
-    for summary_file in ['gtdbtk.bac120.summary.tsv', 'gtdbtk.ar53.summary.tsv']:
-        if summary_file not in summary_tables:
-            continue
-        sj = summary_tables[summary_file]
-        for item in sj['data']:
-            # reset id to assembly name
-            # Note: field 'Name' was changed to 'name'
-            #key = 'Name' if 'Name' in item else 'user_genome'
-            if 'name' in item:
-                key = 'name'
-            elif 'user_genome' in item:
-                key = 'user_genome'
-            else:
-                continue
-            #this_assembly_id = item[key].replace('_assembly','')
-            this_assembly_id = item[key]
-            #print ("DEBUG: adding hits for query assembly ID {}".format(this_assembly_id))  # DEBUG
-            this_genome_id = query_assembly_to_genome_name[this_assembly_id]
-            sp_reps_by_query[this_genome_id] = []
-
-            #print ("DEBUG: adding hits for query genome ID {}".format(this_genome_id))  # DEBUG
-            
-            # single value id
-            for sp_rep_f in single_sp_rep_fields:
-                if item.get(sp_rep_f) and item.get(sp_rep_f) != '-':
-                    sp_rep_id = item[sp_rep_f]
-                    all_sp_reps[sp_rep_id] = True
-                    if sp_rep_id not in sp_reps_by_query[this_genome_id]:
-                        sp_reps_by_query[this_genome_id].append(sp_rep_id)
-
-            # multiple hits
-            sp_rep_f = multi_sp_rep_field
-            if item.get(sp_rep_f) and item.get(sp_rep_f) != '-':
-                for sp_rep_hit in item[sp_rep_f].split(';'):
-                    sp_rep_id = sp_rep_hit.split(',')[0]
-                    sp_rep_id = sp_rep_id.strip()
-                    all_sp_reps[sp_rep_id] = True
-                    if sp_rep_id not in sp_reps_by_query[this_genome_id]:
-                        sp_reps_by_query[this_genome_id].append(sp_rep_id)
-
-    return (all_sp_reps, sp_reps_by_query)
 
 
 # get_upas_from_set()
