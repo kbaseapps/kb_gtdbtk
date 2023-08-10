@@ -41,7 +41,7 @@ RUN pip install ete3==3.1.3 PyQt5==5.11.3
 
 # tree utils install
 WORKDIR /kb/module
-RUN git clone https://github.com/dcchivian/tree_utils.git && \
+RUN git clone https://github.com/dcchivian/tree_utils && \
     mkdir bin && \
     mv tree_utils/gtdb/* bin/ && \
     chmod +x bin/*
