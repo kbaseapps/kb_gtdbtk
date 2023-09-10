@@ -521,6 +521,7 @@ def process_tree_files (top_upa,
                         out_dir,
                         summary_tables,
                         classification,
+                        dendrogram_report,
                         clients):
     upload_files = []
     file_links = []
@@ -626,8 +627,12 @@ def process_tree_files (top_upa,
                                           'description': trimmed_tree_file+' - Image'
                                         })
 
-                    if '-trimmed.tree-circle.PNG' in trimmed_tree_image_file:
-                        taxon_colors_path = str(trimmed_tree_image_path).replace('-circle.PNG','-taxon_colors.map')
+                    html_tree_target = '-circle.PNG'
+                    if dendrogram_report:
+                        html_tree_target = '-circle-ultrametric.PNG'
+                        
+                    if '-trimmed.tree'+html_tree_target in trimmed_tree_image_file:
+                        taxon_colors_path = str(trimmed_tree_image_path).replace(html_tree_target,'-taxon_colors.map')
                         files_for_html.append({'newick_path': trimmed_tree_path,
                                                'png_file': trimmed_tree_image_file,
                                                'taxon_colors_path': taxon_colors_path,

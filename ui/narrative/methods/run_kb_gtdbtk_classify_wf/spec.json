@@ -168,6 +168,30 @@
                     }
                 ]
             }
+        },	
+        {
+            "id": "dendrogram_report",
+            "optional": true,
+            "advanced": false,
+            "allow_multiple": false,
+            "default_values": [ 1 ],
+            "field_type": "dropdown",
+            "dropdown_options": {
+                "options": [
+                    {
+                        "value": 0,
+                        "display": "Use evolutionary distance branch lengths",
+                        "id": "dendrogram_report-NO",
+                        "ui-name": "dendrogram_report-NO"
+                    },
+                    {
+                        "value": 1,
+                        "display": "Use uniform branch lengths (dendrogram)",
+                        "id": "dendrogram_report-YES",
+                        "ui-name": "dendrogram_report-YES"
+                    }
+                ]
+            }
         }	
     ],
     "behavior": {

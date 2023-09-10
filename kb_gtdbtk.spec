@@ -26,6 +26,7 @@ module kb_gtdbtk {
 	bool full_tree;
 	bool keep_intermediates;
 	bool overwrite_tax;
+	bool dendrogram_report;
     } GTDBtk_Classify_Params;
 
     

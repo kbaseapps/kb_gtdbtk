@@ -66,6 +66,11 @@ parameters :
             Overwrite Taxonomy (for genomes)
         short-hint : |
             If input is a GenomeSet that already has taxonomy defined, then overwrite Genome objects with GTDB classification
+    dendrogram_report :
+        ui-name : |
+            Dendrogram Trees in Report
+        short-hint : |
+            Show Trees as dendrogram instead of evolutionary distance-based branch lengths
 
 
 description : |

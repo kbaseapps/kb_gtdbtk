@@ -37,6 +37,9 @@ class GTDBTKParams(_NamedTuple):
     overwrite_tax: int
     ''' Boolean overwrite an existing Taxonomy field in input Genome. '''
 
+    dendrogram_report: int
+    ''' Boolean use ultrametric tree in html report. '''
+
 
 def get_gtdbtk_params(input_params: Dict[str, object]) -> GTDBTKParams:
     '''
@@ -94,6 +97,10 @@ def get_gtdbtk_params(input_params: Dict[str, object]) -> GTDBTKParams:
     if type(overwrite_tax) != int or (overwrite_tax != 0 and overwrite_tax != 1):
         raise ValueError('overwrite_tax is required and must be an integer [0,1]')
 
+    dendrogram_report = int(input_params.get('dendrogram_report', 0))
+    if type(dendrogram_report) != int or (dendrogram_report != 0 and dendrogram_report != 1):
+        raise ValueError('dendrogram_report is required and must be an integer [0,1]')
+
     
     return GTDBTKParams(_cast(str, ref),
                         _cast(int, wsid),
@@ -103,4 +110,5 @@ def get_gtdbtk_params(input_params: Dict[str, object]) -> GTDBTKParams:
                         _cast(float, min_perc_aa) * 1.0,
                         _cast(int, full_tree),
                         _cast(int, keep_intermediates),
-                        _cast(int, overwrite_tax))
+                        _cast(int, overwrite_tax),
+                        _cast(int, dendrogram_report))

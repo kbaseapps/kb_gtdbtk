@@ -36,7 +36,7 @@ class kb_gtdbtk:
     ######################################### noqa
     VERSION = "1.3.0"
     GIT_URL = "https://github.com/kbaseapps/kb_gtdbtk"
-    GIT_COMMIT_HASH = "f0c27448944d2680355be70f5fa822bba90cbfb3"
+    GIT_COMMIT_HASH = "64cbce798116c8013f18d26ca5976caa012fcab3"
 
     #BEGIN_CLASS_HEADER
 
@@ -93,7 +93,8 @@ class kb_gtdbtk:
            type "bool", parameter "save_trees" of type "bool", parameter
            "min_perc_aa" of Double, parameter "full_tree" of type "bool",
            parameter "keep_intermediates" of type "bool", parameter
-           "overwrite_tax" of type "bool"
+           "overwrite_tax" of type "bool", parameter "dendrogram_report" of
+           type "bool"
         :returns: instance of type "ReportResults" (The results of the
            GTDB-tk run. report_name: The name of the report object in the
            workspace. report_ref: The UPA of the report object, e.g.
@@ -128,7 +129,8 @@ class kb_gtdbtk:
            type "bool", parameter "save_trees" of type "bool", parameter
            "min_perc_aa" of Double, parameter "full_tree" of type "bool",
            parameter "keep_intermediates" of type "bool", parameter
-           "overwrite_tax" of type "bool"
+           "overwrite_tax" of type "bool", parameter "dendrogram_report" of
+           type "bool"
         :returns: instance of type "ReportResults" (The results of the
            GTDB-tk run. report_name: The name of the report object in the
            workspace. report_ref: The UPA of the report object, e.g.
@@ -218,6 +220,7 @@ class kb_gtdbtk:
                                          output_path,
                                          summary_tables,
                                          classification,
+                                         params.dendrogram_report,
                                          cli)
 
 
