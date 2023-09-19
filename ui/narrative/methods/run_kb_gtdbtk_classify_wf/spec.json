@@ -228,6 +228,9 @@
                 },{
                     "input_parameter": "overwrite_tax",
                     "target_property": "overwrite_tax"
+                },{
+                    "input_parameter": "dendrogram_report",
+                    "target_property": "dendrogram_report"
                 }
             ],
             "output_mapping": [
