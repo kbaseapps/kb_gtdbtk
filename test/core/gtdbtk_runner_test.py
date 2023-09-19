@@ -102,6 +102,7 @@ def test_gtdbtk_run():
             'gtdbtk.bac120.markers_summary.tsv.json',
             'gtdbtk.bac120.summary.tsv',
             'gtdbtk.bac120.summary.tsv.json',
+            'id_to_name.map',
             'runtime_output'
         ]
 

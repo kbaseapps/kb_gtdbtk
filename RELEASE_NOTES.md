@@ -1,6 +1,14 @@
 # kb_gtdbtk release notes
 =========================
 
+1.3.0
+_____
+* copy GTDB species rep genome and assembly objects to local workspace
+* trim GTDB tree to query genomes, proximal genomes, and one rep per sister branch
+* made trees and images available as file link downloads
+* added tree images to HTML report
+* added lineage file download
+
 1.2.4
 _____
 * save all updated objects to calling workspace

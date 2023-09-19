@@ -24,6 +24,10 @@ from installed_clients.AbstractHandleClient import AbstractHandle
 # TODO add tests for copy of a copy
 # TODO add a few failing case tests (most covered by unit tests)
 
+# !!!!!!!!!
+# NOTE: tests with genome query inputs requires running on PROD where GTDB workspaces are
+
+
 WORKDIR = '/kb/module/work/tmp/'
 
 
@@ -110,6 +114,7 @@ class kb_gtdbtkTest(unittest.TestCase):
         tempdir = cls.scratch / 'tempstuff'
         tempdir.mkdir(parents=True, exist_ok=True)
 
+
         # single bacterial assembly
         this_filename = 'Rhodo_contigs.fa.gz'
         single_assyfile = tempdir / this_filename
@@ -147,6 +152,7 @@ class kb_gtdbtkTest(unittest.TestCase):
                 }
             ]})[0]
         cls.binned_contigs = cls.ref_from_info(bin_obj_info)
+        
         
         # 3 archaeal assemblies and genomes, assembly set and genome set
         cls.arch_genomes = []
@@ -218,14 +224,20 @@ class kb_gtdbtkTest(unittest.TestCase):
     ##############
         
     # test bacterial assembly input against order-level subtrees (takes about 1 hr)
+    #  Note: single assembly not available from narrative sidget, only direct call by power user
+    #
     # HIDE @unittest.skip("skipped test_classify_wf_assembly()")  # uncomment to skip
     def test_classify_wf_assembly(self):
         report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, { \
                                                                 'workspace_id': self.wsid,
                                                                 'input_object_ref': self.single_assy,
+                                                                'output_tree_basename': 'GTDB_Tree',
+                                                                'copy_proximals': 0,
+                                                                'save_trees': 0,
                                                                 'full_tree': 0,
                                                                 'keep_intermediates': 0,
-                                                                'overwrite_tax': 0
+                                                                'dendrogram_report': 0
+                                                                        
                                                             })[0]
         assert self.isUpa (report['report_ref'])
 
@@ -246,71 +258,119 @@ class kb_gtdbtkTest(unittest.TestCase):
 
     # test binnedcontigs input with full tree (takes about 1 hr)
     # NOT ABLE TO RUN ON DEV1.  Too much memory required.  Need to shrink number of bins
+    #
     # SKIP THIS!!!
     @unittest.skip("skipped test_classify_wf_binnedcontigs_fulltree()")  # uncomment to skip
     def test_classify_wf_binnedcontigs_fulltree(self):
         report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, { \
                                                                 'workspace_id': self.wsid,
                                                                 'input_object_ref': self.binned_contigs,
+                                                                'output_tree_basename': 'GTDB_Tree',
+                                                                'copy_proximals': 0,
+                                                                'save_trees': 0,
                                                                 'full_tree': 1,
                                                                 'keep_intermediates': 0,
-                                                                'overwrite_tax': 0
+                                                                'overwrite_tax': 0,
+                                                                'dendrogram_report': 1
                                                             })[0]
         # TODO: after shrinking data to fit on dev1, test report content
         assert self.isUpa (report['report_ref'])
         
 
     # test binnedcontigs input with order-level subtrees (takes about 1 hr)
+    #
     # HIDE @unittest.skip("skipped test_classify_wf_binnedcontigs_subtrees()")  # uncomment to skip
     def test_classify_wf_binnedcontigs_subtrees(self):
         report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, { \
                                                                 'workspace_id': self.wsid,
                                                                 'input_object_ref': self.binned_contigs,
+                                                                'output_tree_basename': 'GTDB_Tree',
+                                                                'copy_proximals': 0,
+                                                                'save_trees': 0,
                                                                 'full_tree': 0,
                                                                 'keep_intermediates': 0,
-                                                                'overwrite_tax': 0
+                                                                'overwrite_tax': 0,
+                                                                'dendrogram_report': 1
                                                             })[0]
         # TODO: after shrinking data to fit on dev1, test report content
         assert self.isUpa (report['report_ref'])
         
 
     # test archaeal assemblySet input (takes a few minutes)
+    #
     # HIDE @unittest.skip("skipped test_classify_wf_assemblyset()")  # uncomment to skip
     def test_classify_wf_assemblyset(self):
         report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, { \
                                                                 'workspace_id': self.wsid,
                                                                 'input_object_ref': self.arch_assemblySet,
+                                                                'output_tree_basename': 'GTDB_Tree',
+                                                                'copy_proximals': 0,
+                                                                'save_trees': 0,
                                                                 'full_tree': 0,
                                                                 'keep_intermediates': 1,
-                                                                'overwrite_tax': 1
+                                                                'overwrite_tax': 1,
+                                                                'dendrogram_report': 0
                                                             })[0]
         # TODO: test report content
         assert self.isUpa (report['report_ref'])
         
 
     # test archaeal genome input (takes a few minutes)
+    #  Note; single genome not available from narrative sidget, only direct call by power user
+    #
     # HIDE @unittest.skip("skipped test_classify_wf_genome()")  # uncomment to skip
     def test_classify_wf_genome(self):
         report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, { \
                                                                 'workspace_id': self.wsid,
                                                                 'input_object_ref': self.arch_genomes[0],
+                                                                'output_tree_basename': 'GTDB_Tree',
+                                                                'copy_proximals': 0,
+                                                                'save_trees': 0,
                                                                 'full_tree': 0,
                                                                 'keep_intermediates': 1,
-                                                                'overwrite_tax': 0
+                                                                'overwrite_tax': 0,
+                                                                'dendrogram_report': 0
                                                             })[0]
         # TODO: test report content
         assert self.isUpa (report['report_ref'])
 
         
     # test archaeal genomeSet input (takes a few minutes)
+    #  Note: this is where we test copy_proximals and save_trees!!!
+    #
     # HIDE @unittest.skip("skipped test_classify_wf_genomeset()")  # uncomment to skip
     def test_classify_wf_genomeset(self):
         report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, { \
                                                                 'workspace_id': self.wsid,
                                                                 'input_object_ref': self.arch_genomeSet,
-                                                                'full_tree': 1,
+                                                                'output_tree_basename': 'GTDB_Tree',
+                                                                'copy_proximals': 1,
+                                                                'save_trees': 1,
+                                                                'full_tree': 0,
                                                                 'keep_intermediates': 1,
-                                                                'overwrite_tax': '1'
+                                                                'overwrite_tax': '1',
+                                                                'dendrogram_report': 0
+                                                            })[0]
+        # TODO: test report content
+        assert self.isUpa (report['report_ref'])
+
+
+    # test passalid error
+    #
+    # Note: This must be run as user 'dylan'
+    # SKIP THIS!!!
+    @unittest.skip("skipped test_classify_wf_genomeset()")  # uncomment to skip
+    def test_passalid_errors(self):
+        report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, { \
+                                                                'workspace_id': 114952,
+                                                                'input_object_ref': '114952/487/3',
+                                                                'output_tree_basename': 'GTDB_Tree',
+                                                                'copy_proximals': 0,
+                                                                'save_trees': 1,
+                                                                'full_tree': 0,
+                                                                'keep_intermediates': 1,
+                                                                'overwrite_tax': 0,
+                                                                'dendrogram_report': 0
                                                             })[0]
         # TODO: test report content
         assert self.isUpa (report['report_ref'])

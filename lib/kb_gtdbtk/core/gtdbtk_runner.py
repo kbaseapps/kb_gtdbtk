@@ -21,7 +21,7 @@ def now_ISOish():
     #now_timestamp_in_iso = datetime.fromtimestamp(int(now_secs_from_epoch)).strftime('%Y-%m-%d_%T')
     now_timestamp_in_isoish = datetime.fromtimestamp(int(now_secs_from_epoch)).strftime('%Y%m%d_%H%M%S')
     return now_timestamp_in_isoish
-    
+
 
 # main func
 def run_gtdbtk(
@@ -91,15 +91,16 @@ def run_gtdbtk(
     
     logging.info('Starting Command:\n' + ' '.join(gtdbtk_cmd))
     gtdbtk_runner(gtdbtk_cmd)
-    classification = _process_output_files(temp_output, output_dir, id_to_name)
 
-    return classification
+    return _process_output_files(temp_output, output_dir, id_to_name)
     
 
 def _process_output_files(temp_output, out_dir, id_to_name):
 
     classification = dict()
-
+    summary_tables = dict()
+    trimmed_tree_files = dict()
+    
     # copy over all created output
     """
     for file_ in os.listdir (temp_output):
@@ -113,27 +114,45 @@ def _process_output_files(temp_output, out_dir, id_to_name):
     if os.path.isdir(sub_out_dir):  # only occurs during unit tests
         rmtree(sub_out_dir)
     copytree(temp_output, sub_out_dir, symlinks=True)
+
+    # save id to name mapping as a file
+    id_map_buf = []
+    for id_ in sorted(id_to_name.keys()):
+        id_map_buf.append("\t".join([id_,id_to_name[id_]]))
+    id_map_path = os.path.join(out_dir, 'id_to_name.map')
+    with open (id_map_path, 'w') as file_h:
+        file_h.write("\n".join(id_map_buf)+"\n")
     
     # make json files for html tables
+    tree_files = ['gtdbtk.ar53.classify.tree',
+                  'gtdbtk.bac120.classify.tree']
+    bb_tree_file = ['gtdbtk.backbone.bac120.classify.tree']
+
+    base_files = ['gtdbtk.ar53.summary.tsv',
+                  'gtdbtk.bac120.summary.tsv',
+                  'gtdbtk.ar53.markers_summary.tsv',
+                  'gtdbtk.bac120.markers_summary.tsv']
     file_folder = {'gtdbtk.ar53.summary.tsv': 'classify',
                    'gtdbtk.bac120.summary.tsv': 'classify',
                    'gtdbtk.ar53.markers_summary.tsv': 'identify',
                    'gtdbtk.bac120.markers_summary.tsv': 'identify',
                    'gtdbtk.ar53.classify.tree': 'classify',
-                   'gtdbtk.bac120.classify.tree': 'classify'
+                   'gtdbtk.bac120.classify.tree': 'classify',
+                   'gtdbtk.backbone.bac120.classify.tree': 'classify'
                   }
-    for file_ in ('gtdbtk.ar53.summary.tsv',
-                  'gtdbtk.bac120.summary.tsv',
-                  'gtdbtk.ar53.markers_summary.tsv',
-                  'gtdbtk.bac120.markers_summary.tsv',
-                  'gtdbtk.ar53.classify.tree',
-                  'gtdbtk.bac120.classify.tree'
+    extra_bac_tree_files = []
+    for i in range(10000):
+        subtree_file = 'gtdbtk.bac120.classify.tree.'+str(i)+'.tree'
+        extra_bac_tree_files.append(subtree_file)
+        file_folder[subtree_file] = 'classify'
+
+    for file_ in tree_files + bb_tree_file + base_files + extra_bac_tree_files:
                   # skip filtered for now, unused
                   # 'gtdbtk.filtered.tsv'
-                  ):
         tmppath = temp_output / file_folder[file_] / file_
         if not tmppath.is_file():
-            logging.info('No such file, skipping: ' + str(tmppath))
+            #logging.info('No such file, skipping: ' + str(tmppath))
+            continue
         else:
             path = out_dir / file_
             copyfile(tmppath, path)
@@ -173,4 +192,7 @@ def _process_output_files(temp_output, out_dir, id_to_name):
             with open(outfile, 'w') as out:
                 out.write(json.dumps(sj))
 
-    return classification
+            # return rest of summary table data
+            summary_tables[file_] = sj
+
+    return (classification, summary_tables)

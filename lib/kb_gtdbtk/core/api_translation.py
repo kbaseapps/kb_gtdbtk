@@ -16,17 +16,29 @@ class GTDBTKParams(_NamedTuple):
     workspace_id: int
     ''' The ID of the KBase workspace where the report should be saved. '''
 
+    output_tree_basename: str
+    ''' The basename of the output KBase Tree objects. '''
+
+    copy_proximals: int
+    ''' Boolean copy proximal hit GTDB genome objects '''
+    
+    save_trees: int
+    ''' Boolean save trees as objects and copy GTDB sp rep genomes in trees '''
+    
     min_perc_aa: float
     ''' The mimimum sequence alignment in percent. '''
 
     full_tree: int
-    ''' Boolean use full tree or order-level subtrees '''
+    ''' Boolean use full tree or class-level subtrees '''
     
     keep_intermediates: int
     ''' Boolean retain intermediate files in classify_wf '''
     
     overwrite_tax: int
     ''' Boolean overwrite an existing Taxonomy field in input Genome. '''
+
+    dendrogram_report: int
+    ''' Boolean use ultrametric tree in html report. '''
 
 
 def get_gtdbtk_params(input_params: Dict[str, object]) -> GTDBTKParams:
@@ -55,10 +67,23 @@ def get_gtdbtk_params(input_params: Dict[str, object]) -> GTDBTKParams:
         raise ValueError('input_object_ref is required and must be a string')
     # could check ref format, but the ws will do that for us. YAGNI.
 
+    output_tree_basename = input_params.get('output_tree_basename')
+    if type(output_tree_basename) != str:
+        raise ValueError('output_tree_basename is required and must be a string')
+
+    copy_proximals = int(input_params.get('copy_proximals', 0))
+    if type(copy_proximals) != int or (copy_proximals != 0 and copy_proximals != 1):
+        raise ValueError('copy_proximals is required and must be an integer [0,1]')
+    
+    save_trees = int(input_params.get('save_trees', 0))
+    if type(save_trees) != int or (save_trees != 0 and save_trees != 1):
+        raise ValueError('save_trees is required and must be an integer [0,1]')
+    
     min_perc_aa = input_params.get('min_perc_aa', 10)
     if type(min_perc_aa) != float and type(min_perc_aa) != int:
         raise ValueError('min_perc_aa must be a float')
-    # TODO check 0 <= min_perc_aa <= 1
+    elif min_perc_aa < 0 or min_perc_aa > 100:
+        raise ValueError('min_perc_aa must be a float [0,100]')
 
     full_tree = int(input_params.get('full_tree', 0))
     if type(full_tree) != int or (full_tree != 0 and full_tree != 1):
@@ -72,10 +97,18 @@ def get_gtdbtk_params(input_params: Dict[str, object]) -> GTDBTKParams:
     if type(overwrite_tax) != int or (overwrite_tax != 0 and overwrite_tax != 1):
         raise ValueError('overwrite_tax is required and must be an integer [0,1]')
 
+    dendrogram_report = int(input_params.get('dendrogram_report', 0))
+    if type(dendrogram_report) != int or (dendrogram_report != 0 and dendrogram_report != 1):
+        raise ValueError('dendrogram_report is required and must be an integer [0,1]')
+
     
     return GTDBTKParams(_cast(str, ref),
                         _cast(int, wsid),
+                        _cast(str, output_tree_basename),
+                        _cast(int, copy_proximals),
+                        _cast(int, save_trees),
                         _cast(float, min_perc_aa) * 1.0,
                         _cast(int, full_tree),
                         _cast(int, keep_intermediates),
-                        _cast(int, overwrite_tax))
+                        _cast(int, overwrite_tax),
+                        _cast(int, dendrogram_report))
