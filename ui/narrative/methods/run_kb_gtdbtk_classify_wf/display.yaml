@@ -96,16 +96,16 @@ description : |
     <h4>GTDB Species Tree Tab</h4>
     
     <p><b><i>dendrogram / ultrametric tree</i></b><br>
-    <img src="https://raw.githubusercontent.com/kbaseapps/kb_gtdbtk/dylan_20230607/ui/narrative/methods/run_kb_gtdbtk_classify_wf/img/gtdbtk.ar53.classify-trimmed.tree-circle-ultrametric.png"></p>
+    <img height=200 src="https://raw.githubusercontent.com/kbaseapps/kb_gtdbtk/dylan_20230607/ui/narrative/methods/run_kb_gtdbtk_classify_wf/img/gtdbtk.ar53.classify-trimmed.tree-circle-ultrametric.png"></p>
 
     <p><b><i>phylogenetic tree</i></b><br>
-    <img src="https://raw.githubusercontent.com/kbaseapps/kb_gtdbtk/dylan_20230607/ui/narrative/methods/run_kb_gtdbtk_classify_wf/img/gtdbtk.ar53.classify-trimmed.tree-circle.png"></p>
+    <img height=200 src="https://raw.githubusercontent.com/kbaseapps/kb_gtdbtk/dylan_20230607/ui/narrative/methods/run_kb_gtdbtk_classify_wf/img/gtdbtk.ar53.classify-trimmed.tree-circle.png"></p>
 
     <p><b><i>rectangular tree</i></b><br>
-    <img src="https://raw.githubusercontent.com/kbaseapps/kb_gtdbtk/dylan_20230607/ui/narrative/methods/run_kb_gtdbtk_classify_wf/img/gtdbtk.ar53.classify-trimmed.tree-rectangle.png"></p>
+    <img height=200 src="https://raw.githubusercontent.com/kbaseapps/kb_gtdbtk/dylan_20230607/ui/narrative/methods/run_kb_gtdbtk_classify_wf/img/gtdbtk.ar53.classify-trimmed.tree-rectangle.png"></p>
 
     <p><b><i>bacterial trees</i></b><br>
-    <img src="https://raw.githubusercontent.com/kbaseapps/kb_gtdbtk/dylan_20230607/ui/narrative/methods/run_kb_gtdbtk_classify_wf/img/gtdbtk.ar53.classify-trimmed.tree-circle-ultrametric.png"></p>
+    <img height=200 src="https://raw.githubusercontent.com/kbaseapps/kb_gtdbtk/dylan_20230607/ui/narrative/methods/run_kb_gtdbtk_classify_wf/img/gtdbtk.ar53.classify-trimmed.tree-circle-ultrametric.png"></p>
 
 
     <h4>Genome objects</h4>
@@ -116,21 +116,21 @@ description : |
 
 
     <h4>Krona Plot Tab</h4>
-    <img src="https://raw.githubusercontent.com/kbaseapps/kb_gtdbtk/dylan_20230607/ui/narrative/methods/run_kb_gtdbtk_classify_wf/img/GTDB_Krona.png">
+    <img height=200 src="https://raw.githubusercontent.com/kbaseapps/kb_gtdbtk/dylan_20230607/ui/narrative/methods/run_kb_gtdbtk_classify_wf/img/GTDB_Krona.png">
 
 
     <h4>Bacteria and Archaea Classification Tabs</h4>
-    <img src="https://raw.githubusercontent.com/kbaseapps/kb_gtdbtk/dylan_20230607/ui/narrative/methods/run_kb_gtdbtk_classify_wf/img/GTDB_Classification-1.png">
+    <img height=200 src="https://raw.githubusercontent.com/kbaseapps/kb_gtdbtk/dylan_20230607/ui/narrative/methods/run_kb_gtdbtk_classify_wf/img/GTDB_Classification-1.png">
     <p>
-    <img src="https://raw.githubusercontent.com/kbaseapps/kb_gtdbtk/dylan_20230607/ui/narrative/methods/run_kb_gtdbtk_classify_wf/img/GTDB_Classification-2.png">
+    <img height=200 src="https://raw.githubusercontent.com/kbaseapps/kb_gtdbtk/dylan_20230607/ui/narrative/methods/run_kb_gtdbtk_classify_wf/img/GTDB_Classification-2.png">
 
 
     <h4>Bacteria and Archaea Marker Gene Tabs</h4>
-    <img src="https://raw.githubusercontent.com/kbaseapps/kb_gtdbtk/dylan_20230607/ui/narrative/methods/run_kb_gtdbtk_classify_wf/img/GTDB_Marker_gene_summary.png">
+    <img height=200 src="https://raw.githubusercontent.com/kbaseapps/kb_gtdbtk/dylan_20230607/ui/narrative/methods/run_kb_gtdbtk_classify_wf/img/GTDB_Marker_gene_summary.png">
 
 
     <h4>Downloadable Files</h4>
-    <img src="https://raw.githubusercontent.com/kbaseapps/kb_gtdbtk/dylan_20230607/ui/narrative/methods/run_kb_gtdbtk_classify_wf/img/GTDB_Download_files.png">
+    <img height=200 src="https://raw.githubusercontent.com/kbaseapps/kb_gtdbtk/dylan_20230607/ui/narrative/methods/run_kb_gtdbtk_classify_wf/img/GTDB_Download_files.png">
     
 
     <p><hr></p>
