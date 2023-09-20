@@ -34,9 +34,9 @@ class kb_gtdbtk:
     # state. A method could easily clobber the state set by another while
     # the latter method is running.
     ######################################### noqa
-    VERSION = "1.3.0"
+    VERSION = "1.4.0"
     GIT_URL = "https://github.com/kbaseapps/kb_gtdbtk"
-    GIT_COMMIT_HASH = "64cbce798116c8013f18d26ca5976caa012fcab3"
+    GIT_COMMIT_HASH = "a71549cce5702086bd9cdcdbc8acd8282d8ee413"
 
     #BEGIN_CLASS_HEADER
 
@@ -91,10 +91,9 @@ class kb_gtdbtk:
            Long, parameter "input_object_ref" of String, parameter
            "output_tree_basename" of String, parameter "copy_proximals" of
            type "bool", parameter "save_trees" of type "bool", parameter
-           "min_perc_aa" of Double, parameter "full_tree" of type "bool",
-           parameter "keep_intermediates" of type "bool", parameter
-           "overwrite_tax" of type "bool", parameter "dendrogram_report" of
-           type "bool"
+           "min_perc_aa" of Double, parameter "db_ver" of Long, parameter
+           "keep_intermediates" of type "bool", parameter "overwrite_tax" of
+           type "bool", parameter "dendrogram_report" of type "bool"
         :returns: instance of type "ReportResults" (The results of the
            GTDB-tk run. report_name: The name of the report object in the
            workspace. report_ref: The UPA of the report object, e.g.
@@ -127,10 +126,9 @@ class kb_gtdbtk:
            Long, parameter "input_object_ref" of String, parameter
            "output_tree_basename" of String, parameter "copy_proximals" of
            type "bool", parameter "save_trees" of type "bool", parameter
-           "min_perc_aa" of Double, parameter "full_tree" of type "bool",
-           parameter "keep_intermediates" of type "bool", parameter
-           "overwrite_tax" of type "bool", parameter "dendrogram_report" of
-           type "bool"
+           "min_perc_aa" of Double, parameter "db_ver" of Long, parameter
+           "keep_intermediates" of type "bool", parameter "overwrite_tax" of
+           type "bool", parameter "dendrogram_report" of type "bool"
         :returns: instance of type "ReportResults" (The results of the
            GTDB-tk run. report_name: The name of the report object in the
            workspace. report_ref: The UPA of the report object, e.g.
@@ -180,7 +178,7 @@ class kb_gtdbtk:
                                                        output_path,
                                                        temp_output,
                                                        params.min_perc_aa,
-                                                       params.full_tree,
+                                                       params.db_ver,
                                                        params.keep_intermediates,
                                                        self.cpus)
 

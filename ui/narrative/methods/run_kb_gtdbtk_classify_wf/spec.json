@@ -98,6 +98,30 @@
             }
         },
         {
+            "id": "db_ver",
+            "optional": false,
+            "advanced": true,
+            "allow_multiple": false,
+            "default_values": [ 214 ],
+            "field_type": "dropdown",
+            "dropdown_options": {
+                "options": [
+                    {
+                        "value": 207,
+                        "display": "r207",
+                        "id": "db_ver-207",
+                        "ui-name": "db_ver-207"
+                    },
+                    {
+                        "value": 214,
+                        "display": "r214",
+                        "id": "db_ver-214",
+                        "ui-name": "db_ver-214"
+                    }
+                ]
+            }
+        },	
+        {
             "id": "keep_intermediates",
             "optional": true,
             "advanced": true,
@@ -195,6 +219,9 @@
                 },{
                     "input_parameter": "min_perc_aa",
                     "target_property": "min_perc_aa"
+                },{
+                    "input_parameter": "db_ver",
+                    "target_property": "db_ver"
                 },{
                     "input_parameter": "keep_intermediates",
                     "target_property": "keep_intermediates"

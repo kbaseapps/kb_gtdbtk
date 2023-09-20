@@ -30,7 +30,7 @@ def run_gtdbtk(
         output_dir: Path,
         temp_dir: Path,
         min_perc_aa: float,
-        full_tree: int,
+        db_ver: int,
         keep_intermediates: int,
         cpus: int) -> None:
     '''
@@ -84,11 +84,12 @@ def run_gtdbtk(
         '--batchfile', tf.name,
         '--cpus', str(cpus),
         '--min_perc_aa', str(min_perc_aa)]
-    if full_tree == 1:
-        gtdbtk_cmd += ['--full_tree']
     if keep_intermediates == 1:
         gtdbtk_cmd += ['--keep_intermediates']
-    
+
+    # set refdata location
+    os.environ['GTDBTK_DATA_PATH'] = '/data/'+'r'+str(db_ver)
+        
     logging.info('Starting Command:\n' + ' '.join(gtdbtk_cmd))
     gtdbtk_runner(gtdbtk_cmd)
 

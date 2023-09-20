@@ -51,6 +51,11 @@ parameters :
             Save Trees (for genomes)
         short-hint : |
             Save all trimmed GTDB trees as KBase objects.  Does not save full tree with all leaves, just what is displayed in report.  Copies over genome objects in trees.
+    db_ver :
+        ui-name : |
+            GTDB version
+        short-hint : |
+            Use taxonomy and reference data from GTDB release 207 or 214
     keep_intermediates :
         ui-name : |
             Keep Intermediate Files
