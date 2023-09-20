@@ -202,8 +202,7 @@ def _trim_tree (in_tree_path, leaflist_file, leaflist_outfile, lineage_outfile, 
                 '--leaflist', str(leaflist_file),
                 '--targetleafoutfile', str(leaflist_outfile),
                 '--archaea_metadata_file', str('/data/r'+str(db_ver)+'/ar53_metadata_r'+str(db_ver)+'.tsv'),
-                '--bacteria_metadata_file', str('/data/r'+str(db_ver)+'/bac120_metadata_r'+str(db_ver)+'.tsv'),
-                
+                '--bacteria_metadata_file', str('/data/r'+str(db_ver)+'/bac120_metadata_r'+str(db_ver)+'.tsv')
                 ]
     print ("RUNNING: "+" ".join(trim_cmd))
     env = dict(os.environ)
@@ -220,7 +219,9 @@ def _trim_tree (in_tree_path, leaflist_file, leaflist_outfile, lineage_outfile, 
                 '--outtree', str(out_tree_path),
                 '--leaflist', str(leaflist_file),
                 '--targetleafoutfile', str(leaflist_outfile),
-                '--gtdblineageoutfile', str(lineage_outfile)
+                '--gtdblineageoutfile', str(lineage_outfile),
+                '--archaea_metadata_file', str('/data/r'+str(db_ver)+'/ar53_metadata_r'+str(db_ver)+'.tsv'),
+                '--bacteria_metadata_file', str('/data/r'+str(db_ver)+'/bac120_metadata_r'+str(db_ver)+'.tsv')
                 ]
     trim_cmd.append('--sisters')
     print ("RUNNING: "+" ".join(trim_cmd))
