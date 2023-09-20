@@ -87,7 +87,7 @@ description : |
     <p><h3>Tool and Data Sources:</h3></p>
     <p>GTDB-Tk v2.1.0 is installed from <a href="https://github.com/Ecogenomics/GTDBTk">https://github.com/Ecogenomics/GTDBTk</a></p>
 
-    <p>This app is using gtdbtk release 207 data <a href="https://data.gtdb.ecogenomic.org/releases/release207/207.0/auxillary_files/gtdbtk_r207_v2_data.tar.gz">https://data.gtdb.ecogenomic.org/releases/release207/207.0/auxillary_files/gtdbtk_r207_v2_data.tar.gz</a> (warning: clicking on link will start download 62.74 GB of data). This reference data corresponds to the GTDB R07-RS207 release.</p>
+    <p>This app is using gtdbtk release 207 data <a href="https://data.gtdb.ecogenomic.org/releases/release207/207.0/auxillary_files/" target="new">gtdbtk_r207_v2_data.tar.gz</a> and release 214 data <a href="https://data.gtdb.ecogenomic.org/releases/release214/214.1/auxillary_files/" target="new">gtdbtk_r214_data.tar.gz</a> and accompanying metadata ar53_metadata_r[207/214].tsv and bac120_metadata_r[207/214].  These reference data correspond to the GTDB R07-RS207 and R08-RS214 releases respectively.</p>
 
     <p><a href='https://gtdb.ecogenomic.org/'>The Genome Taxonomy Database (GTDB)</a> is constructed from RefSeq and Genbank genomes, and releases are indexed to RefSeq releases. All genomes are quality controlled using <a href='https://github.com/Ecogenomics/CheckM/wiki'>CheckM</a> and those statistics can be found on the <a href='https://gtdb.ecogenomic.org/stats'>GTDB website</a>.</p>
     
