@@ -6,7 +6,7 @@ _____
 * Update GTDB-Tk to 2.3.2 (July 5th, 2023)
 * Update GTDB data to r214.1
 * Removed full_tree option (requires nodes with too much memory)
-* Added db_ver to allow either r207 or r214 refdata
+* Added db_ver argument to allow either r207 or r214 refdata
 
 1.3.0
 _____

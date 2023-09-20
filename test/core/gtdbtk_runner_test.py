@@ -40,7 +40,8 @@ def test_gtdbtk_run():
                 '--out_dir', str(temp_out),
                 '--batchfile',  # arg popped
                 '--cpus', '16',
-                '--min_perc_aa', '50.2']
+                '--min_perc_aa', '50.2',
+                '--skip_ani_screen']
 
             # arbitrary TSV files, these may not match what GTDB-tk produces
             # implmentation doesn't care for now other than the first column
@@ -75,7 +76,7 @@ def test_gtdbtk_run():
             out_dir,
             temp_dir,
             50.2,
-            0,
+            207,
             0,
             16
             )

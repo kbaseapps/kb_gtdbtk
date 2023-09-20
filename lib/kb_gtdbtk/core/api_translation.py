@@ -87,7 +87,7 @@ def get_gtdbtk_params(input_params: Dict[str, object]) -> GTDBTKParams:
 
     db_ver = int(input_params.get('db_ver', 0))
     if type(db_ver) != int or (db_ver != 207 and db_ver != 214):
-        raise ValueError('db_ver is required and must be an integer 207 or 214]')
+        raise ValueError('db_ver is required and must be an integer 207 or 214')
     
     keep_intermediates = int(input_params.get('keep_intermediates', 0))
     if type(keep_intermediates) != int or (keep_intermediates != 0 and keep_intermediates != 1):
