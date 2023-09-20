@@ -68,9 +68,7 @@ class kb_gtdbtk:
         self.shared_folder = Path(config['scratch'])
         self.ws_url = config['workspace-url']
         self.hs_url = config['handle-service-url']
-        self.cpus = config['cpus']  # bigmem 32 cpus & 251 GB RAM
-        self.gtdb_ver = config['gtdb_ver']
-        self.taxon_assignment_field = config['taxon_assignment_field']
+        self.cpus = config['cpus']  # bigmem 32 cpus & 251 GB RAM.  new gtdb-tk needs less mem.
         self.genome_upas_map_file = config['genome_upas_map_file']
         
         logging.basicConfig(format='%(created)s %(levelname)s: %(message)s',
@@ -193,12 +191,16 @@ class kb_gtdbtk:
         top_query_obj_type = get_obj_type (params.ref, cli)
         if check_obj_type_assembly (top_query_obj_type) or check_obj_type_genome (top_query_obj_type):
             self.log(console, "Update Genome objects lineage files")
+            if params.db_ver == 207:
+                taxon_assignment_field = 'GTDB_R07-RS207'
+            else:
+                taxon_assignment_field = 'GTDB_R08-RS214'
             objects_created = update_genome_assembly_objs_class (params.workspace_id,
                                                                  params.ref,
                                                                  classification,
                                                                  params.overwrite_tax,
-                                                                 self.gtdb_ver,
-                                                                 self.taxon_assignment_field,
+                                                                 str(params.db_ver),
+                                                                 taxon_assignment_field,
                                                                  cli)
 
         
@@ -218,6 +220,7 @@ class kb_gtdbtk:
                                          output_path,
                                          summary_tables,
                                          classification,
+                                         str(params.db_ver),
                                          params.dendrogram_report,
                                          cli)
 

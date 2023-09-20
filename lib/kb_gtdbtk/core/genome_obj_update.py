@@ -186,7 +186,7 @@ def _format_gtdbtk_tree_to_itol (in_tree_path):
     
 # _trim_tree()
 #
-def _trim_tree (in_tree_path, leaflist_file, leaflist_outfile, lineage_outfile):
+def _trim_tree (in_tree_path, leaflist_file, leaflist_outfile, lineage_outfile, db_ver):
     print ("trimming tree "+str(in_tree_path))
     trim_bin = os.path.join ('/kb', 'module', 'bin', 'trim_tree_to_target_leaves.py')
     
@@ -200,7 +200,10 @@ def _trim_tree (in_tree_path, leaflist_file, leaflist_outfile, lineage_outfile):
                 '--intree', str(in_tree_path),
                 '--outtree', str(out_tree_path),
                 '--leaflist', str(leaflist_file),
-                '--targetleafoutfile', str(leaflist_outfile)
+                '--targetleafoutfile', str(leaflist_outfile),
+                '--archaea_metadata_file', str('/data/r'+str(db_ver)+'ar53_metadata_r'+str(db_ver)+'.tsv'),
+                '--bacteria_metadata_file', str('/data/r'+str(db_ver)+'bac120_metadata_r'+str(db_ver)+'.tsv'),
+                
                 ]
     print ("RUNNING: "+" ".join(trim_cmd))
     env = dict(os.environ)
@@ -521,6 +524,7 @@ def process_tree_files (top_upa,
                         out_dir,
                         summary_tables,
                         classification,
+                        db_ver,
                         dendrogram_report,
                         clients):
     upload_files = []
@@ -595,7 +599,7 @@ def process_tree_files (top_upa,
             new_id_map_with_sp_rep_hits_path = re.sub('.tree$', '.id_to_name-with_proximal_sp_reps-newleafnames.map', str(in_tree_path))
             lineage_path = re.sub('.tree$', '-lineages.map', str(in_tree_path))
             
-            trimmed_tree_paths = _trim_tree (in_tree_path, id_map_with_sp_rep_hits_path, new_id_map_with_sp_rep_hits_path, lineage_path)
+            trimmed_tree_paths = _trim_tree (in_tree_path, id_map_with_sp_rep_hits_path, new_id_map_with_sp_rep_hits_path, lineage_path, db_ver)
 
             for trimmed_tree_path in trimmed_tree_paths:
 
@@ -1063,8 +1067,9 @@ def get_taxon_id (this_classification):
 # get_std_lineages ()
 #
 def get_std_lineages (this_classification, gtdb_ver, this_taxon_id):
+    source_ver = str(gtdb_ver)+'.0'
     return { 'gtdb': { 'lineage': this_classification,
-                       'source_ver': gtdb_ver,
+                       'source_ver': source_ver,
                        'taxon_id': this_taxon_id
                        #'source_id': None
                      }
