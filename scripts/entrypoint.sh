@@ -28,22 +28,22 @@ elif [ "${1}" = "init" ] ; then
     export GTDB_VER_INT=207
     export GTDB_VER_FLT=207.0
   
-    echo "Getting GTDB-Tk databases"
+    echo "Getting GTDB-Tk databases for r" ${GTDB_VER_INT}
     export GTDB_TK_DATA_DB=gtdbtk_r${GTDB_VER_INT}_v2_data.tar.gz
-    curl -O https://data.gtdb.ecogenomic.org/releases/release${GTDB_VER_INT}/${GTDB_VER_FLT}/auxillary_files/${GTDB_TK_DATA_DB}
-    tar xvzf ${GTDB_TK_DATA_DB} --strip 1
+    curl -s -O https://data.gtdb.ecogenomic.org/releases/release${GTDB_VER_INT}/${GTDB_VER_FLT}/auxillary_files/${GTDB_TK_DATA_DB}
+    tar xzf ${GTDB_TK_DATA_DB} --strip 1
     rm ${GTDB_TK_DATA_DB}
 
     echo "Getting GTDB Archaea metadata"
     export ARC_METADATA=ar53_metadata_r${GTDB_VER_INT}.tar.gz
     curl -O https://data.gtdb.ecogenomic.org/releases/release${GTDB_VER_INT}/${GTDB_VER_FLT}/${ARC_METADATA}
-    tar xvzf ${ARC_METADATA}
+    tar xzf ${ARC_METADATA}
     rm ${ARC_METADATA}
 
     echo "Getting GTDB Bacteria metadata"
     export BAC_METADATA=bac120_metadata_r${GTDB_VER_INT}.tar.gz
     curl -O https://data.gtdb.ecogenomic.org/releases/release${GTDB_VER_INT}/${GTDB_VER_FLT}/${BAC_METADATA}
-    tar xvzf ${BAC_METADATA}
+    tar xzf ${BAC_METADATA}
     rm ${BAC_METADATA}
   fi
 
@@ -56,22 +56,22 @@ elif [ "${1}" = "init" ] ; then
     export GTDB_VER_INT=214
     export GTDB_VER_FLT=214.1
 
-    echo "Getting GTDB-Tk databases"
+    echo "Getting GTDB-Tk databases for r" ${GTDB_VER_INT}
     export GTDB_TK_DATA_DB=gtdbtk_r${GTDB_VER_INT}_data.tar.gz
-    curl -O https://data.gtdb.ecogenomic.org/releases/release${GTDB_VER_INT}/${GTDB_VER_FLT}/auxillary_files/${GTDB_TK_DATA_DB}
-    tar xvzf ${GTDB_TK_DATA_DB} --strip 1
+    curl -s -O https://data.gtdb.ecogenomic.org/releases/release${GTDB_VER_INT}/${GTDB_VER_FLT}/auxillary_files/${GTDB_TK_DATA_DB}
+    tar xzf ${GTDB_TK_DATA_DB} --strip 1
     rm ${GTDB_TK_DATA_DB}
 
     echo "Getting GTDB Archaea metadata"
     export ARC_METADATA=ar53_metadata_r${GTDB_VER_INT}.tar.gz
     curl -O https://data.gtdb.ecogenomic.org/releases/release${GTDB_VER_INT}/${GTDB_VER_FLT}/${ARC_METADATA}
-    tar xvzf ${ARC_METADATA}
+    tar xzf ${ARC_METADATA}
     rm ${ARC_METADATA}
 
     echo "Getting GTDB Bacteria metadata"
     export BAC_METADATA=bac120_metadata_r${GTDB_VER_INT}.tar.gz
     curl -O https://data.gtdb.ecogenomic.org/releases/release${GTDB_VER_INT}/${GTDB_VER_FLT}/${BAC_METADATA}
-    tar xvzf ${BAC_METADATA}
+    tar xzf ${BAC_METADATA}
     rm ${BAC_METADATA}
   fi
 
