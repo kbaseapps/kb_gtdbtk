@@ -88,7 +88,7 @@ def run_gtdbtk(
     if db_ver == 207:
         gtdbtk_cmd += ['--skip_ani_screen']
     else:
-        gtdbtk_cmd += ['--mash_db', '/data/r'+str(db_ver)+'/mash.db']
+        gtdbtk_cmd += ['--mash_db', '/data/r'+str(db_ver)+'/mash/gtdb-tk-r2'+str(db_ver)+'.msh']
         
     if keep_intermediates == 1:
         gtdbtk_cmd += ['--keep_intermediates']

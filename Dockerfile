@@ -17,7 +17,6 @@ RUN pip install pytest pytest-cov mypy coveralls flake8 --upgrade \
 RUN pip install --upgrade numpy==1.23.1
 
 # GTDB-Tk install
-#ENV GTDBTK_VERSION='2.1.0'
 ENV GTDBTK_VERSION='2.3.2'
 RUN pip install gtdbtk==${GTDBTK_VERSION}
 
@@ -57,7 +56,6 @@ WORKDIR /kb/module
 
 RUN make all
 
-ENV GTDBTK_DATA_PATH=/data/r207
 ENTRYPOINT [ "./scripts/entrypoint.sh" ]
 
 CMD [ ]

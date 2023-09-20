@@ -226,7 +226,7 @@ class kb_gtdbtkTest(unittest.TestCase):
     # test bacterial assembly input against order-level subtrees (takes about 1 hr)
     #  Note: single assembly not available from narrative sidget, only direct call by power user
     #
-    @unittest.skip("skipped test_classify_wf_assembly()")  # uncomment to skip
+    # HIDE @unittest.skip("skipped test_classify_wf_assembly()")  # uncomment to skip
     def test_classify_wf_assembly(self):
         report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, { \
                                                                 'workspace_id': self.wsid,
@@ -234,7 +234,7 @@ class kb_gtdbtkTest(unittest.TestCase):
                                                                 'output_tree_basename': 'GTDB_Tree',
                                                                 'copy_proximals': 0,
                                                                 'save_trees': 0,
-                                                                'db_ver': 207,
+                                                                'db_ver': 214,
                                                                 'keep_intermediates': 0,
                                                                 'dendrogram_report': 0
                                                                         
@@ -268,7 +268,7 @@ class kb_gtdbtkTest(unittest.TestCase):
                                                                 'output_tree_basename': 'GTDB_Tree',
                                                                 'copy_proximals': 0,
                                                                 'save_trees': 0,
-                                                                'db_ver': 207,
+                                                                'db_ver': 214,
                                                                 'keep_intermediates': 0,
                                                                 'overwrite_tax': 0,
                                                                 'dendrogram_report': 1
@@ -279,7 +279,7 @@ class kb_gtdbtkTest(unittest.TestCase):
 
     # test binnedcontigs input with order-level subtrees (takes about 1 hr)
     #
-    @unittest.skip("skipped test_classify_wf_binnedcontigs_subtrees()")  # uncomment to skip
+    # HIDE @unittest.skip("skipped test_classify_wf_binnedcontigs_subtrees()")  # uncomment to skip
     def test_classify_wf_binnedcontigs_subtrees(self):
         report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, { \
                                                                 'workspace_id': self.wsid,
@@ -287,7 +287,7 @@ class kb_gtdbtkTest(unittest.TestCase):
                                                                 'output_tree_basename': 'GTDB_Tree',
                                                                 'copy_proximals': 0,
                                                                 'save_trees': 0,
-                                                                'db_ver': 207,
+                                                                'db_ver': 214,
                                                                 'keep_intermediates': 0,
                                                                 'overwrite_tax': 0,
                                                                 'dendrogram_report': 1
@@ -298,7 +298,7 @@ class kb_gtdbtkTest(unittest.TestCase):
 
     # test archaeal assemblySet input (takes a few minutes)
     #
-    @unittest.skip("skipped test_classify_wf_assemblyset()")  # uncomment to skip
+    # HIDE @unittest.skip("skipped test_classify_wf_assemblyset()")  # uncomment to skip
     def test_classify_wf_assemblyset(self):
         report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, { \
                                                                 'workspace_id': self.wsid,
@@ -306,7 +306,7 @@ class kb_gtdbtkTest(unittest.TestCase):
                                                                 'output_tree_basename': 'GTDB_Tree',
                                                                 'copy_proximals': 0,
                                                                 'save_trees': 0,
-                                                                'db_ver': 207,
+                                                                'db_ver': 214,
                                                                 'keep_intermediates': 1,
                                                                 'overwrite_tax': 1,
                                                                 'dendrogram_report': 0
@@ -318,7 +318,7 @@ class kb_gtdbtkTest(unittest.TestCase):
     # test archaeal genome input (takes a few minutes)
     #  Note; single genome not available from narrative sidget, only direct call by power user
     #
-    @unittest.skip("skipped test_classify_wf_genome()")  # uncomment to skip
+    # HIDE @unittest.skip("skipped test_classify_wf_genome()")  # uncomment to skip
     def test_classify_wf_genome(self):
         report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, { \
                                                                 'workspace_id': self.wsid,
@@ -326,7 +326,7 @@ class kb_gtdbtkTest(unittest.TestCase):
                                                                 'output_tree_basename': 'GTDB_Tree',
                                                                 'copy_proximals': 0,
                                                                 'save_trees': 0,
-                                                                'db_ver': 207,
+                                                                'db_ver': 214,
                                                                 'keep_intermediates': 1,
                                                                 'overwrite_tax': 0,
                                                                 'dendrogram_report': 0
@@ -346,7 +346,7 @@ class kb_gtdbtkTest(unittest.TestCase):
                                                                 'output_tree_basename': 'GTDB_Tree',
                                                                 'copy_proximals': 1,
                                                                 'save_trees': 1,
-                                                                'db_ver': 207,
+                                                                'db_ver': 214,
                                                                 'keep_intermediates': 1,
                                                                 'overwrite_tax': '1',
                                                                 'dendrogram_report': 0
@@ -367,7 +367,7 @@ class kb_gtdbtkTest(unittest.TestCase):
                                                                 'output_tree_basename': 'GTDB_Tree',
                                                                 'copy_proximals': 0,
                                                                 'save_trees': 1,
-                                                                'db_ver': 207,
+                                                                'db_ver': 214,
                                                                 'keep_intermediates': 1,
                                                                 'overwrite_tax': 0,
                                                                 'dendrogram_report': 0
