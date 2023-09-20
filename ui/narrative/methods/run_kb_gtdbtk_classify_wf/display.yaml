@@ -51,11 +51,6 @@ parameters :
             Save Trees (for genomes)
         short-hint : |
             Save all trimmed GTDB trees as KBase objects.  Does not save full tree with all leaves, just what is displayed in report.  Copies over genome objects in trees.
-    full_tree :
-        ui-name : |
-            Full Tree
-        short-hint : |
-            Perform tree placement with full tree or class-level subtrees
     keep_intermediates :
         ui-name : |
             Keep Intermediate Files
@@ -160,12 +155,11 @@ description : |
     <b>Primary References</b>
     <p>GTDB-Tk is described in:</p>
         <ul>
-            <li>Chaumeil PA, Mussig AJ, Hugenholtz P, Parks DH. 2019. <a href="https://academic.oup.com/bioinformatics/advance-article-abstract/doi/10.1093/bioinformatics/btz848/5626182" rel="nofollow">GTDB-Tk: A toolkit to classify genomes with the Genome Taxonomy Database</a>. <i>Bioinformatics</i>, btz848.</li>
+            <li>Chaumeil PA, Mussig AJ, Hugenholtz P, Parks DH. 2022 <a href="https://academic.oup.com/bioinformatics/article/38/23/5315/6758240" rel="nofollow">>GTDB-Tk v2: memory friendly classification with the genome taxonomy database</a>. <i>Bioinformatics</i>, btac672</li>
         </ul>
     <p>The Genome Taxonomy Database (GTDB) is described in:</p>
         <ul>
-            <li>Parks DH, et al. 2020. <a href="https://www.nature.com/articles/s41587-020-0501-8" rel="nofollow"> A complete domain-to-species taxonomy for Bacteria and Archaea.</a> <i>Nat Biotechnol.</i> 2020;10.1038/s41587-020-0501-8. <a href='https://www.nature.com/articles/s41587-020-0501-8'>DOI:10.1038/s41587-020-0501-8</a>.</li>
-            <li>Parks DH, et al. 2018. <a href="https://www.nature.com/articles/nbt.4229" rel="nofollow">A standardized bacterial taxonomy based on genome phylogeny substantially revises the tree of life</a>. <i>Nat. Biotechnol.</i>, <a href="http://dx.doi.org/10.1038/nbt.4229" rel="nofollow">http://dx.doi.org/10.1038/nbt.4229</a>.</li>
+            <li>Parks DH, Chuvochina M, Rinke C, Mussig AJ, Chaumeil PA, Hugenholtz P. 2022 <a href="https://academic.oup.com/nar/article/50/D1/D785/6370255" rel="nofollow">GTDB: an ongoing census of bacterial and archaeal diversity through a phylogenetically consistent, rank normalized and complete genome-based taxonomy</a>. <i>Nucleic Acids Research</i>, gkab776</li>
         </ul>
     
 
@@ -189,10 +183,20 @@ description : |
     
 publications : 
     -
+        pmid: 36218463
+        display-text: |
+            Pierre-Alain Chaumeil, Aaron J Mussig, Philip Hugenholtz, Donovan H Parks. GTDB-Tk v2: memory friendly classification with the genome taxonomy database. Bioinformatics, Volume 38, Issue 23, 1 December 2022, Pages 5315–5316. DOI: https://doi.org/10.1093/bioinformatics/btac672
+        link: https://academic.oup.com/bioinformatics/article/38/23/5315/6758240
+    -
         pmid: 31730192
         display-text: |
             Pierre-Alain Chaumeil, Aaron J Mussig, Philip Hugenholtz, Donovan H Parks, GTDB-Tk: a toolkit to classify genomes with the Genome Taxonomy Database, Bioinformatics, Volume 36, Issue 6, 15 March 2020, Pages 1925–1927. DOI: https://doi.org/10.1093/bioinformatics/btz848
         link: https://doi.org/10.1093/bioinformatics/btz848
+    -
+        pmid: 34520557
+        display-text: |
+            Donovan H Parks, Maria Chuvochina, Christian Rinke, Aaron J Mussig, Pierre-Alain Chaumeil, Philip Hugenholtz. GTDB: an ongoing census of bacterial and archaeal diversity through a phylogenetically consistent, rank normalized and complete genome-based taxonomy. Nucleic Acids Research, Volume 50, Issue D1, 7 January 2022, Pages D785–D794. DOI: https://doi.org/10.1093/nar/gkab776
+        link: https://academic.oup.com/nar/article/50/D1/D785/6370255
     -
         pmid: 30148503
         display-text: |
