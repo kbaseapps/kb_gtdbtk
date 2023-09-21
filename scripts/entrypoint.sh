@@ -22,17 +22,19 @@ elif [ "${1}" = "init" ] ; then
   # r207 refdata
   cd /data
   if [ ! -d "/data/r207" ] ; then
-    mkdir r207
-    cd r207
-
     export GTDB_VER_INT=207
     export GTDB_VER_FLT=207.0
+
+    mkdir r{$GTDB_VER_INT}
+    cd r{$GTDB_VER_INT}
   
     echo "Getting GTDB-Tk databases for r" ${GTDB_VER_INT}
     export GTDB_TK_DATA_DB=gtdbtk_r${GTDB_VER_INT}_v2_data.tar.gz
     curl -s -O https://data.gtdb.ecogenomic.org/releases/release${GTDB_VER_INT}/${GTDB_VER_FLT}/auxillary_files/${GTDB_TK_DATA_DB}
     tar xzf ${GTDB_TK_DATA_DB} --strip 1
     rm ${GTDB_TK_DATA_DB}
+    mkdir /data/r${GTDB_VER_INT}/mash
+    chmod 777 /data/r${GTDB_VER_INT}/mash
 
     echo "Getting GTDB Archaea metadata"
     export ARC_METADATA=ar53_metadata_r${GTDB_VER_INT}.tar.gz
@@ -50,18 +52,19 @@ elif [ "${1}" = "init" ] ; then
   # r214 refdata
   cd /data
   if [ ! -d "/data/r214" ] ; then
-    mkdir r214
-    cd r214
-
     export GTDB_VER_INT=214
     export GTDB_VER_FLT=214.1
+
+    mkdir r{$GTDB_VER_INT}
+    cd r{$GTDB_VER_INT}
 
     echo "Getting GTDB-Tk databases for r" ${GTDB_VER_INT}
     export GTDB_TK_DATA_DB=gtdbtk_r${GTDB_VER_INT}_data.tar.gz
     curl -s -O https://data.gtdb.ecogenomic.org/releases/release${GTDB_VER_INT}/${GTDB_VER_FLT}/auxillary_files/${GTDB_TK_DATA_DB}
     tar xzf ${GTDB_TK_DATA_DB} --strip 1
     rm ${GTDB_TK_DATA_DB}
-
+    chmod 777 /data/r${GTDB_VER_INT}/mash
+    
     echo "Getting GTDB Archaea metadata"
     export ARC_METADATA=ar53_metadata_r${GTDB_VER_INT}.tar.gz
     curl -O https://data.gtdb.ecogenomic.org/releases/release${GTDB_VER_INT}/${GTDB_VER_FLT}/${ARC_METADATA}

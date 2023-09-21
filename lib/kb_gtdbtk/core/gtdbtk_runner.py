@@ -85,10 +85,11 @@ def run_gtdbtk(
         '--cpus', str(cpus),
         '--min_perc_aa', str(min_perc_aa)]
 
-    if db_ver == 207:
-        gtdbtk_cmd += ['--skip_ani_screen']
-    else:
-        gtdbtk_cmd += ['--mash_db', '/data/r'+str(db_ver)+'/mash/gtdb-tk-r2'+str(db_ver)+'.msh']
+    #gtdbtk_cmd += ['--mash_db', '/data/r'+str(db_ver)+'/mash/gtdb-tk-r'+str(db_ver)+'.msh']
+    mash_db_dir = os.path.join (os.sep, 'data' , 'r'+str(db_ver), 'mash')
+    if not os.path.exists(mash_db_dir):
+        os.makedirs(mash_db_dir, mode=0o777)
+    gtdbtk_cmd += ['--mash_db', 'gtdb-tk-r'+str(db_ver)+'.msh']
         
     if keep_intermediates == 1:
         gtdbtk_cmd += ['--keep_intermediates']

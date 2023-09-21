@@ -41,7 +41,7 @@ def test_gtdbtk_run():
                 '--batchfile',  # arg popped
                 '--cpus', '16',
                 '--min_perc_aa', '50.2',
-                '--skip_ani_screen']
+                '--mash_db', 'gtdb-tk-r207.msh' ]
 
             # arbitrary TSV files, these may not match what GTDB-tk produces
             # implmentation doesn't care for now other than the first column
