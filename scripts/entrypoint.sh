@@ -38,13 +38,13 @@ elif [ "${1}" = "init" ] ; then
 
     echo "Getting GTDB Archaea metadata"
     export ARC_METADATA=ar53_metadata_r${GTDB_VER_INT}.tar.gz
-    curl -O https://data.gtdb.ecogenomic.org/releases/release${GTDB_VER_INT}/${GTDB_VER_FLT}/${ARC_METADATA}
+    curl -s -O https://data.gtdb.ecogenomic.org/releases/release${GTDB_VER_INT}/${GTDB_VER_FLT}/${ARC_METADATA}
     tar xzf ${ARC_METADATA}
     rm ${ARC_METADATA}
 
     echo "Getting GTDB Bacteria metadata"
     export BAC_METADATA=bac120_metadata_r${GTDB_VER_INT}.tar.gz
-    curl -O https://data.gtdb.ecogenomic.org/releases/release${GTDB_VER_INT}/${GTDB_VER_FLT}/${BAC_METADATA}
+    curl -s -O https://data.gtdb.ecogenomic.org/releases/release${GTDB_VER_INT}/${GTDB_VER_FLT}/${BAC_METADATA}
     tar xzf ${BAC_METADATA}
     rm ${BAC_METADATA}
   fi
@@ -67,13 +67,13 @@ elif [ "${1}" = "init" ] ; then
     
     echo "Getting GTDB Archaea metadata"
     export ARC_METADATA=ar53_metadata_r${GTDB_VER_INT}.tar.gz
-    curl -O https://data.gtdb.ecogenomic.org/releases/release${GTDB_VER_INT}/${GTDB_VER_FLT}/${ARC_METADATA}
+    curl -s -O https://data.gtdb.ecogenomic.org/releases/release${GTDB_VER_INT}/${GTDB_VER_FLT}/${ARC_METADATA}
     tar xzf ${ARC_METADATA}
     rm ${ARC_METADATA}
 
     echo "Getting GTDB Bacteria metadata"
     export BAC_METADATA=bac120_metadata_r${GTDB_VER_INT}.tar.gz
-    curl -O https://data.gtdb.ecogenomic.org/releases/release${GTDB_VER_INT}/${GTDB_VER_FLT}/${BAC_METADATA}
+    curl -s -O https://data.gtdb.ecogenomic.org/releases/release${GTDB_VER_INT}/${GTDB_VER_FLT}/${BAC_METADATA}
     tar xzf ${BAC_METADATA}
     rm ${BAC_METADATA}
   fi
