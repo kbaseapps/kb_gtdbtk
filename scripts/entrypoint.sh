@@ -21,7 +21,6 @@ elif [ "${1}" = "init" ] ; then
 
   # r207 refdata
   cd /data
-  echo CWD `pwd`
   
   if [ ! -d "/data/r207" ] ; then
     export GTDB_VER_INT=207
@@ -76,13 +75,11 @@ elif [ "${1}" = "init" ] ; then
     export ARC_METADATA=ar53_metadata_r${GTDB_VER_INT}.tsv.gz
     curl -s -O https://data.gtdb.ecogenomic.org/releases/release${GTDB_VER_INT}/${GTDB_VER_FLT}/${ARC_METADATA}
     gunzip ${ARC_METADATA}
-    rm ${ARC_METADATA}
 
     echo "Getting GTDB Bacteria metadata"
     export BAC_METADATA=bac120_metadata_r${GTDB_VER_INT}.tsv.gz
     curl -s -O https://data.gtdb.ecogenomic.org/releases/release${GTDB_VER_INT}/${GTDB_VER_FLT}/${BAC_METADATA}
     gunzip ${BAC_METADATA}
-    rm ${BAC_METADATA}
   fi
 
   # don't repeat if refdata prepared
