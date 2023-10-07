@@ -130,6 +130,44 @@ elif [ "${1}" = "init" ] ; then
     touch __READY__
   else
     echo "init failed"
+
+    if [ ! -d "r207/taxonomy" ] ; then
+	echo "missing r207/taxonomy"
+    fi
+    if [ ! -d "r207/fastani" ] ; then
+	echo "missing r207/fastani"
+    fi
+    if [ ! -d "r207/markers" ] ; then
+	echo "missing r207/markers"
+    fi
+    if [ ! -s "r207/mash/gtdb_ref_sketch.msh" ] ; then
+	echo "missing r207/mash/gtdb_ref_sketch.msh"
+    fi
+    if [ ! -s "r207/ar53_metadata_r207.tsv" ] ; then
+	echo "missing r207/ar53_metadata_r207.tsv"
+    fi
+    if [ ! -s "r207/bac120_metadata_r207.tsv" ] ; then
+	echo "missing r207/bac120_metadata_r207.tsv"
+    fi
+    if [ ! -d "r214/taxonomy" ] ; then
+	echo "missing r214/taxonomy"
+    fi
+    if [ ! -d "r214/fastani" ] ; then
+	echo "missing r214/fastani"
+    fi
+    if [ ! -d "r214/markers" ] ; then
+	echo "missing r214/markers"
+    fi
+    if [ ! -s "r214/mash/gtdb_ref_sketch.msh" ] ; then
+	echo "missing r214/mash/gtdb_ref_sketch.msh"
+    fi
+    if [ ! -s "r214/ar53_metadata_r214.tsv" ] ; then
+	echo "missing r214/ar53_metadata_r214.tsv"
+    fi
+    if [ ! -s "r214/bac120_metadata_r214.tsv" ] ; then
+	echo "missing r214/bac120_metadata_r214.tsv"
+    fi
+
   fi
 elif [ "${1}" = "bash" ] ; then
   bash
