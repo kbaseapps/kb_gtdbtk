@@ -5,6 +5,8 @@ Run GTDB-tk against a set of sequence files.
 import logging
 import json
 import os
+import sys
+import shutil
 import pandas as pd
 import tempfile
 
@@ -84,18 +86,33 @@ def run_gtdbtk(
         '--batchfile', tf.name,
         '--cpus', str(cpus),
         '--min_perc_aa', str(min_perc_aa)]
-
-    #gtdbtk_cmd += ['--mash_db', '/data/r'+str(db_ver)+'/mash/gtdb-tk-r'+str(db_ver)+'.msh']
-    mash_db_dir = os.path.join (os.sep, 'data' , 'r'+str(db_ver), 'mash')
-    if not os.path.exists(mash_db_dir):
-        os.makedirs(mash_db_dir, mode=0o777)
-    gtdbtk_cmd += ['--mash_db', 'gtdb-tk-r'+str(db_ver)+'.msh']
-        
     if keep_intermediates == 1:
         gtdbtk_cmd += ['--keep_intermediates']
 
+    # handle mash db
+    #mash_db_file = 'gtdb-tk-r'+str(db_ver)+'.msh'
+    mash_db_dir = os.path.join (os.sep, 'data' , 'r'+str(db_ver), 'mash')
+    mash_db_file = 'gtdb_ref_sketch.msh'
+    mash_db_path = os.path.join (mash_db_dir, mash_db_file)
+    if not os.path.exists (mash_db_path):
+        raise ValueError ('GTDB REF Genomes MASH DB not found.  Must generate during refdata initialization')
+
+    """ DEBUG
+    # refdata mounted mash db is failing with error "The sketch file is not consistent with the input genomes"
+    local_mash_db_dir = os.path.join (os.sep, 'kb', 'module', 'mash_db')
+    if not os.path.exists (local_mash_db_dir):
+        os.makedirs (local_mash_db_dir)
+    local_mash_db_path = os.path.join (local_mash_db_dir, mash_db_file)
+    shutil.copy (mash_db_path, local_mash_db_path)
+
+    gtdbtk_cmd += ['--mash_db', local_mash_db_path]
+    #gtdbtk_cmd += ['--mash_db', str(temp_dir)]
+    #gtdbtk_cmd += ['--mash_db', str(mash_db_dir)]
+    """
+    gtdbtk_cmd += ['--mash_db', mash_db_path]
+    
     # set refdata location
-    os.environ['GTDBTK_DATA_PATH'] = '/data/'+'r'+str(db_ver)
+    os.environ['GTDBTK_DATA_PATH'] = os.path.join(os.sep, 'data','r'+str(db_ver))
         
     logging.info('Starting Command:\n' + ' '.join(gtdbtk_cmd))
     gtdbtk_runner(gtdbtk_cmd)

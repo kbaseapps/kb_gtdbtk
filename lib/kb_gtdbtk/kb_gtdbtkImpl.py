@@ -36,7 +36,7 @@ class kb_gtdbtk:
     ######################################### noqa
     VERSION = "1.4.0"
     GIT_URL = "https://github.com/kbaseapps/kb_gtdbtk"
-    GIT_COMMIT_HASH = "a71549cce5702086bd9cdcdbc8acd8282d8ee413"
+    GIT_COMMIT_HASH = "a9b1858968e9d181f989febe0ae4921ec9cdce10"
 
     #BEGIN_CLASS_HEADER
 

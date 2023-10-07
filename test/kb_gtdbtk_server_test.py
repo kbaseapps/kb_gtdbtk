@@ -76,7 +76,7 @@ class kb_gtdbtkTest(unittest.TestCase):
         cls.handles_to_delete = []
         cls.nodes_to_delete = []
         cls.prepare_data()
-
+        
     @classmethod
     def tearDownClass(cls):
         if hasattr(cls, 'wsName'):
@@ -113,7 +113,6 @@ class kb_gtdbtkTest(unittest.TestCase):
     def prepare_data(cls):
         tempdir = cls.scratch / 'tempstuff'
         tempdir.mkdir(parents=True, exist_ok=True)
-
 
         # single bacterial assembly
         this_filename = 'Rhodo_contigs.fa.gz'
@@ -152,14 +151,17 @@ class kb_gtdbtkTest(unittest.TestCase):
                 }
             ]})[0]
         cls.binned_contigs = cls.ref_from_info(bin_obj_info)
-        
-        
+
         # 3 archaeal assemblies and genomes, assembly set and genome set
         cls.arch_genomes = []
         cls.arch_assemblies = []
         assembly_items = []
         genome_elements = {}
         for this_genome_id in ['GCF_000007345.1', 'GCF_000008665.1', 'GCF_009428885.1']:
+            # DEBUG
+            if this_genome_id == 'GCF_000008665.1':
+                break
+            
             this_gff_filename = this_genome_id + '_genes.gff'
             this_assy_filename = this_genome_id + '_assembly.fa.gz'
 
@@ -224,7 +226,7 @@ class kb_gtdbtkTest(unittest.TestCase):
     ##############
         
     # test bacterial assembly input against order-level subtrees (takes about 1 hr)
-    #  Note: single assembly not available from narrative sidget, only direct call by power user
+    #  Note: single assembly not available from narrative widget, only direct call by power user
     #
     # HIDE @unittest.skip("skipped test_classify_wf_assembly()")  # uncomment to skip
     def test_classify_wf_assembly(self):
@@ -244,7 +246,7 @@ class kb_gtdbtkTest(unittest.TestCase):
         # can't easily maintain md5s through repeated updates.  don't require
         md5s = {}
         """
-        # this is for module v0.1.5, GTDB-Tk v1.3.0
+        # this is for module v0.1.5, GTDB-Tk v1.3.0.  No longer relevant
         md5s = {
             'index.html': 'e865d72e375bbbc5721f8d999698e1c5',
             'gtdbtk.bac120.markers_summary.tsv': 'a09e7128e6af6d0ff808436a12692777',
@@ -255,27 +257,6 @@ class kb_gtdbtkTest(unittest.TestCase):
         """
         self.check_gtdbtk_output(report, 4624, md5s)
 
-
-    # test binnedcontigs input with full tree (takes about 1 hr)
-    # NOT ABLE TO RUN ON DEV1.  Too much memory required.  Need to shrink number of bins
-    #
-    # SKIP THIS!!!
-    @unittest.skip("skipped test_classify_wf_binnedcontigs_fulltree()")  # uncomment to skip
-    def test_classify_wf_binnedcontigs_fulltree(self):
-        report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, { \
-                                                                'workspace_id': self.wsid,
-                                                                'input_object_ref': self.binned_contigs,
-                                                                'output_tree_basename': 'GTDB_Tree',
-                                                                'copy_proximals': 0,
-                                                                'save_trees': 0,
-                                                                'db_ver': 214,
-                                                                'keep_intermediates': 0,
-                                                                'overwrite_tax': 0,
-                                                                'dendrogram_report': 1
-                                                            })[0]
-        # TODO: after shrinking data to fit on dev1, test report content
-        assert self.isUpa (report['report_ref'])
-        
 
     # test binnedcontigs input with order-level subtrees (takes about 1 hr)
     #
@@ -315,11 +296,31 @@ class kb_gtdbtkTest(unittest.TestCase):
         assert self.isUpa (report['report_ref'])
         
 
-    # test archaeal genome input (takes a few minutes)
-    #  Note; single genome not available from narrative sidget, only direct call by power user
+    # test archaeal genome input (takes a few minutes) against r207
+    #  Note; single genome not available from narrative widget, only direct call by power user
     #
-    # HIDE @unittest.skip("skipped test_classify_wf_genome()")  # uncomment to skip
-    def test_classify_wf_genome(self):
+    # HIDE @unittest.skip("skipped test_classify_wf_genome_r207()")  # uncomment to skip
+    def test_classify_wf_genome_r207(self):
+        report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, { \
+                                                                'workspace_id': self.wsid,
+                                                                'input_object_ref': self.arch_genomes[0],
+                                                                'output_tree_basename': 'GTDB_Tree',
+                                                                'copy_proximals': 0,
+                                                                'save_trees': 0,
+                                                                'db_ver': 207,
+                                                                'keep_intermediates': 1,
+                                                                'overwrite_tax': 0,
+                                                                'dendrogram_report': 0
+                                                            })[0]
+        # TODO: test report content
+        assert self.isUpa (report['report_ref'])
+
+        
+    # test archaeal genome input (takes a few minutes) against r214
+    #  Note; single genome not available from narrative widget, only direct call by power user
+    #
+    # HIDE @unittest.skip("skipped test_classify_wf_genome_r214()")  # uncomment to skip
+    def test_classify_wf_genome_r214(self):
         report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, { \
                                                                 'workspace_id': self.wsid,
                                                                 'input_object_ref': self.arch_genomes[0],
