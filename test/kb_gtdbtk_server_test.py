@@ -114,15 +114,22 @@ class kb_gtdbtkTest(unittest.TestCase):
         tempdir = cls.scratch / 'tempstuff'
         tempdir.mkdir(parents=True, exist_ok=True)
 
-        # single bacterial assembly
-        this_filename = 'Rhodo_contigs.fa.gz'
-        single_assyfile = tempdir / this_filename
-        copyfile(Path(__file__).parent / 'data' / this_filename, single_assyfile)
-        cls.single_assy = cls.au.save_assembly_from_fasta(
-            {'file': {'path': str(single_assyfile)},
-             'workspace_name': cls.wsName,  # TODO AU should take an ID
-             'assembly_name': this_filename
-             })
+        # bacterial assemblies
+        cls.bac_assy = []
+        for this_filename in [ 'Rhodo_contigs.fa.gz',
+                               'Bin.001.fa.gz', 
+                               'Bin.046.fa.gz', 
+                               'Bin.047.fa.gz', 
+                               'Bin.049.fa.gz'
+                              ]:  
+            bac_assyfile = tempdir / this_filename
+            copyfile(Path(__file__).parent / 'data' / this_filename, bac_assyfile)
+            cls.bac_assy.append(cls.au.save_assembly_from_fasta(
+                {'file': {'path': str(bac_assyfile)},
+                 'workspace_name': cls.wsName,  # TODO AU should take an ID
+                 'assembly_name': this_filename
+                 })
+                )
 
         # MG assembly
         this_filename = '37AB_metaSPAdes_binnedcontigs.contigs.gz'
@@ -232,7 +239,7 @@ class kb_gtdbtkTest(unittest.TestCase):
     def test_classify_wf_assembly(self):
         report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, { \
                                                                 'workspace_id': self.wsid,
-                                                                'input_object_ref': self.single_assy,
+                                                                'input_object_ref': self.bac_assy[0],
                                                                 'output_tree_basename': 'GTDB_Tree',
                                                                 'copy_proximals': 0,
                                                                 'save_trees': 0,

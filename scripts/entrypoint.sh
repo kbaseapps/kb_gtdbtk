@@ -42,18 +42,26 @@ elif [ "${1}" = "init" ] ; then
     if [ ! -d mash ] ; then
 	mkdir mash
     fi
+    export local_out_dir="out_dir-${GTDB_VER_INT}"
     export local_fna_dir="fna_dir"
+    export fna_file="GCF_000008665.1_assembly.fa.gz"
     export mash_db_file="gtdb_ref_sketch.msh"
     export mash_db_dir="/data/r${GTDB_VER_INT}/mash"
     export mash_db_path="${mash_db_dir}/${mash_db_file}"
     if [ ! -s ${mash_db_path} ] ; then
 	echo "Generating GTDB-Tk mash db for r"${GTDB_VER_INT}
 	cd /kb/module
-	mkdir -p ${local_fna_dir}
-	export fna_file="GCF_000008665.1_assembly.fa.gz"
-	cp /kb/module/test/data/${fna_file} ${local_fna_dir}
+	if [ ! -d ${local_out_dir} ] ; then
+	    mkdir -p ${local_out_dir}
+	fi
+	if [ ! -d ${local_fna_dir} ] ; then
+	    mkdir -p ${local_fna_dir}
+	fi
+	if [ ! -s "${local_fna_dir}/${fna_file}" ] ; then
+	    cp /kb/module/test/data/${fna_file} ${local_fna_dir}
+	fi
 	export GTDBTK_DATA_PATH="/data/r${GTDB_VER_INT}"
-	gtdbtk classify_wf --out_dir ./ --genome_dir ${local_fna_dir} --extension gz --cpus 8 --min_perc_aa 10 --mash_db ${mash_db_path} &> mash.log
+	gtdbtk classify_wf --out_dir ${local_out_dir} --genome_dir ${local_fna_dir} --extension gz --cpus 8 --min_perc_aa 10 --mash_db ${mash_db_path} &> mash.log
 	cd /data/r${GTDB_VER_INT}
     fi
 
@@ -96,18 +104,26 @@ elif [ "${1}" = "init" ] ; then
     if [ ! -d mash ] ; then
 	mkdir mash
     fi
+    export local_out_dir="out_dir-${GTDB_VER_INT}"
     export local_fna_dir="fna_dir"
+    export fna_file="GCF_000008665.1_assembly.fa.gz"
     export mash_db_file="gtdb_ref_sketch.msh"
     export mash_db_dir="/data/r${GTDB_VER_INT}/mash"
     export mash_db_path="${mash_db_dir}/${mash_db_file}"
     if [ ! -s ${mash_db_path} ] ; then
 	echo "Generating GTDB-Tk mash db for r"${GTDB_VER_INT}
 	cd /kb/module
-	mkdir -p ${local_fna_dir}
-	export fna_file="GCF_000008665.1_assembly.fa.gz"
-	cp /kb/module/test/data/${fna_file} ${local_fna_dir}
+	if [ ! -d ${local_out_dir} ] ; then
+	    mkdir -p ${local_out_dir}
+	fi
+	if [ ! -d ${local_fna_dir} ] ; then
+	    mkdir -p ${local_fna_dir}
+	fi
+	if [ ! -s "${local_fna_dir}/${fna_file}" ] ; then
+	    cp /kb/module/test/data/${fna_file} ${local_fna_dir}
+	fi
 	export GTDBTK_DATA_PATH="/data/r${GTDB_VER_INT}"
-	gtdbtk classify_wf --out_dir ./ --genome_dir ${local_fna_dir} --extension gz --cpus 8 --min_perc_aa 10 --mash_db ${mash_db_path} &> mash.log
+	gtdbtk classify_wf --out_dir ${local_out_dir} --genome_dir ${local_fna_dir} --extension gz --cpus 8 --min_perc_aa 10 --mash_db ${mash_db_path} &> mash.log
 	cd /data/r${GTDB_VER_INT}
     fi
     
