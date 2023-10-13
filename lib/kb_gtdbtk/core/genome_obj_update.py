@@ -394,8 +394,11 @@ def get_sp_rep_hits (summary_tables, query_assembly_to_genome_name):
             #this_assembly_id = item[key].replace('_assembly','')
             this_assembly_id = item[key]
             #print ("DEBUG: adding hits for query assembly ID {}".format(this_assembly_id))  # DEBUG
-            this_genome_id = query_assembly_to_genome_name[this_assembly_id]
-            sp_reps_by_query[this_genome_id] = []
+            this_query_id = this_assembly_id
+            if this_assembly_id in query_assembly_to_genome_name:
+                this_genome_id = query_assembly_to_genome_name[this_assembly_id]
+                this_query_id = this_genome_id
+            sp_reps_by_query[this_query_id] = []
 
             #print ("DEBUG: adding hits for query genome ID {}".format(this_genome_id))  # DEBUG
             
@@ -404,8 +407,8 @@ def get_sp_rep_hits (summary_tables, query_assembly_to_genome_name):
                 if item.get(sp_rep_f) and item.get(sp_rep_f) != '-':
                     sp_rep_id = item[sp_rep_f]
                     all_sp_reps[sp_rep_id] = True
-                    if sp_rep_id not in sp_reps_by_query[this_genome_id]:
-                        sp_reps_by_query[this_genome_id].append(sp_rep_id)
+                    if sp_rep_id not in sp_reps_by_query[this_query_id]:
+                        sp_reps_by_query[this_query_id].append(sp_rep_id)
 
             # multiple hits
             sp_rep_f = multi_sp_rep_field
@@ -414,8 +417,8 @@ def get_sp_rep_hits (summary_tables, query_assembly_to_genome_name):
                     sp_rep_id = sp_rep_hit.split(',')[0]
                     sp_rep_id = sp_rep_id.strip()
                     all_sp_reps[sp_rep_id] = True
-                    if sp_rep_id not in sp_reps_by_query[this_genome_id]:
-                        sp_reps_by_query[this_genome_id].append(sp_rep_id)
+                    if sp_rep_id not in sp_reps_by_query[this_query_id]:
+                        sp_reps_by_query[this_query_id].append(sp_rep_id)
 
     return (all_sp_reps, sp_reps_by_query)
 
@@ -534,7 +537,7 @@ def process_tree_files (top_upa,
     id_map_path = os.path.join(out_dir, 'id_to_name.map')
     tree_files = ['gtdbtk.ar53.classify.tree',
                   'gtdbtk.bac120.classify.tree']
-    extra_bac_tree_files = []
+    extra_bac_tree_files = ['gtdbtk.backbone.bac120.classify.tree']
     for i in range(10000):
         subtree_file = 'gtdbtk.bac120.classify.tree.'+str(i)+'.tree'
         extra_bac_tree_files.append(subtree_file)
@@ -582,7 +585,6 @@ def process_tree_files (top_upa,
     for tree_file in tree_files + extra_bac_tree_files:
         in_tree_path = os.path.join (out_dir, tree_file)
         if os.path.isfile(in_tree_path):
-
 
             # add sp rep hits, separate for each tree so no overlaps without query across trees
             this_tree_id_map_buf = []
@@ -1009,9 +1011,9 @@ def process_assembly_objs(primary_wsid, top_obj, upa, upas, classification, over
         original_upa = assembly_upa
         
         if not assemblyset_query:
-            assembly_obj = clients.dfu().get_objects({'object_refs': [assembly_upa]})['data'][0]
-        else:
             assembly_obj = top_obj
+        else:
+            assembly_obj = clients.dfu().get_objects({'object_refs': [assembly_upa]})['data'][0]
         assembly_name = assembly_obj['info'][NAME_I]
 
         if assembly_name not in classification:
@@ -1020,8 +1022,8 @@ def process_assembly_objs(primary_wsid, top_obj, upa, upas, classification, over
             continue
         else:
             any_assembly_updated = True
-        
 
+            
         # set std_lineage GTDB field in assembly obj
         this_classification = classification[assembly_name]
         this_taxon_id = get_taxon_id (this_classification)

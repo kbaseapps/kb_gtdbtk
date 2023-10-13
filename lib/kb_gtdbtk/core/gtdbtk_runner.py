@@ -72,11 +72,16 @@ def run_gtdbtk(
             dir=temp_dir) as tf:
         for i, path in enumerate(sorted(sequences)):
             id_ = f'id{i}'
-            id_to_name[id_] = sequences[path]
+            id_to_name[id_] = str(sequences[path]).replace('.gz','')
             os.symlink(path, temp_links / id_)
             tf.write(str(temp_links / id_) + '\t' + id_ + '\n')
 
+    # set refdata location
+    os.environ['GTDBTK_DATA_PATH'] = os.path.join(os.sep, 'data','r'+str(db_ver))
+
+    # set output dirs
     temp_output = temp_dir / 'output' / timestamp
+    temp_trees_output = temp_dir / 'output_trees' / timestamp
     temp_output.mkdir(parents=True, exist_ok=True)
 
     gtdbtk_cmd = [
@@ -85,42 +90,77 @@ def run_gtdbtk(
         '--out_dir', str(temp_output),
         '--batchfile', tf.name,
         '--cpus', str(cpus),
-        '--min_perc_aa', str(min_perc_aa)]
+        '--min_perc_aa', str(min_perc_aa)
+    ]
     if keep_intermediates == 1:
         gtdbtk_cmd += ['--keep_intermediates']
 
-    # handle mash db
-    #mash_db_file = 'gtdb-tk-r'+str(db_ver)+'.msh'
+    # refdata mounted mash db.  Must be generated during docker image registration init as /data is read-only at app runtime
     mash_db_dir = os.path.join (os.sep, 'data' , 'r'+str(db_ver), 'mash')
     mash_db_file = 'gtdb_ref_sketch.msh'
     mash_db_path = os.path.join (mash_db_dir, mash_db_file)
     if not os.path.exists (mash_db_path):
         raise ValueError ('GTDB REF Genomes MASH DB not found.  Must generate during refdata initialization')
-
-    """ DEBUG
-    # refdata mounted mash db is failing with error "The sketch file is not consistent with the input genomes"
-    local_mash_db_dir = os.path.join (os.sep, 'kb', 'module', 'mash_db')
-    if not os.path.exists (local_mash_db_dir):
-        os.makedirs (local_mash_db_dir)
-    local_mash_db_path = os.path.join (local_mash_db_dir, mash_db_file)
-    shutil.copy (mash_db_path, local_mash_db_path)
-
-    gtdbtk_cmd += ['--mash_db', local_mash_db_path]
-    #gtdbtk_cmd += ['--mash_db', str(temp_dir)]
-    #gtdbtk_cmd += ['--mash_db', str(mash_db_dir)]
-    """
     gtdbtk_cmd += ['--mash_db', mash_db_path]
     
-    # set refdata location
-    os.environ['GTDBTK_DATA_PATH'] = os.path.join(os.sep, 'data','r'+str(db_ver))
-        
+    # run first pass
     logging.info('Starting Command:\n' + ' '.join(gtdbtk_cmd))
     gtdbtk_runner(gtdbtk_cmd)
 
-    return _process_output_files(temp_output, output_dir, id_to_name)
-    
+    # Not all queries may be placed into trees (ANI step may filter)
+    if not _all_ids_in_trees (temp_output, id_to_name):
+        logging.info('Not all queries placed in trees.  Running second pass with --skip_ani_screen ...')
+        temp_trees_output.mkdir(parents=True, exist_ok=True)
 
-def _process_output_files(temp_output, out_dir, id_to_name):
+        gtdbtk_cmd = [
+            'gtdbtk',
+            'classify_wf',
+            '--out_dir', str(temp_trees_output),
+            '--batchfile', tf.name,
+            '--cpus', str(cpus),
+            '--min_perc_aa', str(min_perc_aa),
+            '--skip_ani_screen',
+            '--no_mash'
+        ]
+        if keep_intermediates == 1:
+            gtdbtk_cmd += ['--keep_intermediates']
+        # run first pass
+        logging.info('Starting Command:\n' + ' '.join(gtdbtk_cmd))
+        gtdbtk_runner(gtdbtk_cmd)
+        
+    return _process_output_files(temp_output, temp_trees_output, output_dir, id_to_name)
+
+
+# _all_ids_in_trees ()
+#
+def _all_ids_in_trees (temp_output, id_to_name):
+    all_ids_found = True
+
+    ids_found = dict()
+    for file_ in ['gtdbtk.ar53.summary.tsv', 'gtdbtk.bac120.summary.tsv']:
+        summary_path = temp_output / 'classify' / file_
+        if not summary_path.is_file():
+            continue
+        else:
+            with open (summary_path, 'r') as summary_h:
+                for summary_line in summary_h:
+                    if summary_line.startswith('user_genome'):
+                        continue
+                    [user_genome, classification, fastani_reference, fastani_reference_radius, fastani_taxonomy, fastani_ani, fastani_af, closest_placement_reference, closest_placement_radius, closest_placement_taxonomy, closest_placement_ani, closest_placement_af, pplacer_taxonomy, classification_method, note, other_related_references, msa_percent, translation_table, red_value, warnings] = summary_line.rstrip().split("\t")
+                    if pplacer_taxonomy != 'N/A':
+                        ids_found[user_genome] = True
+
+    for qid in list(id_to_name.keys()):
+        if qid not in ids_found:
+            all_ids_found = False
+            break
+
+    return all_ids_found
+
+
+# _process_output_files()
+#
+def _process_output_files(temp_output, temp_trees_output, out_dir, id_to_name):
 
     classification = dict()
     summary_tables = dict()
@@ -156,32 +196,93 @@ def _process_output_files(temp_output, out_dir, id_to_name):
     base_files = ['gtdbtk.ar53.summary.tsv',
                   'gtdbtk.bac120.summary.tsv',
                   'gtdbtk.ar53.markers_summary.tsv',
-                  'gtdbtk.bac120.markers_summary.tsv']
+                  'gtdbtk.bac120.markers_summary.tsv',
+                  'gtdbtk.bac120.tree.mapping.tsv'
+                  ]
     file_folder = {'gtdbtk.ar53.summary.tsv': 'classify',
                    'gtdbtk.bac120.summary.tsv': 'classify',
                    'gtdbtk.ar53.markers_summary.tsv': 'identify',
                    'gtdbtk.bac120.markers_summary.tsv': 'identify',
+                   'gtdbtk.bac120.tree.mapping.tsv': 'classify',
                    'gtdbtk.ar53.classify.tree': 'classify',
                    'gtdbtk.bac120.classify.tree': 'classify',
                    'gtdbtk.backbone.bac120.classify.tree': 'classify'
                   }
+
+    # copy tree files to output
     extra_bac_tree_files = []
     for i in range(10000):
         subtree_file = 'gtdbtk.bac120.classify.tree.'+str(i)+'.tree'
         extra_bac_tree_files.append(subtree_file)
         file_folder[subtree_file] = 'classify'
 
-    for file_ in tree_files + bb_tree_file + base_files + extra_bac_tree_files:
+    for file_ in tree_files + bb_tree_file + extra_bac_tree_files:
+        treepath = temp_trees_output / file_folder[file_] / file_
+        tmppath = temp_output / file_folder[file_] / file_
+        path = out_dir / file_
+        if treepath.is_file():
+            copyfile(treepath, path)
+        elif tmppath.is_file():
+            copyfile(tmppath, path)
+
+    # merge summary tsv files            
+    for file_ in base_files:
+        treepath = temp_trees_output / file_folder[file_] / file_
+        tmppath = temp_output / file_folder[file_] / file_
+        path = out_dir / file_
+        found_file = False
+        num_cols = 0
+        
+        id_order = []
+        tmp_buf = dict()
+        if tmppath.is_file():
+            found_file = True
+            with open (tmppath, 'r') as tmppath_h:
+                for info_line in tmppath_h:
+                    row = info_line.rstrip().split("\t")
+                    tmp_buf[row[0]] = row
+                    id_order.append(row[0])
+                    num_cols = len(row)
+        tree_buf = dict()
+        if treepath.is_file():
+            found_file = True
+            id_order = []
+            with open (treepath, 'r') as treepath_h:
+                for info_line in treepath_h:
+                    row = info_line.rstrip().split("\t")
+                    tree_buf[row[0]] = row
+                    id_order.append(row[0])
+                    num_cols = len(row)
+
+        if not found_file:
+            continue
+        out_buf = []
+        for qid in id_order:
+            row = []
+            for field_i in range(num_cols):
+                row.append('N/A')
+            if qid in tmp_buf:
+                row = tmp_buf[qid]
+            if qid in tree_buf:
+                for field_i,val in enumerate(tree_buf[qid]):
+                    if row[field_i] == 'N/A':
+                        row[field_i] = tree_buf[qid][field_i]
+            out_buf.append("\t".join(row))
+                        
+        # write merged summaries
+        with open (path, 'w') as summary_h:
+            summary_h.write("\n".join(out_buf)+"\n")
+
+    # load results
+    for file_ in base_files:
                   # skip filtered for now, unused
                   # 'gtdbtk.filtered.tsv'
-        tmppath = temp_output / file_folder[file_] / file_
-        if not tmppath.is_file():
+        path = out_dir / file_
+        if not path.is_file():
             #logging.info('No such file, skipping: ' + str(tmppath))
             continue
         else:
-            path = out_dir / file_
-            copyfile(tmppath, path)
-            if not file_.endswith('.tsv'):
+            if not file_.endswith('summary.tsv'):
                 continue
             summary_df = pd.read_csv(path, sep='\t', encoding='utf-8')
             outfile = str(path) + '.json'

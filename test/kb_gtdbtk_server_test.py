@@ -124,12 +124,12 @@ class kb_gtdbtkTest(unittest.TestCase):
                               ]:  
             bac_assyfile = tempdir / this_filename
             copyfile(Path(__file__).parent / 'data' / this_filename, bac_assyfile)
-            cls.bac_assy.append(cls.au.save_assembly_from_fasta(
+            bac_assy_ref = cls.au.save_assembly_from_fasta(
                 {'file': {'path': str(bac_assyfile)},
                  'workspace_name': cls.wsName,  # TODO AU should take an ID
                  'assembly_name': this_filename
                  })
-                )
+            cls.bac_assy.append(bac_assy_ref)
 
         # MG assembly
         this_filename = '37AB_metaSPAdes_binnedcontigs.contigs.gz'
@@ -166,8 +166,8 @@ class kb_gtdbtkTest(unittest.TestCase):
         genome_elements = {}
         for this_genome_id in ['GCF_000007345.1', 'GCF_000008665.1', 'GCF_009428885.1']:
             # DEBUG
-            if this_genome_id == 'GCF_000008665.1':
-                break
+            #if this_genome_id == 'GCF_000008665.1':
+            #    break
             
             this_gff_filename = this_genome_id + '_genes.gff'
             this_assy_filename = this_genome_id + '_assembly.fa.gz'
@@ -210,7 +210,7 @@ class kb_gtdbtkTest(unittest.TestCase):
                  'data': assemblySet_obj,
                 })['set_ref']
         except Exception as e:
-            raise ValueError ("ABORT: unable to save AssemblySet object.\n"+str(e))
+            raise ValueError ("ABORT: unable to save Arc AssemblySet object.\n"+str(e))
 
         # archaeal genomeSet
         genomeSet_name = 'Archaea_3.GenomeSet'
@@ -224,9 +224,46 @@ class kb_gtdbtkTest(unittest.TestCase):
                      'name': genomeSet_name
                      }]})[0]
         except Exception as e:
-            raise ValueError ("ABORT: unable to save GenomeSet object.\n"+str(e))
+            raise ValueError ("ABORT: unable to save Arc GenomeSet object.\n"+str(e))
         cls.arch_genomeSet = cls.ref_from_info(genomeSet_info)
 
+        # challenging bac assemblySet
+        assembly_items = []
+        for assembly_ref in cls.bac_assy:
+            assembly_items.append({'ref': assembly_ref, 'label': assembly_ref})
+        assemblySet_name = 'Challenging_Bacs.AssemblySet'
+        assemblySet_obj = { 'description': 'AssemblySet for Challenging Bac assemblies',
+                            'items': assembly_items
+                           }
+        try:
+            cls.bac_assemblySet = cls.setAPI.save_assembly_set_v1 (
+                {'workspace_name': cls.wsName,
+                 'output_object_name': assemblySet_name,
+                 'data': assemblySet_obj,
+                 })['set_ref']
+        except Exception as e:
+            raise ValueError ("ABORT: unable to save Bac AssemblySet object.\n"+str(e))
+
+        # mixed bac and arc assemblySet
+        assembly_items = []
+        for assembly_ref in cls.bac_assy:
+            assembly_items.append({'ref': assembly_ref, 'label': assembly_ref})
+        for assembly_ref in cls.arch_assemblies:
+            assembly_items.append({'ref': assembly_ref, 'label': assembly_ref})
+        assemblySet_name = 'Mixed_Bac_and_Arc.AssemblySet'
+        assemblySet_obj = { 'description': 'AssemblySet for Mixed Bac and Arc assemblies',
+                            'items': assembly_items
+                           }
+        try:
+            cls.mixed_assemblySet = cls.setAPI.save_assembly_set_v1 (
+                {'workspace_name': cls.wsName,
+                 'output_object_name': assemblySet_name,
+                 'data': assemblySet_obj,
+                 })['set_ref']
+        except Exception as e:
+            raise ValueError ("ABORT: unable to save Bac AssemblySet object.\n"+str(e))
+
+        
         
     ##############
     # UNIT TESTS #
@@ -354,6 +391,44 @@ class kb_gtdbtkTest(unittest.TestCase):
                                                                 'output_tree_basename': 'GTDB_Tree',
                                                                 'copy_proximals': 1,
                                                                 'save_trees': 1,
+                                                                'db_ver': 214,
+                                                                'keep_intermediates': 1,
+                                                                'overwrite_tax': '1',
+                                                                'dendrogram_report': 0
+                                                            })[0]
+        # TODO: test report content
+        assert self.isUpa (report['report_ref'])
+
+
+    # test challenging bac assemblySet input
+    #
+    # HIDE @unittest.skip("skipped test_classify_wf_hard_bac_assemblyset()")  # uncomment to skip
+    def test_classify_wf_hard_bac_assemblyset(self):
+        report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, { \
+                                                                'workspace_id': self.wsid,
+                                                                'input_object_ref': self.bac_assemblySet,
+                                                                'output_tree_basename': 'GTDB_Tree',
+                                                                'copy_proximals': 0,
+                                                                'save_trees': 0,
+                                                                'db_ver': 214,
+                                                                'keep_intermediates': 1,
+                                                                'overwrite_tax': '1',
+                                                                'dendrogram_report': 0
+                                                            })[0]
+        # TODO: test report content
+        assert self.isUpa (report['report_ref'])
+
+
+    # test mixed assemblySet input
+    #
+    # HIDE @unittest.skip("skipped test_classify_wf_mixed_assemblyset()")  # uncomment to skip
+    def test_classify_wf_mixed_assemblyset(self):
+        report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, { \
+                                                                'workspace_id': self.wsid,
+                                                                'input_object_ref': self.mixed_assemblySet,
+                                                                'output_tree_basename': 'GTDB_Tree',
+                                                                'copy_proximals': 0,
+                                                                'save_trees': 0,
                                                                 'db_ver': 214,
                                                                 'keep_intermediates': 1,
                                                                 'overwrite_tax': '1',

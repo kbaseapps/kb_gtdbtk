@@ -190,7 +190,7 @@ class kb_gtdbtk:
         objects_created = None
         top_query_obj_type = get_obj_type (params.ref, cli)
         if check_obj_type_assembly (top_query_obj_type) or check_obj_type_genome (top_query_obj_type):
-            self.log(console, "Update Genome objects lineage files")
+            self.log(console, "Update Genome and Assembly objects and lineage files")
             if params.db_ver == 207:
                 taxon_assignment_field = 'GTDB_R07-RS207'
             else:
