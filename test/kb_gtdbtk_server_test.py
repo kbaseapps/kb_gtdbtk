@@ -9,6 +9,7 @@ import json
 from pathlib import Path
 from configparser import ConfigParser
 from shutil import copyfile
+from shutil import rmtree
 
 from kb_gtdbtk.kb_gtdbtkImpl import kb_gtdbtk
 from kb_gtdbtk.kb_gtdbtkServer import MethodContext
@@ -263,8 +264,16 @@ class kb_gtdbtkTest(unittest.TestCase):
         except Exception as e:
             raise ValueError ("ABORT: unable to save Bac AssemblySet object.\n"+str(e))
 
-        
-        
+    @classmethod
+    def clean_scratch_dir(cls):
+        for inode in os.listdir(cls.scratch):
+            path = os.path.join (cls.scratch, inode)
+            if os.path.isdir(path):
+                rmtree (path)
+            else:
+                os.remove (path)
+
+                
     ##############
     # UNIT TESTS #
     ##############
@@ -272,8 +281,9 @@ class kb_gtdbtkTest(unittest.TestCase):
     # test bacterial assembly input against order-level subtrees (takes about 1 hr)
     #  Note: single assembly not available from narrative widget, only direct call by power user
     #
-    # HIDE @unittest.skip("skipped test_classify_wf_assembly()")  # uncomment to skip
+    @unittest.skip("skipped test_classify_wf_assembly()")  # uncomment to skip
     def test_classify_wf_assembly(self):
+        self.clean_scratch_dir()
         report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, { \
                                                                 'workspace_id': self.wsid,
                                                                 'input_object_ref': self.bac_assy[0],
@@ -307,6 +317,7 @@ class kb_gtdbtkTest(unittest.TestCase):
     #
     @unittest.skip("skipped test_classify_wf_binnedcontigs_subtrees()")  # uncomment to skip
     def test_classify_wf_binnedcontigs_subtrees(self):
+        self.clean_scratch_dir()
         report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, { \
                                                                 'workspace_id': self.wsid,
                                                                 'input_object_ref': self.binned_contigs,
@@ -324,8 +335,9 @@ class kb_gtdbtkTest(unittest.TestCase):
 
     # test archaeal assemblySet input (takes a few minutes)
     #
-    @unittest.skip("skipped test_classify_wf_assemblyset()")  # uncomment to skip
+    # HIDE @unittest.skip("skipped test_classify_wf_assemblyset()")  # uncomment to skip
     def test_classify_wf_assemblyset(self):
+        self.clean_scratch_dir()
         report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, { \
                                                                 'workspace_id': self.wsid,
                                                                 'input_object_ref': self.arch_assemblySet,
@@ -346,6 +358,7 @@ class kb_gtdbtkTest(unittest.TestCase):
     #
     @unittest.skip("skipped test_classify_wf_genome_r207()")  # uncomment to skip
     def test_classify_wf_genome_r207(self):
+        self.clean_scratch_dir()
         report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, { \
                                                                 'workspace_id': self.wsid,
                                                                 'input_object_ref': self.arch_genomes[0],
@@ -366,6 +379,7 @@ class kb_gtdbtkTest(unittest.TestCase):
     #
     @unittest.skip("skipped test_classify_wf_genome_r214()")  # uncomment to skip
     def test_classify_wf_genome_r214(self):
+        self.clean_scratch_dir()
         report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, { \
                                                                 'workspace_id': self.wsid,
                                                                 'input_object_ref': self.arch_genomes[0],
@@ -386,6 +400,7 @@ class kb_gtdbtkTest(unittest.TestCase):
     #
     @unittest.skip("skipped test_classify_wf_genomeset()")  # uncomment to skip
     def test_classify_wf_genomeset(self):
+        self.clean_scratch_dir()
         report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, { \
                                                                 'workspace_id': self.wsid,
                                                                 'input_object_ref': self.arch_genomeSet,
@@ -405,6 +420,7 @@ class kb_gtdbtkTest(unittest.TestCase):
     #
     @unittest.skip("skipped test_classify_wf_hard_bac_assemblyset()")  # uncomment to skip
     def test_classify_wf_hard_bac_assemblyset(self):
+        self.clean_scratch_dir()
         report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, { \
                                                                 'workspace_id': self.wsid,
                                                                 'input_object_ref': self.bac_assemblySet,
@@ -424,6 +440,7 @@ class kb_gtdbtkTest(unittest.TestCase):
     #
     @unittest.skip("skipped test_classify_wf_mixed_assemblyset()")  # uncomment to skip
     def test_classify_wf_mixed_assemblyset(self):
+        self.clean_scratch_dir()
         report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, { \
                                                                 'workspace_id': self.wsid,
                                                                 'input_object_ref': self.mixed_assemblySet,
@@ -445,6 +462,7 @@ class kb_gtdbtkTest(unittest.TestCase):
     # SKIP THIS!!!
     @unittest.skip("skipped test_classify_wf_genomeset()")  # uncomment to skip
     def test_passalid_errors(self):
+        self.clean_scratch_dir()
         report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, { \
                                                                 'workspace_id': 114952,
                                                                 'input_object_ref': '114952/487/3',

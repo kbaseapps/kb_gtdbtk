@@ -191,8 +191,8 @@ description : |
         <li>
         Eddy SR. 2011. <a href="https://www.ncbi.nlm.nih.gov/pubmed/22039361">Accelerated profile HMM searches</a>. <i>PLOS Comp. Biol.</i>, 7:e1002195.
         </li>
-	<li>
-	Ondov BD, Treangen TJ, Melsted P, Mallonee AB, Bergman NH, Koren S, Phillippy AM. 2016 <a href="https://pubmed.ncbi.nlm.nih.gov/27323842/">Mash: fast genome and metagenome distance estimation using MinHash</a>. <i>Genome Biol.</i> 17(1):132.
+        <li>
+        Ondov BD, Treangen TJ, Melsted P, Mallonee AB, Bergman NH, Koren S, Phillippy AM. 2016 <a href="https://pubmed.ncbi.nlm.nih.gov/27323842/">Mash: fast genome and metagenome distance estimation using MinHash</a>. <i>Genome Biol.</i> 17(1):132.
         </li>
     </ul>
     
