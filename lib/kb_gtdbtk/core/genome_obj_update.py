@@ -343,6 +343,7 @@ def _write_gtdb_tree_html_file (out_dir, files_for_html):
         #tax_level_order = ['d', 'p', 'c', 'o', 'f', 'g']
         tax_level_order = ['p', 'c', 'o', 'f', 'g']
         first_row = True
+        tree_key_taxon_seen = dict()  # need to reset in case multiple trees have same taxon
         for tax_level in tax_level_order:  # phylum -> genus
             for taxon in sorted (lineages.keys()):
                 if taxon[0] != tax_level:
@@ -804,7 +805,7 @@ def save_gtdb_tree_objs (workspace_id,
     # read trees and collect contained genomes
     tree_files = ['gtdbtk.ar53.classify.tree',
                   'gtdbtk.bac120.classify.tree']
-    extra_bac_tree_files = []
+    extra_bac_tree_files = ['gtdbtk.backbone.bac120.classify.tree']
     for i in range(10000):
         subtree_file = 'gtdbtk.bac120.classify.tree.'+str(i)+'.tree'
         extra_bac_tree_files.append(subtree_file)

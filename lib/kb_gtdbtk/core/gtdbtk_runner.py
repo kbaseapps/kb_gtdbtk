@@ -210,7 +210,7 @@ def _process_output_files(temp_output, temp_trees_output, out_dir, id_to_name):
                   }
 
     # copy tree files to output
-    extra_bac_tree_files = []
+    extra_bac_tree_files = ['gtdbtk.backbone.bac120.classify.tree']
     for i in range(10000):
         subtree_file = 'gtdbtk.bac120.classify.tree.'+str(i)+'.tree'
         extra_bac_tree_files.append(subtree_file)

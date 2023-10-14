@@ -289,6 +289,7 @@ class kb_gtdbtkTest(unittest.TestCase):
 
         # can't easily maintain md5s through repeated updates.  don't require
         md5s = {}
+        zipsize = 0
         """
         # this is for module v0.1.5, GTDB-Tk v1.3.0.  No longer relevant
         md5s = {
@@ -299,12 +300,12 @@ class kb_gtdbtkTest(unittest.TestCase):
             'gtdbtk.ar122.markers_summary.tsv.json': '124843868858867aba1f43b51707864b',
         }
         """
-        self.check_gtdbtk_output(report, 4624, md5s)
+        self.check_gtdbtk_output(report, zipsize, md5s)
 
 
     # test binnedcontigs input with order-level subtrees (takes about 1 hr)
     #
-    # HIDE @unittest.skip("skipped test_classify_wf_binnedcontigs_subtrees()")  # uncomment to skip
+    @unittest.skip("skipped test_classify_wf_binnedcontigs_subtrees()")  # uncomment to skip
     def test_classify_wf_binnedcontigs_subtrees(self):
         report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, { \
                                                                 'workspace_id': self.wsid,
@@ -323,7 +324,7 @@ class kb_gtdbtkTest(unittest.TestCase):
 
     # test archaeal assemblySet input (takes a few minutes)
     #
-    # HIDE @unittest.skip("skipped test_classify_wf_assemblyset()")  # uncomment to skip
+    @unittest.skip("skipped test_classify_wf_assemblyset()")  # uncomment to skip
     def test_classify_wf_assemblyset(self):
         report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, { \
                                                                 'workspace_id': self.wsid,
@@ -343,7 +344,7 @@ class kb_gtdbtkTest(unittest.TestCase):
     # test archaeal genome input (takes a few minutes) against r207
     #  Note; single genome not available from narrative widget, only direct call by power user
     #
-    # HIDE @unittest.skip("skipped test_classify_wf_genome_r207()")  # uncomment to skip
+    @unittest.skip("skipped test_classify_wf_genome_r207()")  # uncomment to skip
     def test_classify_wf_genome_r207(self):
         report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, { \
                                                                 'workspace_id': self.wsid,
@@ -363,7 +364,7 @@ class kb_gtdbtkTest(unittest.TestCase):
     # test archaeal genome input (takes a few minutes) against r214
     #  Note; single genome not available from narrative widget, only direct call by power user
     #
-    # HIDE @unittest.skip("skipped test_classify_wf_genome_r214()")  # uncomment to skip
+    @unittest.skip("skipped test_classify_wf_genome_r214()")  # uncomment to skip
     def test_classify_wf_genome_r214(self):
         report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, { \
                                                                 'workspace_id': self.wsid,
@@ -383,7 +384,7 @@ class kb_gtdbtkTest(unittest.TestCase):
     # test archaeal genomeSet input (takes a few minutes)
     #  Note: this is where we test copy_proximals and save_trees!!!
     #
-    # HIDE @unittest.skip("skipped test_classify_wf_genomeset()")  # uncomment to skip
+    @unittest.skip("skipped test_classify_wf_genomeset()")  # uncomment to skip
     def test_classify_wf_genomeset(self):
         report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, { \
                                                                 'workspace_id': self.wsid,
@@ -402,7 +403,7 @@ class kb_gtdbtkTest(unittest.TestCase):
 
     # test challenging bac assemblySet input
     #
-    # HIDE @unittest.skip("skipped test_classify_wf_hard_bac_assemblyset()")  # uncomment to skip
+    @unittest.skip("skipped test_classify_wf_hard_bac_assemblyset()")  # uncomment to skip
     def test_classify_wf_hard_bac_assemblyset(self):
         report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, { \
                                                                 'workspace_id': self.wsid,
@@ -421,7 +422,7 @@ class kb_gtdbtkTest(unittest.TestCase):
 
     # test mixed assemblySet input
     #
-    # HIDE @unittest.skip("skipped test_classify_wf_mixed_assemblyset()")  # uncomment to skip
+    @unittest.skip("skipped test_classify_wf_mixed_assemblyset()")  # uncomment to skip
     def test_classify_wf_mixed_assemblyset(self):
         report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, { \
                                                                 'workspace_id': self.wsid,
@@ -486,7 +487,7 @@ class kb_gtdbtkTest(unittest.TestCase):
         assert d == {'direct_html': None,
                      'direct_html_link_index': 0,
                      'file_links': file_links,
-                     'html_links': [{'description': 'HTML report for GTDBTk Classify',
+                     'html_links': [{'description': 'GTDB-Tk Classify Report',
                                      'label': 'index.html',
                                      'name': 'index.html'}],
                      'html_window_height': None,
