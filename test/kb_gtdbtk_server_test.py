@@ -281,7 +281,7 @@ class kb_gtdbtkTest(unittest.TestCase):
     # test bacterial assembly input against order-level subtrees (takes about 1 hr)
     #  Note: single assembly not available from narrative widget, only direct call by power user
     #
-    @unittest.skip("skipped test_classify_wf_assembly()")  # uncomment to skip
+    # HIDE @unittest.skip("skipped test_classify_wf_assembly()")  # uncomment to skip
     def test_classify_wf_assembly(self):
         self.clean_scratch_dir()
         report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, { \
@@ -313,9 +313,9 @@ class kb_gtdbtkTest(unittest.TestCase):
         self.check_gtdbtk_output(report, zipsize, md5s)
 
 
-    # test binnedcontigs input with order-level subtrees (takes about 1 hr)
+    # test binnedcontigs input with class-level subtrees (takes about 1 hr)
     #
-    @unittest.skip("skipped test_classify_wf_binnedcontigs_subtrees()")  # uncomment to skip
+    # HIDE @unittest.skip("skipped test_classify_wf_binnedcontigs_subtrees()")  # uncomment to skip
     def test_classify_wf_binnedcontigs_subtrees(self):
         self.clean_scratch_dir()
         report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, { \
@@ -356,7 +356,7 @@ class kb_gtdbtkTest(unittest.TestCase):
     # test archaeal genome input (takes a few minutes) against r207
     #  Note; single genome not available from narrative widget, only direct call by power user
     #
-    @unittest.skip("skipped test_classify_wf_genome_r207()")  # uncomment to skip
+    # HIDE @unittest.skip("skipped test_classify_wf_genome_r207()")  # uncomment to skip
     def test_classify_wf_genome_r207(self):
         self.clean_scratch_dir()
         report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, { \
@@ -377,7 +377,7 @@ class kb_gtdbtkTest(unittest.TestCase):
     # test archaeal genome input (takes a few minutes) against r214
     #  Note; single genome not available from narrative widget, only direct call by power user
     #
-    @unittest.skip("skipped test_classify_wf_genome_r214()")  # uncomment to skip
+    # HIDE @unittest.skip("skipped test_classify_wf_genome_r214()")  # uncomment to skip
     def test_classify_wf_genome_r214(self):
         self.clean_scratch_dir()
         report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, { \
@@ -398,7 +398,7 @@ class kb_gtdbtkTest(unittest.TestCase):
     # test archaeal genomeSet input (takes a few minutes)
     #  Note: this is where we test copy_proximals and save_trees!!!
     #
-    @unittest.skip("skipped test_classify_wf_genomeset()")  # uncomment to skip
+    # HIDE @unittest.skip("skipped test_classify_wf_genomeset()")  # uncomment to skip
     def test_classify_wf_genomeset(self):
         self.clean_scratch_dir()
         report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, { \
@@ -418,7 +418,7 @@ class kb_gtdbtkTest(unittest.TestCase):
 
     # test challenging bac assemblySet input
     #
-    @unittest.skip("skipped test_classify_wf_hard_bac_assemblyset()")  # uncomment to skip
+    # HIDE @unittest.skip("skipped test_classify_wf_hard_bac_assemblyset()")  # uncomment to skip
     def test_classify_wf_hard_bac_assemblyset(self):
         self.clean_scratch_dir()
         report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, { \
@@ -438,7 +438,7 @@ class kb_gtdbtkTest(unittest.TestCase):
 
     # test mixed assemblySet input
     #
-    @unittest.skip("skipped test_classify_wf_mixed_assemblyset()")  # uncomment to skip
+    # HIDE @unittest.skip("skipped test_classify_wf_mixed_assemblyset()")  # uncomment to skip
     def test_classify_wf_mixed_assemblyset(self):
         self.clean_scratch_dir()
         report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, { \
