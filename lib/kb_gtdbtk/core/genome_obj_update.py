@@ -19,9 +19,6 @@ from kb_gtdbtk.core.kb_client_set import KBClients
 [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I,
  WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple    
 
-# global for tree html
-tree_key_taxon_seen = dict()
-
 
 # get_obj_info ()
 def get_obj_info (
@@ -339,11 +336,13 @@ def _write_gtdb_tree_html_file (out_dir, files_for_html):
         indent_cnt = 0
         key_box_size = '15px'
         key_font_size = key_box_size
-        table_buf += ['<td align=left valign=middle><table border=0>']
+        table_buf += ['<td align=left valign=top><table border=0>']
         #tax_level_order = ['d', 'p', 'c', 'o', 'f', 'g']
         tax_level_order = ['p', 'c', 'o', 'f', 'g']
         first_row = True
+        global tree_key_taxon_seen
         tree_key_taxon_seen = dict()  # need to reset in case multiple trees have same taxon
+
         for tax_level in tax_level_order:  # phylum -> genus
             for taxon in sorted (lineages.keys()):
                 if taxon[0] != tax_level:
@@ -351,6 +350,8 @@ def _write_gtdb_tree_html_file (out_dir, files_for_html):
                 if taxon not in tree_key_taxon_seen:
                     if first_row:
                         first_row = False
+                        table_buf += ['<tr><td>&nbsp;</td></tr>']
+                        table_buf += ['<tr><td>&nbsp;</td></tr>']
                     else:
                         table_buf += ['<tr><td>&nbsp;</td></tr>']
                     table_buf += add_tree_key_row (taxon, lineages, taxon_color, indent_cnt, key_box_size, key_font_size)

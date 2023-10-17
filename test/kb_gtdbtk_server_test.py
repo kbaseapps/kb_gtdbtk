@@ -264,6 +264,7 @@ class kb_gtdbtkTest(unittest.TestCase):
         except Exception as e:
             raise ValueError ("ABORT: unable to save Bac AssemblySet object.\n"+str(e))
 
+
     @classmethod
     def clean_scratch_dir(cls):
         for inode in os.listdir(cls.scratch):
