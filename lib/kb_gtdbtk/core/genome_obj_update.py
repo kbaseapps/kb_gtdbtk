@@ -19,9 +19,6 @@ from kb_gtdbtk.core.kb_client_set import KBClients
 [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I,
  WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple    
 
-# global for tree html
-tree_key_taxon_seen = dict()
-
 
 # get_obj_info ()
 def get_obj_info (
@@ -186,7 +183,7 @@ def _format_gtdbtk_tree_to_itol (in_tree_path):
     
 # _trim_tree()
 #
-def _trim_tree (in_tree_path, leaflist_file, leaflist_outfile, lineage_outfile):
+def _trim_tree (in_tree_path, leaflist_file, leaflist_outfile, lineage_outfile, db_ver):
     print ("trimming tree "+str(in_tree_path))
     trim_bin = os.path.join ('/kb', 'module', 'bin', 'trim_tree_to_target_leaves.py')
     
@@ -200,7 +197,9 @@ def _trim_tree (in_tree_path, leaflist_file, leaflist_outfile, lineage_outfile):
                 '--intree', str(in_tree_path),
                 '--outtree', str(out_tree_path),
                 '--leaflist', str(leaflist_file),
-                '--targetleafoutfile', str(leaflist_outfile)
+                '--targetleafoutfile', str(leaflist_outfile),
+                '--archaea_metadata_file', str('/data/r'+str(db_ver)+'/ar53_metadata_r'+str(db_ver)+'.tsv'),
+                '--bacteria_metadata_file', str('/data/r'+str(db_ver)+'/bac120_metadata_r'+str(db_ver)+'.tsv')
                 ]
     print ("RUNNING: "+" ".join(trim_cmd))
     env = dict(os.environ)
@@ -217,7 +216,9 @@ def _trim_tree (in_tree_path, leaflist_file, leaflist_outfile, lineage_outfile):
                 '--outtree', str(out_tree_path),
                 '--leaflist', str(leaflist_file),
                 '--targetleafoutfile', str(leaflist_outfile),
-                '--gtdblineageoutfile', str(lineage_outfile)
+                '--gtdblineageoutfile', str(lineage_outfile),
+                '--archaea_metadata_file', str('/data/r'+str(db_ver)+'/ar53_metadata_r'+str(db_ver)+'.tsv'),
+                '--bacteria_metadata_file', str('/data/r'+str(db_ver)+'/bac120_metadata_r'+str(db_ver)+'.tsv')
                 ]
     trim_cmd.append('--sisters')
     print ("RUNNING: "+" ".join(trim_cmd))
@@ -335,10 +336,13 @@ def _write_gtdb_tree_html_file (out_dir, files_for_html):
         indent_cnt = 0
         key_box_size = '15px'
         key_font_size = key_box_size
-        table_buf += ['<td align=left valign=middle><table border=0>']
+        table_buf += ['<td align=left valign=top><table border=0>']
         #tax_level_order = ['d', 'p', 'c', 'o', 'f', 'g']
         tax_level_order = ['p', 'c', 'o', 'f', 'g']
         first_row = True
+        global tree_key_taxon_seen
+        tree_key_taxon_seen = dict()  # need to reset in case multiple trees have same taxon
+
         for tax_level in tax_level_order:  # phylum -> genus
             for taxon in sorted (lineages.keys()):
                 if taxon[0] != tax_level:
@@ -346,6 +350,8 @@ def _write_gtdb_tree_html_file (out_dir, files_for_html):
                 if taxon not in tree_key_taxon_seen:
                     if first_row:
                         first_row = False
+                        table_buf += ['<tr><td>&nbsp;</td></tr>']
+                        table_buf += ['<tr><td>&nbsp;</td></tr>']
                     else:
                         table_buf += ['<tr><td>&nbsp;</td></tr>']
                     table_buf += add_tree_key_row (taxon, lineages, taxon_color, indent_cnt, key_box_size, key_font_size)
@@ -390,8 +396,11 @@ def get_sp_rep_hits (summary_tables, query_assembly_to_genome_name):
             #this_assembly_id = item[key].replace('_assembly','')
             this_assembly_id = item[key]
             #print ("DEBUG: adding hits for query assembly ID {}".format(this_assembly_id))  # DEBUG
-            this_genome_id = query_assembly_to_genome_name[this_assembly_id]
-            sp_reps_by_query[this_genome_id] = []
+            this_query_id = this_assembly_id
+            if this_assembly_id in query_assembly_to_genome_name:
+                this_genome_id = query_assembly_to_genome_name[this_assembly_id]
+                this_query_id = this_genome_id
+            sp_reps_by_query[this_query_id] = []
 
             #print ("DEBUG: adding hits for query genome ID {}".format(this_genome_id))  # DEBUG
             
@@ -400,8 +409,8 @@ def get_sp_rep_hits (summary_tables, query_assembly_to_genome_name):
                 if item.get(sp_rep_f) and item.get(sp_rep_f) != '-':
                     sp_rep_id = item[sp_rep_f]
                     all_sp_reps[sp_rep_id] = True
-                    if sp_rep_id not in sp_reps_by_query[this_genome_id]:
-                        sp_reps_by_query[this_genome_id].append(sp_rep_id)
+                    if sp_rep_id not in sp_reps_by_query[this_query_id]:
+                        sp_reps_by_query[this_query_id].append(sp_rep_id)
 
             # multiple hits
             sp_rep_f = multi_sp_rep_field
@@ -410,8 +419,8 @@ def get_sp_rep_hits (summary_tables, query_assembly_to_genome_name):
                     sp_rep_id = sp_rep_hit.split(',')[0]
                     sp_rep_id = sp_rep_id.strip()
                     all_sp_reps[sp_rep_id] = True
-                    if sp_rep_id not in sp_reps_by_query[this_genome_id]:
-                        sp_reps_by_query[this_genome_id].append(sp_rep_id)
+                    if sp_rep_id not in sp_reps_by_query[this_query_id]:
+                        sp_reps_by_query[this_query_id].append(sp_rep_id)
 
     return (all_sp_reps, sp_reps_by_query)
 
@@ -521,6 +530,7 @@ def process_tree_files (top_upa,
                         out_dir,
                         summary_tables,
                         classification,
+                        db_ver,
                         dendrogram_report,
                         clients):
     upload_files = []
@@ -529,7 +539,7 @@ def process_tree_files (top_upa,
     id_map_path = os.path.join(out_dir, 'id_to_name.map')
     tree_files = ['gtdbtk.ar53.classify.tree',
                   'gtdbtk.bac120.classify.tree']
-    extra_bac_tree_files = []
+    extra_bac_tree_files = ['gtdbtk.backbone.bac120.classify.tree']
     for i in range(10000):
         subtree_file = 'gtdbtk.bac120.classify.tree.'+str(i)+'.tree'
         extra_bac_tree_files.append(subtree_file)
@@ -578,7 +588,6 @@ def process_tree_files (top_upa,
         in_tree_path = os.path.join (out_dir, tree_file)
         if os.path.isfile(in_tree_path):
 
-
             # add sp rep hits, separate for each tree so no overlaps without query across trees
             this_tree_id_map_buf = []
             this_tree_id_map_buf.extend(id_map_buf)
@@ -595,7 +604,7 @@ def process_tree_files (top_upa,
             new_id_map_with_sp_rep_hits_path = re.sub('.tree$', '.id_to_name-with_proximal_sp_reps-newleafnames.map', str(in_tree_path))
             lineage_path = re.sub('.tree$', '-lineages.map', str(in_tree_path))
             
-            trimmed_tree_paths = _trim_tree (in_tree_path, id_map_with_sp_rep_hits_path, new_id_map_with_sp_rep_hits_path, lineage_path)
+            trimmed_tree_paths = _trim_tree (in_tree_path, id_map_with_sp_rep_hits_path, new_id_map_with_sp_rep_hits_path, lineage_path, db_ver)
 
             for trimmed_tree_path in trimmed_tree_paths:
 
@@ -797,7 +806,7 @@ def save_gtdb_tree_objs (workspace_id,
     # read trees and collect contained genomes
     tree_files = ['gtdbtk.ar53.classify.tree',
                   'gtdbtk.bac120.classify.tree']
-    extra_bac_tree_files = []
+    extra_bac_tree_files = ['gtdbtk.backbone.bac120.classify.tree']
     for i in range(10000):
         subtree_file = 'gtdbtk.bac120.classify.tree.'+str(i)+'.tree'
         extra_bac_tree_files.append(subtree_file)
@@ -1004,9 +1013,9 @@ def process_assembly_objs(primary_wsid, top_obj, upa, upas, classification, over
         original_upa = assembly_upa
         
         if not assemblyset_query:
-            assembly_obj = clients.dfu().get_objects({'object_refs': [assembly_upa]})['data'][0]
-        else:
             assembly_obj = top_obj
+        else:
+            assembly_obj = clients.dfu().get_objects({'object_refs': [assembly_upa]})['data'][0]
         assembly_name = assembly_obj['info'][NAME_I]
 
         if assembly_name not in classification:
@@ -1015,8 +1024,8 @@ def process_assembly_objs(primary_wsid, top_obj, upa, upas, classification, over
             continue
         else:
             any_assembly_updated = True
-        
 
+            
         # set std_lineage GTDB field in assembly obj
         this_classification = classification[assembly_name]
         this_taxon_id = get_taxon_id (this_classification)
@@ -1063,8 +1072,9 @@ def get_taxon_id (this_classification):
 # get_std_lineages ()
 #
 def get_std_lineages (this_classification, gtdb_ver, this_taxon_id):
+    source_ver = str(gtdb_ver)+'.0'
     return { 'gtdb': { 'lineage': this_classification,
-                       'source_ver': gtdb_ver,
+                       'source_ver': source_ver,
                        'taxon_id': this_taxon_id
                        #'source_id': None
                      }

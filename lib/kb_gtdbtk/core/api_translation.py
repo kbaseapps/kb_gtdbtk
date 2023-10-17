@@ -28,8 +28,8 @@ class GTDBTKParams(_NamedTuple):
     min_perc_aa: float
     ''' The mimimum sequence alignment in percent. '''
 
-    full_tree: int
-    ''' Boolean use full tree or class-level subtrees '''
+    db_ver: int
+    ''' version of GTDB db, either 207 or 214 '''
     
     keep_intermediates: int
     ''' Boolean retain intermediate files in classify_wf '''
@@ -85,9 +85,9 @@ def get_gtdbtk_params(input_params: Dict[str, object]) -> GTDBTKParams:
     elif min_perc_aa < 0 or min_perc_aa > 100:
         raise ValueError('min_perc_aa must be a float [0,100]')
 
-    full_tree = int(input_params.get('full_tree', 0))
-    if type(full_tree) != int or (full_tree != 0 and full_tree != 1):
-        raise ValueError('full_tree is required and must be an integer [0,1]')
+    db_ver = int(input_params.get('db_ver', 0))
+    if type(db_ver) != int or (db_ver != 207 and db_ver != 214):
+        raise ValueError('db_ver is required and must be an integer 207 or 214')
     
     keep_intermediates = int(input_params.get('keep_intermediates', 0))
     if type(keep_intermediates) != int or (keep_intermediates != 0 and keep_intermediates != 1):
@@ -108,7 +108,7 @@ def get_gtdbtk_params(input_params: Dict[str, object]) -> GTDBTKParams:
                         _cast(int, copy_proximals),
                         _cast(int, save_trees),
                         _cast(float, min_perc_aa) * 1.0,
-                        _cast(int, full_tree),
+                        _cast(int, db_ver),
                         _cast(int, keep_intermediates),
                         _cast(int, overwrite_tax),
                         _cast(int, dendrogram_report))

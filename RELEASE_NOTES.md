@@ -1,6 +1,16 @@
 # kb_gtdbtk release notes
 =========================
 
+1.4.0
+_____
+* Update GTDB-Tk to 2.3.2 (July 5th, 2023)
+* Update GTDB data to r214.1
+* Removed full_tree option (requires nodes with too much memory)
+* Added db_ver argument to allow either r207 or r214 refdata
+* Update Mash to v2.3
+* Generate mash_db for species rep genomes and add to refdata
+* Change to using NJS queue and 32 cpus
+
 1.3.0
 _____
 * copy GTDB species rep genome and assembly objects to local workspace

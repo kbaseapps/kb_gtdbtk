@@ -34,9 +34,9 @@ class kb_gtdbtk:
     # state. A method could easily clobber the state set by another while
     # the latter method is running.
     ######################################### noqa
-    VERSION = "1.3.0"
+    VERSION = "1.4.0"
     GIT_URL = "https://github.com/kbaseapps/kb_gtdbtk"
-    GIT_COMMIT_HASH = "64cbce798116c8013f18d26ca5976caa012fcab3"
+    GIT_COMMIT_HASH = "a9b1858968e9d181f989febe0ae4921ec9cdce10"
 
     #BEGIN_CLASS_HEADER
 
@@ -68,9 +68,7 @@ class kb_gtdbtk:
         self.shared_folder = Path(config['scratch'])
         self.ws_url = config['workspace-url']
         self.hs_url = config['handle-service-url']
-        self.cpus = config['cpus']  # bigmem 32 cpus & 251 GB RAM
-        self.gtdb_ver = config['gtdb_ver']
-        self.taxon_assignment_field = config['taxon_assignment_field']
+        self.cpus = config['cpus']  # bigmem 32 cpus & 251 GB RAM.  new gtdb-tk needs less mem.
         self.genome_upas_map_file = config['genome_upas_map_file']
         
         logging.basicConfig(format='%(created)s %(levelname)s: %(message)s',
@@ -91,10 +89,9 @@ class kb_gtdbtk:
            Long, parameter "input_object_ref" of String, parameter
            "output_tree_basename" of String, parameter "copy_proximals" of
            type "bool", parameter "save_trees" of type "bool", parameter
-           "min_perc_aa" of Double, parameter "full_tree" of type "bool",
-           parameter "keep_intermediates" of type "bool", parameter
-           "overwrite_tax" of type "bool", parameter "dendrogram_report" of
-           type "bool"
+           "min_perc_aa" of Double, parameter "db_ver" of Long, parameter
+           "keep_intermediates" of type "bool", parameter "overwrite_tax" of
+           type "bool", parameter "dendrogram_report" of type "bool"
         :returns: instance of type "ReportResults" (The results of the
            GTDB-tk run. report_name: The name of the report object in the
            workspace. report_ref: The UPA of the report object, e.g.
@@ -127,10 +124,9 @@ class kb_gtdbtk:
            Long, parameter "input_object_ref" of String, parameter
            "output_tree_basename" of String, parameter "copy_proximals" of
            type "bool", parameter "save_trees" of type "bool", parameter
-           "min_perc_aa" of Double, parameter "full_tree" of type "bool",
-           parameter "keep_intermediates" of type "bool", parameter
-           "overwrite_tax" of type "bool", parameter "dendrogram_report" of
-           type "bool"
+           "min_perc_aa" of Double, parameter "db_ver" of Long, parameter
+           "keep_intermediates" of type "bool", parameter "overwrite_tax" of
+           type "bool", parameter "dendrogram_report" of type "bool"
         :returns: instance of type "ReportResults" (The results of the
            GTDB-tk run. report_name: The name of the report object in the
            workspace. report_ref: The UPA of the report object, e.g.
@@ -180,7 +176,7 @@ class kb_gtdbtk:
                                                        output_path,
                                                        temp_output,
                                                        params.min_perc_aa,
-                                                       params.full_tree,
+                                                       params.db_ver,
                                                        params.keep_intermediates,
                                                        self.cpus)
 
@@ -194,13 +190,17 @@ class kb_gtdbtk:
         objects_created = None
         top_query_obj_type = get_obj_type (params.ref, cli)
         if check_obj_type_assembly (top_query_obj_type) or check_obj_type_genome (top_query_obj_type):
-            self.log(console, "Update Genome objects lineage files")
+            self.log(console, "Update Genome and Assembly objects and lineage files")
+            if params.db_ver == 207:
+                taxon_assignment_field = 'GTDB_R07-RS207'
+            else:
+                taxon_assignment_field = 'GTDB_R08-RS214'
             objects_created = update_genome_assembly_objs_class (params.workspace_id,
                                                                  params.ref,
                                                                  classification,
                                                                  params.overwrite_tax,
-                                                                 self.gtdb_ver,
-                                                                 self.taxon_assignment_field,
+                                                                 str(params.db_ver),
+                                                                 taxon_assignment_field,
                                                                  cli)
 
         
@@ -220,6 +220,7 @@ class kb_gtdbtk:
                                          output_path,
                                          summary_tables,
                                          classification,
+                                         str(params.db_ver),
                                          params.dendrogram_report,
                                          cli)
 

@@ -23,7 +23,7 @@ module kb_gtdbtk {
 	bool copy_proximals;
 	bool save_trees;
         float min_perc_aa;
-	bool full_tree;
+	int  db_ver;
 	bool keep_intermediates;
 	bool overwrite_tax;
 	bool dendrogram_report;
