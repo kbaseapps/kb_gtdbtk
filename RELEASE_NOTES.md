@@ -9,6 +9,7 @@ _____
 * Added db_ver argument to allow either r207 or r214 refdata
 * Update Mash to v2.3
 * Generate mash_db for species rep genomes and add to refdata
+* Change to using NJS queue and 32 cpus
 
 1.3.0
 _____
