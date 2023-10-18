@@ -1,10 +1,10 @@
 {
-    "ver": "1.2.0",
+    "ver": "1.4.0",
     "authors": [
-        "donovan_parks", "aaronmussig", "pchaumeil", "psdehal", "dylan"
+        "dylan", "donovan_parks", "aaronmussig", "pchaumeil", "psdehal"
     ],
     "contact": "http://www.kbase.us/support/",
-    "categories": ["active", "communities", "annotation"],
+    "categories": ["active", "phylogenetics", "comparative_genomics"],
     "widgets": {
         "input": null,
         "output": "no-display"
@@ -25,6 +25,66 @@
             }
         },
         {
+            "id": "output_tree_basename",
+            "optional": false,
+            "advanced": false,
+            "allow_multiple": false,
+            "default_values": [ "GTDB_Tree" ],
+            "field_type": "text",
+            "text_options": {
+                "is_output_name": true,
+                "valid_ws_types": ["KBaseTrees.Tree"]
+            }
+        },
+	{
+            "id": "copy_proximals",
+            "optional": false,
+            "advanced": false,
+            "allow_multiple": false,
+            "default_values": [ 0 ],
+            "field_type": "dropdown",
+            "dropdown_options": {
+                "options": [
+                    {
+                        "value": 0,
+                        "display": "DON'T copy GTDB proximal genomes",
+                        "id": "copy_proximals-NO",
+                        "ui-name": "copy_proximals-NO"
+                    },
+                    {
+                        "value": 1,
+                        "display": "DO copy GTDB proximal genomes",
+                        "id": "copy_proximals-YES",
+                        "ui-name": "copy_proximals-YES"
+                    }
+                ]
+            }
+        },	
+        {
+            "id": "save_trees",
+            "optional": false,
+            "advanced": false,
+            "allow_multiple": false,
+            "default_values": [ 0 ],
+            "field_type": "dropdown",
+            "dropdown_options": {
+                "options": [
+                    {
+                        "value": 0,
+                        "display": "DON'T save Trees and copy GTDB tree genomes",
+                        "id": "save_trees-NO",
+                        "ui-name": "save_trees-NO"
+                    },
+                    {
+                        "value": 1,
+                        "display": "DO save Trees and copy GTDB tree genomes",
+                        "id": "save_trees-YES",
+                        "ui-name": "save_trees-YES"
+                    }
+                ]
+            }
+        },	
+        {
             "id": "min_perc_aa",
             "optional": true,
             "advanced": true,
@@ -38,25 +98,25 @@
             }
         },
         {
-            "id": "full_tree",
-            "optional": true,
+            "id": "db_ver",
+            "optional": false,
             "advanced": true,
             "allow_multiple": false,
-            "default_values": [ 0 ],
+            "default_values": [ 214 ],
             "field_type": "dropdown",
             "dropdown_options": {
                 "options": [
                     {
-                        "value": 0,
-                        "display": "use order-level subtrees",
-                        "id": "full_tree-NO",
-                        "ui-name": "full_tree-NO"
+                        "value": 207,
+                        "display": "r207",
+                        "id": "db_ver-207",
+                        "ui-name": "db_ver-207"
                     },
                     {
-                        "value": 1,
-                        "display": "use full tree",
-                        "id": "full_tree-YES",
-                        "ui-name": "full_tree-YES"
+                        "value": 214,
+                        "display": "r214",
+                        "id": "db_ver-214",
+                        "ui-name": "db_ver-214"
                     }
                 ]
             }
@@ -108,6 +168,30 @@
                     }
                 ]
             }
+        },	
+        {
+            "id": "dendrogram_report",
+            "optional": true,
+            "advanced": false,
+            "allow_multiple": false,
+            "default_values": [ 1 ],
+            "field_type": "dropdown",
+            "dropdown_options": {
+                "options": [
+                    {
+                        "value": 0,
+                        "display": "Use evolutionary distance branch lengths",
+                        "id": "dendrogram_report-NO",
+                        "ui-name": "dendrogram_report-NO"
+                    },
+                    {
+                        "value": 1,
+                        "display": "Use uniform branch lengths (dendrogram)",
+                        "id": "dendrogram_report-YES",
+                        "ui-name": "dendrogram_report-YES"
+                    }
+                ]
+            }
         }	
     ],
     "behavior": {
@@ -124,17 +208,29 @@
                     "target_property": "input_object_ref",
                     "target_type_transform":"ref"
                 },{
+                    "input_parameter": "output_tree_basename",
+                    "target_property": "output_tree_basename"
+                },{
+                    "input_parameter": "copy_proximals",
+                    "target_property": "copy_proximals"
+                },{
+                    "input_parameter": "save_trees",
+                    "target_property": "save_trees"
+                },{
                     "input_parameter": "min_perc_aa",
                     "target_property": "min_perc_aa"
                 },{
-                    "input_parameter": "full_tree",
-                    "target_property": "full_tree"
+                    "input_parameter": "db_ver",
+                    "target_property": "db_ver"
                 },{
                     "input_parameter": "keep_intermediates",
                     "target_property": "keep_intermediates"
                 },{
                     "input_parameter": "overwrite_tax",
                     "target_property": "overwrite_tax"
+                },{
+                    "input_parameter": "dendrogram_report",
+                    "target_property": "dendrogram_report"
                 }
             ],
             "output_mapping": [

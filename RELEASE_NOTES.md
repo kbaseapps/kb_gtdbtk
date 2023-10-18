@@ -1,9 +1,38 @@
 # kb_gtdbtk release notes
 =========================
 
+1.4.0
+_____
+* Update GTDB-Tk to 2.3.2 (July 5th, 2023)
+* Update GTDB data to r214.1
+* Removed full_tree option (requires nodes with too much memory)
+* Added db_ver argument to allow either r207 or r214 refdata
+* Update Mash to v2.3
+* Generate mash_db for species rep genomes and add to refdata
+* Change to using NJS queue and 32 cpus
+
+1.3.0
+_____
+* copy GTDB species rep genome and assembly objects to local workspace
+* trim GTDB tree to query genomes, proximal genomes, and one rep per sister branch
+* made trees and images available as file link downloads
+* added tree images to HTML report
+* added lineage file download
+
+1.2.4
+_____
+* save all updated objects to calling workspace
+* change all handles to user owned
+
+1.2.3
+_____
+* record lineage info from GTDB_R07-RS207 in genome obj and assembly obj
+* fix numpy at 1.23.1 for Prodigal np.bool invocation
+
 1.2.2
 _____
 * record taxon_assignment as GTDB_R07-RS207 in genome obj
+* optionally record taxonomy from GTDB_R07-RS207 in genome obj
 
 1.2.1
 _____
