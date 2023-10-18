@@ -1072,7 +1072,10 @@ def get_taxon_id (this_classification):
 # get_std_lineages ()
 #
 def get_std_lineages (this_classification, gtdb_ver, this_taxon_id):
-    source_ver = str(gtdb_ver)+'.0'
+    if str(gtdb_ver) == '214'):
+        source_ver = str(gtdb_ver)+'.1'
+    else:
+        source_ver = str(gtdb_ver)+'.0'
     return { 'gtdb': { 'lineage': this_classification,
                        'source_ver': source_ver,
                        'taxon_id': this_taxon_id
