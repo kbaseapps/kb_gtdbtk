@@ -1,5 +1,6 @@
 # kb_gtdbtk release notes
 =========================================
+
 1.0.1
 ______
 * Restoring previous version that was released due to recurring bug in newly release version (1.4.0)
