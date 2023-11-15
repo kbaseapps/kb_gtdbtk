@@ -49,6 +49,10 @@ ______
 * Return all output from GTDB-Tk Classify workflow as downloadable ZIP archive, especially classify.tree
 * Don't accept individual Genomes or Assemblies to avoid wasteful runs.  Require GenomeSet or AssemblySet.
 
+1.0.1
+______
+* Restoring previous version that was released due to recurring bug in newly release version (1.4.0)
+  
 1.0.0
 ______
 * Update GTDB-Tk to v1.7.0
