@@ -29,12 +29,15 @@ def test_create_report():
             }
 
         ret = generate_report(
-            clis, test_dir, 78,
+            clis, test_dir, 78, None, [],
             uuid_gen=lambda: uuid.UUID('bd5c9ba0-db2c-4c03-b2de-92d9c94ce51e'))
 
+        shock_id = ret['archive_shock_id']
+        
         assert ret == {
             'report_ref': '78/5/1',
-            'report_name': 'GTDBTk_report_bd5c9ba0-db2c-4c03-b2de-92d9c94ce51e'
+            'report_name': 'GTDBTk_report_bd5c9ba0-db2c-4c03-b2de-92d9c94ce51e',
+            'archive_shock_id': shock_id
             }
 
         clis.report().create_extended_report.assert_called_once_with(
@@ -42,7 +45,11 @@ def test_create_report():
                  'html_links': [{'path': str(test_dir),
                                  'name': 'index.html',
                                  'label': 'index.html',
-                                 'description': 'HTML report for GTDBTk Classify'
+                                 'description': 'GTDB-Tk Classify Report'
+                                 }],
+                 'file_links': [{'shock_id': shock_id,
+                                 'name': 'GTDB-Tk_classify_wf.zip',
+                                 'description': 'GTDB-Tk Classify WF output'
                                  }],
                  'report_object_name': 'GTDBTk_report_bd5c9ba0-db2c-4c03-b2de-92d9c94ce51e',
                  'workspace_id': 78,

@@ -8,6 +8,8 @@ from installed_clients.DataFileUtilClient import DataFileUtil
 from installed_clients.KBaseReportClient import KBaseReport
 from installed_clients.MetagenomeUtilsClient import MetagenomeUtils
 from installed_clients.WorkspaceClient import Workspace
+from installed_clients.SetAPIClient import SetAPI
+from installed_clients.AbstractHandleClient import AbstractHandle
 
 # DEV NOTES: This is not tested in travis and must be tested manually.
 
@@ -17,7 +19,7 @@ class KBClients:
     A set of clients for KB-SDK modules.
     '''
 
-    def __init__(self, callback_url: str, workspace_url: str, user_token: str):
+    def __init__(self, callback_url: str, workspace_url: str, handle_srv_url: str, user_token: str):
         '''
         Create the client set.
 
@@ -31,6 +33,8 @@ class KBClients:
         self._mgu = MetagenomeUtils(callback_url, token=user_token)
         self._report = KBaseReport(callback_url, token=user_token)
         self._ws = Workspace(workspace_url, token=user_token)
+        self._setAPI = SetAPI(callback_url, token=user_token)
+        self._hs = AbstractHandle(handle_srv_url, token=user_token)
 
     # Using methods rather than instance variables since create_autospec doesn't play nicely
     # with instance variables.
@@ -69,3 +73,17 @@ class KBClients:
         :returns: the client.
         '''
         return self._report
+
+    def setAPI(self):
+        '''
+        Get the SetAPI client.
+        :returns: the client.
+        '''
+        return self._setAPI
+
+    def hs(self):
+        '''
+        Get the HandleService client.
+        :returns: the client.
+        '''
+        return self._hs

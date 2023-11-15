@@ -1,10 +1,10 @@
 #
 # define display information
 #
-name: GTDB-Tk classify
+name: GTDB-Tk Classify - v1.6.0
 
 tooltip: |
-    Obtain objective taxonomic assignments for bacterial and archaeal genomes based on the Genome Taxonomy Database (GTDB) ver 1.1.0
+    Obtain objective taxonomic assignments for bacterial and archaeal genomes based on the Genome Taxonomy Database (GTDB) ver R06-RS202
 
 screenshots: []
 
@@ -40,11 +40,10 @@ parameters :
 
 description : |
     <h3>Description</h3>
-    <p><b><a href="https://github.com/Ecogenomics/GTDBTk">GTDB-Tk v1.1.0</a></b> is a software toolkit for assigning objective taxonomic classifications to bacterial and archaeal genomes. It is designed to work with recent advances that allow hundreds or thousands of metagenome-assembled genomes (MAGs) to be obtained directly from environmental samples. It can also be applied to isolate and single-cell genomes.</p>
+    <p><b><a href="https://github.com/Ecogenomics/GTDBTk">GTDB-Tk v1.6.0</a></b> is a software toolkit for assigning objective taxonomic classifications to bacterial and archaeal genomes. It is designed to work with recent advances that allow hundreds or thousands of metagenome-assembled genomes (MAGs) to be obtained directly from environmental samples. It can also be applied to isolate and single-cell genomes.</p>
 
     <h3>Data</h3>
-    <p>This app is using gtdbtk release 89 data <a href="https://data.ace.uq.edu.au/public/gtdb/data/releases/release89/89.0/gtdbtk_r89_data.tar.gz">https://data.ace.uq.edu.au/public/gtdb/data/releases/release89/89.0/gtdbtk_r89_data.tar.gz</a></p>
-    <p><a href="https://data.ace.uq.edu.au/public/gtdb/data/releases/release89/89.0/gtdbtk_r89_data.tar.gz">Data Release Notes</a></p>
+    <p>This app is using gtdbtk release 202 data <a href="https://data.gtdb.ecogenomic.org/releases/release202/202.0/auxillary_files/gtdbtk_r202_data.tar.gz">https://data.gtdb.ecogenomic.org/releases/release202/202.0/auxillary_files/gtdbtk_r202_data.tar.gz</a> (warning: clicking on link will start download 47.35 GB of data). This reference data corresponds to the GTDB R06-RS202 release.</p>
     <h3>About GTDB </h3>
     <a href='https://gtdb.ecogenomic.org/'>The Genome Taxonomy Database (GTDB)</a> is constructed from RefSeq and Genbank genomes, and releases are indexed to RefSeq releases. All genomes are quality controlled using <a href='https://github.com/Ecogenomics/CheckM/wiki'>CheckM</a> and those statistics can be found on the <a href='https://gtdb.ecogenomic.org/stats'>GTDB website</a>.
     <h3>References</h3>

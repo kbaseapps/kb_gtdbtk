@@ -34,7 +34,7 @@ This KBase apps wraps the GTDB-Tk commandline tool created by Donavan Parks, Pie
 
 ## Test modes
 
-GTDB-tk takes [100GB of memory and 30GB of disk to run](https://github.com/Ecogenomics/GTDBTk#hardware-requirements).
+GTDB-tk v1.7.0 takes a minimum of [212 GB of memory and 51 GB of disk to run](https://github.com/Ecogenomics/GTDBTk#hardware-requirements).
 Therefore it is generally not feasible to test in a CI environment (e.g. Travis-CI) or on a
 developer's personal computer.
 
@@ -76,9 +76,9 @@ make  # may be omitted after the first run
 kb-sdk test
 ```
 
-Running tests in this mode requires 30GB of reference data, 100GB of memory, and takes a few
-minutes. It runs all the tests, which includes an integration test with a KBase Assembly object.
-More tests should be added in the future. For KBase developers, the `dev1` machine in Chicago
+Running tests in this mode requires 51 GB of reference data, 212 GB of memory, and takes on the
+order of an hour. It runs all the tests, which includes an integration test with a KBase Assembly
+object. More tests should be added in the future. For KBase developers, the `dev1` machine in Chicago
 is a suitable place to run the full test suite and the reference data is already available in
 the `/kb/data/kb_gtdbtk` directory.
 

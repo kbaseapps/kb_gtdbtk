@@ -4,7 +4,9 @@ A KBase module: kb_gtdbtk
 
 module kb_gtdbtk {
 
-    /* Parameters for the GTDB-tk run.
+    typedef int bool;
+    
+    /* Parameters for the GTDB-tk Classify (classify_wf) run.
 
         Required:
         input_object_ref: A reference to the workspace object to process.
@@ -15,11 +17,19 @@ module kb_gtdbtk {
         
     */
     typedef structure {
-        string input_object_ref;
         int workspace_id;
+        string input_object_ref;
+	string output_tree_basename;
+	bool copy_proximals;
+	bool save_trees;
         float min_perc_aa;
-    } GTDBtkParams;
+	int  db_ver;
+	bool keep_intermediates;
+	bool overwrite_tax;
+	bool dendrogram_report;
+    } GTDBtk_Classify_Params;
 
+    
     /* The results of the GTDB-tk run.
 
         report_name: The name of the report object in the workspace.
@@ -30,10 +40,17 @@ module kb_gtdbtk {
         string report_ref;
     } ReportResults;
 
+
     /*
-        Run GTDB-tk.
+        Run GTDB-tk Classify (deprecated method name)
     */
-    funcdef run_kb_gtdbtk(GTDBtkParams params) returns (ReportResults output)
+    funcdef run_kb_gtdbtk(GTDBtk_Classify_Params params) returns (ReportResults output)
+        authentication required;
+
+    /*
+        Run GTDB-tk Classify
+    */
+    funcdef run_kb_gtdbtk_classify_wf(GTDBtk_Classify_Params params) returns (ReportResults output)
         authentication required;
 
 };

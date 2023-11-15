@@ -93,11 +93,11 @@
                         if ( t === 'BacteriaTab') {
                             dataFile = "gtdbtk.bac120.summary.tsv.json"
                         } else if ( t === 'ArchaeaTab') {
-                            dataFile = "gtdbtk.ar122.summary.tsv.json"
+                            dataFile = "gtdbtk.ar53.summary.tsv.json"
                         } else if ( t === 'BacteriaMarkerSummaryTab') {
                             dataFile = "gtdbtk.bac120.markers_summary.tsv.json"
                         } else if ( t === 'ArchaeaMarkerSummaryTab') {
-                            dataFile = "gtdbtk.ar122.markers_summary.tsv.json"
+                            dataFile = "gtdbtk.ar53.markers_summary.tsv.json"
                         }
 
                         $('.container').hide();
@@ -151,7 +151,7 @@
                                                                 data :
                                                             data;
                                                 }},
-                                                {"data": "aa_percent"},
+                                                {"data": "msa_percent"},
                                                 {"data": "red_value"},
                                                 {"data": "warnings"}
                                             ],
@@ -164,7 +164,7 @@
                                         $('#'+ t + 'Table').DataTable( {
                                             "ajax": dataFile,
                                             "columns": [
-                                                {"data": "Name"},
+                                                {"data": "name"},
                                                 {"data": "number_unique_genes"},
                                                 {"data": "number_multiple_genes"},
                                                 {"data": "number_missing_genes"},
@@ -211,35 +211,18 @@
     <body>
         <div id="tabs">
             <ul>
+                <li><a id="TreeTab">GTDB Trees</a></li>
+                <li><a id="KronaTab">Krona Chart</a></li>
                 <li><a id="BacteriaTab">Bacteria</a></li>
                 <li><a id="ArchaeaTab">Archaea</a></li>
                 <li><a id="BacteriaMarkerSummaryTab">Bacteria Marker Summary</a></li>
                 <li><a id="ArchaeaMarkerSummaryTab">Archaea Marker Summary</a></li>
             </ul>
-            <div id="ArchaeaTabC" class="container">
-                <table id="ArchaeaTabTable" class="display" styles="width:100%">
-                    <thead>
-                        <tr>
-                            <th>User Genome</th>
-                            <th>Classification</th>
-                            <th>FastANI Reference</th>
-                            <th>FastANI Reference Radius</th>
-                            <th>FastANI Taxonomy</th>
-                            <th>FastANI ANI</th>
-                            <th>FastANI Alignment Fraction</th>
-                            <th>Closest Placement Reference</th>
-                            <th>Closest Placement Taxonomy</th>
-                            <th>Closest Placement ANI</th>
-                            <th>Closest Placement Alignment Fraction</th>
-                            <th>Classification Method</th>
-                            <th>Note</th>
-                            <th>Other Related References</th>
-                            <th>AA Percent</th>
-                            <th>RED Value</th>
-                            <th>Warnings</th>
-                        </tr>
-                    </thead>
-                </table>
+            <div id="TreeTabC" class="container">
+                <iframe height="900px" width="100%" src="gtdb_trees.html" style="border:none;"></iframe>
+            </div>
+            <div id="KronaTabC" class="container">
+                <iframe height="900px" width="100%" src="krona_chart.html" style="border:none;"></iframe>
             </div>
             <div id="BacteriaTabC" class="container">
                 <table id="BacteriaTabTable" class="display" styles="width:100%">
@@ -259,7 +242,32 @@
                             <th>Classification Method</th>
                             <th>Note</th>
                             <th>Other Related References</th>
-                            <th>AA Percent</th>
+                            <th>MSA AA Percent</th>
+                            <th>RED Value</th>
+                            <th>Warnings</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+            <div id="ArchaeaTabC" class="container">
+                <table id="ArchaeaTabTable" class="display" styles="width:100%">
+                    <thead>
+                        <tr>
+                            <th>User Genome</th>
+                            <th>Classification</th>
+                            <th>FastANI Reference</th>
+                            <th>FastANI Reference Radius</th>
+                            <th>FastANI Taxonomy</th>
+                            <th>FastANI ANI</th>
+                            <th>FastANI Alignment Fraction</th>
+                            <th>Closest Placement Reference</th>
+                            <th>Closest Placement Taxonomy</th>
+                            <th>Closest Placement ANI</th>
+                            <th>Closest Placement Alignment Fraction</th>
+                            <th>Classification Method</th>
+                            <th>Note</th>
+                            <th>Other Related References</th>
+                            <th>MSA AA Percent</th>
                             <th>RED Value</th>
                             <th>Warnings</th>
                         </tr>

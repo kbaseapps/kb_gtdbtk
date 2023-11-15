@@ -1,10 +1,10 @@
 {
-    "ver": "0.0.1",
+    "ver": "0.1.6",
     "authors": [
-        "donovan_parks", "Aaron", "pchaumeil", "psdehal"
+        "donovan_parks", "aaronmussig", "pchaumeil", "psdehal", "dylan"
     ],
-    "contact": "",
-    "categories": ["active", "communities", "annotation"],
+    "contact": "http://www.kbase.us/support/",
+    "categories": ["inactive", "communities", "annotation"],
     "widgets": {
         "input": null,
         "output": "no-display"
@@ -45,7 +45,7 @@
         "service-mapping": {
             "url": "",
             "name": "kb_gtdbtk",
-            "method": "run_kb_gtdbtk",
+            "method": "run_kb_gtdbtk_classify_wf",
             "input_mapping": [
                 {
                     "narrative_system_variable": "workspace_id",
