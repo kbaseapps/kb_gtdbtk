@@ -1,6 +1,10 @@
 # kb_gtdbtk release notes
 =========================================
 
+1.0.1
+_____
+* Reverting to most recent prior release to address the recurring bug from the new release 1.4.0
+
 1.0.0
 ______
 * Update GTDB-Tk to v1.7.0
