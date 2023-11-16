@@ -1,58 +1,10 @@
 # kb_gtdbtk release notes
 =========================
 
-1.4.0
-_____
-* Update GTDB-Tk to 2.3.2 (July 5th, 2023)
-* Update GTDB data to r214.1
-* Removed full_tree option (requires nodes with too much memory)
-* Added db_ver argument to allow either r207 or r214 refdata
-* Update Mash to v2.3
-* Generate mash_db for species rep genomes and add to refdata
-* Change to using NJS queue and 32 cpus
-
-1.3.0
-_____
-* copy GTDB species rep genome and assembly objects to local workspace
-* trim GTDB tree to query genomes, proximal genomes, and one rep per sister branch
-* made trees and images available as file link downloads
-* added tree images to HTML report
-* added lineage file download
-
-1.2.4
-_____
-* save all updated objects to calling workspace
-* change all handles to user owned
-
-1.2.3
-_____
-* record lineage info from GTDB_R07-RS207 in genome obj and assembly obj
-* fix numpy at 1.23.1 for Prodigal np.bool invocation
-
-1.2.2
-_____
-* record taxon_assignment as GTDB_R07-RS207 in genome obj
-* optionally record taxonomy from GTDB_R07-RS207 in genome obj
-
-1.2.1
-_____
-* added Krona chart to report
-
-1.2.0
-_____
-* Update GTDB-Tk to v2.1.0 (released May 11, 2022)
-* Update refdata to GTDB-R07_RS207 (released Apr 8, 2022)
-* Update base Docker image to kbase/sdkpython:3.8.10
-
-1.1.0
-______
-* Return all output from GTDB-Tk Classify workflow as downloadable ZIP archive, especially classify.tree
-* Don't accept individual Genomes or Assemblies to avoid wasteful runs.  Require GenomeSet or AssemblySet.
-
 1.0.1
-______
-* Restoring previous version that was released due to recurring bug in newly release version (1.4.0)
-  
+_____
+* Reverting to most recent prior release to address the recurring bug from the new release 1.4.0
+
 1.0.0
 ______
 * Update GTDB-Tk to v1.7.0
