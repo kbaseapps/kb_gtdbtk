@@ -1,4 +1,5 @@
-FROM kbase/sdkbase2:python
+FROM kbase/sdkpython:3.8.0
+
 MAINTAINER KBase Developer
 # -----------------------------------------
 # In this section, you can install any system dependencies required
@@ -6,14 +7,14 @@ MAINTAINER KBase Developer
 # install line here, a git checkout to download code, or run any other
 # installation scripts.
 
-RUN apt-get update
-RUN apt-get install libgomp1  
+RUN apt-get update -y
+RUN apt-get install libgomp1 unzip -y 
 
 ENV FASTANI_VERSION='v1.33'
 
 RUN curl -LJO https://github.com/ParBLiSS/FastANI/releases/download/${FASTANI_VERSION}/fastANI-Linux64-${FASTANI_VERSION}.zip \
 && unzip fastANI-Linux64-${FASTANI_VERSION}.zip \
-&& mv fastANI /miniconda/bin/
+&& mv fastANI /usr/local/bin/
 
 RUN pip install pipenv==2018.11.26
 
