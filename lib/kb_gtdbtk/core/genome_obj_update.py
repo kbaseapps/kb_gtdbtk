@@ -10,14 +10,14 @@ import time
 import gzip
 import pandas as pd
 import subprocess
-import ete3
+import ete3 # type: ignore
 
 from kb_gtdbtk.core.kb_client_set import KBClients
 
 
 # global indices for KBase obj info list
 [OBJID_I, NAME_I, TYPE_I, SAVE_DATE_I, VERSION_I, SAVED_BY_I, WSID_I,
- WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple    
+ WORKSPACE_I, CHSUM_I, SIZE_I, META_I] = range(11)  # object_info tuple
 
 
 # get_obj_info ()
@@ -128,7 +128,7 @@ def check_obj_type_assembly(
     else:
         return False
 
-    
+
 # get_names_list_from_upas_list ()
 #
 def get_names_list_from_upas_list (upas_list, clients):
@@ -144,7 +144,7 @@ def get_names_list_from_upas_list (upas_list, clients):
 #
 def pause(patience, sleep_interval, target_files):
     found_output = False
-    
+
     time_spent = 0
     while time_spent <= patience:
         found_output = True
@@ -161,7 +161,7 @@ def pause(patience, sleep_interval, target_files):
 
     return
 
-    
+
 # _format_gtdbtk_tree_to_itol ()
 #
 def _format_gtdbtk_tree_to_itol (in_tree_path):
@@ -180,15 +180,15 @@ def _format_gtdbtk_tree_to_itol (in_tree_path):
 
     return itol_tree_path
 
-    
+
 # _trim_tree()
 #
 def _trim_tree (in_tree_path, leaflist_file, leaflist_outfile, lineage_outfile, db_ver):
     print ("trimming tree "+str(in_tree_path))
     trim_bin = os.path.join ('/kb', 'module', 'bin', 'trim_tree_to_target_leaves.py')
-    
+
     out_tree_paths = []
-    
+
     # just proximal sp rep hits
     #out_tree_path = str(in_tree_path).replace('.tree','-proximals.tree')
     out_tree_path = re.sub('.tree$', '-proximals.tree', str(in_tree_path))
@@ -206,7 +206,7 @@ def _trim_tree (in_tree_path, leaflist_file, leaflist_outfile, lineage_outfile, 
     subprocess.run(trim_cmd, check=True, env=env)
     #pause(600, 10, [out_tree_path, leaflist_outfile])
 
-    
+
     # with sister context branches.  Note that leaflist_outfile is updated with context sp reps
     #out_tree_path = str(in_tree_path).replace('.tree','-trimmed.tree')
     out_tree_path = re.sub('.tree$', '-trimmed.tree', str(in_tree_path))
@@ -225,7 +225,7 @@ def _trim_tree (in_tree_path, leaflist_file, leaflist_outfile, lineage_outfile, 
     env = dict(os.environ)
     subprocess.run(trim_cmd, check=True, env=env)
     #pause(600, 10, [out_tree_path, leaflist_outfile, lineage_outfile])
-    
+
     return out_tree_paths
 
 
@@ -266,7 +266,7 @@ def _write_gtdb_tree_html_file (out_dir, files_for_html):
     tree_html_path = os.path.join (out_dir, 'gtdb_trees.html')  # if updated, the index.html file should also be updated accordingly
 
     tax_order = ['p', 'c', 'o', 'f', 'g']  # not handling domain or species
-    
+
     html_buf = []
     table_buf = []
     for file_for_html in files_for_html:
@@ -274,7 +274,7 @@ def _write_gtdb_tree_html_file (out_dir, files_for_html):
         tree_png_file = file_for_html['png_file']
         taxon_colors_path = file_for_html['taxon_colors_path']
         lineage_path = file_for_html['lineage_path']
-        
+
         # add tree image
         tree_img_width = 500
         tree_img_height = 500
@@ -292,8 +292,8 @@ def _write_gtdb_tree_html_file (out_dir, files_for_html):
         # get full parent mapping from leaves
         all_leaf_lineages = get_all_leaf_lineages (lineage_path)
         parents = get_parents (all_leaf_lineages)
-        
-        
+
+
         # determine lineage structure
         lineages = dict()
         tree = ete3.Tree(tree_newick_path, quoted_node_names=True, format=1)
@@ -331,7 +331,7 @@ def _write_gtdb_tree_html_file (out_dir, files_for_html):
                         lineages[last_taxon][ancestor_node.name] = True
                     last_taxon = ancestor_node.name
                     """
-                    
+
         # build key
         indent_cnt = 0
         key_box_size = '15px'
@@ -358,7 +358,7 @@ def _write_gtdb_tree_html_file (out_dir, files_for_html):
         table_buf += ['</table>']
         table_buf += ['</td></tr>']
 
-        
+
     # build html
     html_buf += ['<html><head><title>GTDB-Tk Trees</title></head>']
     html_buf += ['<body><table border=0>']
@@ -366,7 +366,7 @@ def _write_gtdb_tree_html_file (out_dir, files_for_html):
     html_buf += ['</table></body></html>']
     with open (tree_html_path, 'w') as tree_h:
         tree_h.write("\n".join(html_buf)+"\n")
-        
+
     return tree_html_path
 
 
@@ -403,7 +403,7 @@ def get_sp_rep_hits (summary_tables, query_assembly_to_genome_name):
             sp_reps_by_query[this_query_id] = []
 
             #print ("DEBUG: adding hits for query genome ID {}".format(this_genome_id))  # DEBUG
-            
+
             # single value id
             for sp_rep_f in single_sp_rep_fields:
                 if item.get(sp_rep_f) and item.get(sp_rep_f) != '-':
@@ -435,7 +435,7 @@ def get_query_ids_from_tree (in_tree_path, id_map):
     for leaf_name in tree.get_leaf_names():
         if leaf_name.startswith('id'):
             query_ids.append(id_map[leaf_name])
-            
+
     return query_ids
 
 
@@ -448,7 +448,7 @@ def get_sp_reps_for_query_ids (query_ids, sp_reps_by_query):
         for sp_rep in sp_reps_by_query[genome_name]:
             if sp_rep not in sp_rep_ids:
                 sp_rep_ids.append(sp_rep)
-                
+
     return sp_rep_ids
 
 
@@ -459,7 +459,7 @@ def get_all_leaf_lineages (lineage_file):
     print ("reading target lineages from file {} ...".format(lineage_file))
 
     all_leaf_lineages = dict()
-    
+
     if lineage_file.lower().endswith('.gz'):
         f = gzip.open(lineage_file, 'rt')
     else:
@@ -503,7 +503,7 @@ def add_tree_key_row (taxon, lineages, taxon_color, indent_cnt, key_box_size, ke
         return []
     else:
         tree_key_taxon_seen[taxon] = True
-        
+
     key_buf += ['<tr><td>']
     key_buf += ['<table border=0><tr>']
     for indent_i in range(indent_cnt):
@@ -511,7 +511,7 @@ def add_tree_key_row (taxon, lineages, taxon_color, indent_cnt, key_box_size, ke
     if taxon in taxon_color:
         key_buf += ['<td style="width:{};height:{};background-color:#{}"></td>'.format(key_box_size, key_box_size, taxon_color[taxon])]
     key_buf += ['<td><p style="font-size:{}">'.format(key_font_size)+taxon+'</p></td>']
-    key_buf += ['</tr></table>'] 
+    key_buf += ['</tr></table>']
     key_buf += ['</td></tr>']
 
     if taxon not in lineages:
@@ -554,7 +554,7 @@ def process_tree_files (top_upa,
     id_map = dict()
     with open(id_map_path, 'r') as id_map_h:
         for line in id_map_h:
-            (qid, assembly_name) = line.rstrip().split("\t") 
+            (qid, assembly_name) = line.rstrip().split("\t")
             new_name = assembly_name
             if assembly_name in query_assembly_to_genome_name:
                 new_name = query_assembly_to_genome_name[assembly_name]
@@ -566,7 +566,7 @@ def process_tree_files (top_upa,
     new_id_map_path = str(id_map_path).replace('.map','-genomes.map')
     with open(new_id_map_path, 'w') as id_map_h:
         id_map_h.write("\n".join(id_map_buf)+"\n")
-            
+
 
     # make itol format files
     for tree_file in tree_files + extra_bac_tree_files:
@@ -581,7 +581,7 @@ def process_tree_files (top_upa,
                                   'name': str(itol_tree_file),
                                   'description': str(itol_tree_file)+' - whole tree ITOL formatted Newick'})
 
-            
+
     # trim tree files and make tree image files
     files_for_html = []
     for tree_file in tree_files + extra_bac_tree_files:
@@ -599,11 +599,11 @@ def process_tree_files (top_upa,
             with open(id_map_with_sp_rep_hits_path, 'w') as id_map_h:
                 id_map_h.write("\n".join(this_tree_id_map_buf)+"\n")
 
-            
+
             #new_id_map_with_sp_rep_hits_path = str(in_tree_path).replace('.tree', '.id_to_name-with_all_sp_reps-newleafnames.map')
             new_id_map_with_sp_rep_hits_path = re.sub('.tree$', '.id_to_name-with_proximal_sp_reps-newleafnames.map', str(in_tree_path))
             lineage_path = re.sub('.tree$', '-lineages.map', str(in_tree_path))
-            
+
             trimmed_tree_paths = _trim_tree (in_tree_path, id_map_with_sp_rep_hits_path, new_id_map_with_sp_rep_hits_path, lineage_path, db_ver)
 
             for trimmed_tree_path in trimmed_tree_paths:
@@ -639,7 +639,7 @@ def process_tree_files (top_upa,
                     html_tree_target = '-circle.PNG'
                     if dendrogram_report:
                         html_tree_target = '-circle-ultrametric.PNG'
-                        
+
                     if '-trimmed.tree'+html_tree_target in trimmed_tree_image_file:
                         taxon_colors_path = str(trimmed_tree_image_path).replace(html_tree_target,'-taxon_colors.map')
                         files_for_html.append({'newick_path': trimmed_tree_path,
@@ -647,7 +647,7 @@ def process_tree_files (top_upa,
                                                'taxon_colors_path': taxon_colors_path,
                                                'lineage_path': lineage_path})
 
-                        
+
     # upload files and make file links for report
     #
     file_links = []
@@ -662,8 +662,8 @@ def process_tree_files (top_upa,
     # Make GTDB Tree html to go in html report
     #
     tree_html_file = _write_gtdb_tree_html_file (out_dir, files_for_html)
-        
-        
+
+
     return file_links
 
 
@@ -700,7 +700,7 @@ def  _save_tree_obj_and_copy_genomes(this_tree_path,
 
     new_objects_created = []
     tree_full_desc = tree_name+' '+tree_short_desc
-    
+
     # load tree and get leaf naems and genome ids
     tree = ete3.Tree (this_tree_path, quoted_node_names=True, format=1)
     tree.ladderize()
@@ -726,13 +726,13 @@ def  _save_tree_obj_and_copy_genomes(this_tree_path,
     #print ("NAMES LIST: [{}]".format(" ".join(query_names_list)))  # DEBUG
     for query_i,query_name in enumerate(query_names_list):
         query_upas[query_name] = query_upas_list[query_i]
-    
+
     # make local copies of genomes
     copied_genome_refs = copy_gtdb_genome_objs (genome_ids, genome_id_to_upa_map, 'GTDB_SP_REP-', workspace_id, clients)
     # DEBUG
     #for genome_id in sorted (copied_genome_refs.keys()):
     #    print ("COPIED GENOME_ID -> REF: {} -> {}".format(genome_id, copied_genome_refs[genome_id]))
-    
+
     ws_refs = dict()
     default_node_labels = dict()
     #print ("BUILDING TREE OBJ ===================================")  # DEBUG
@@ -784,7 +784,7 @@ def  _save_tree_obj_and_copy_genomes(this_tree_path,
 
     # DEBUG
     #print ("SAVED TREE OBJ {} ref: {}".format(obj_name,output_tree_ref))
-    
+
     return new_objects_created
 
 
@@ -799,7 +799,7 @@ def save_gtdb_tree_objs (workspace_id,
     new_objects_created = []
 
     print ("SAVING GTDB TREE OBJECTS")
-    
+
     # get upas by genome id
     genome_id_to_upa_map = get_genome_id_to_upa_map (genome_upas_map_file)
 
@@ -918,7 +918,7 @@ def process_genome_objs(primary_wsid, top_obj, upa, upas, classification, overwr
     genomeset_query = False
     any_genome_updated = False
     #top_wsid = top_obj['info'][WSID_I]
-    
+
     if len(upas) > 0:
         genomeset_query = True
         genomeset_obj = top_obj
@@ -941,7 +941,7 @@ def process_genome_objs(primary_wsid, top_obj, upa, upas, classification, overwr
             print ("missing classification for "+assembly_name)
             updated_genome_refs[genome_upa] = genome_upa
             continue
-        
+
         # set std_lineage GTDB field in genome and assembly objs
         this_classification = classification[assembly_name]
         this_taxon_id = get_taxon_id (this_classification)
@@ -954,13 +954,13 @@ def process_genome_objs(primary_wsid, top_obj, upa, upas, classification, overwr
         genome_obj['data']['assembly_ref'] = new_assembly_ref
         genome_obj['data']['std_lineages'] = std_lineages
         any_genome_updated = True
-        
+
         # set taxon_assignments
         if not genome_obj['data'].get('taxon_assignments'):
             genome_obj['data']['taxon_assignments'] = {taxon_assignment_field: classification[assembly_name]}
         else:
             genome_obj['data']['taxon_assignments'][taxon_assignment_field] = classification[assembly_name]
-            
+
         # set taxonomy (if missing or force overwrite)
         this_genome_tax_written = False
         if overwrite_tax == 1 \
@@ -981,8 +981,8 @@ def process_genome_objs(primary_wsid, top_obj, upa, upas, classification, overwr
         if this_genome_tax_written:
             desc = 'Taxonomy and taxon_assignment updated with GTDB'
         objects_created.append({'ref': new_ref, 'description': desc})
-        
-        
+
+
     # update refs in genomeset
     if genomeset_query:
         new_genomeset_ref = update_and_save_genomeset (primary_wsid, genomeset_obj, updated_genome_refs, clients)
@@ -990,7 +990,7 @@ def process_genome_objs(primary_wsid, top_obj, upa, upas, classification, overwr
         if any_genome_updated:
             desc = 'Taxonomy and taxon_assignment updated with GTDB'
         objects_created.append({'ref': new_genomeset_ref, 'description': desc})
-        
+
     return objects_created
 
 
@@ -1008,10 +1008,10 @@ def process_assembly_objs(primary_wsid, top_obj, upa, upas, classification, over
         assemblyset_obj = top_obj
     else:
         upas = [upa]
-    
+
     for assembly_upa in upas:
         original_upa = assembly_upa
-        
+
         if not assemblyset_query:
             assembly_obj = top_obj
         else:
@@ -1025,7 +1025,7 @@ def process_assembly_objs(primary_wsid, top_obj, upa, upas, classification, over
         else:
             any_assembly_updated = True
 
-            
+
         # set std_lineage GTDB field in assembly obj
         this_classification = classification[assembly_name]
         this_taxon_id = get_taxon_id (this_classification)
@@ -1036,8 +1036,8 @@ def process_assembly_objs(primary_wsid, top_obj, upa, upas, classification, over
         updated_assembly_refs[original_upa] = new_assembly_ref
         desc = 'Added GTDB lineage'
         objects_created.append({'ref': new_assembly_ref, 'description': desc})
-        
-        
+
+
     # update refs in assemblyset
     if assemblyset_query and any_assembly_updated:
         new_assemblyset_ref = update_and_save_assemblyset (primary_wsid,
@@ -1046,7 +1046,7 @@ def process_assembly_objs(primary_wsid, top_obj, upa, upas, classification, over
                                                            clients)
         desc = 'Added GTDB lineage'
         objects_created.append({'ref': new_assemblyset_ref, 'description': desc})
-        
+
     return objects_created
 
 
@@ -1068,7 +1068,7 @@ def get_taxon_id (this_classification):
 
     return this_taxon_id
 
-    
+
 # get_std_lineages ()
 #
 def get_std_lineages (this_classification, gtdb_ver, this_taxon_id):
@@ -1107,7 +1107,7 @@ def copy_gtdb_genome_objs (genome_ids, genome_id_to_upa_map, new_obj_name_prefix
         dst_obj_name = src_obj_name
         if new_obj_name_prefix:
             dst_obj_name = new_obj_name_prefix+dst_obj_name
-            
+
         existing_obj_info = get_obj_info (dst_ws_id, dst_obj_name, clients)
         if existing_obj_info:
             genome_obj_info = existing_obj_info
@@ -1120,7 +1120,7 @@ def copy_gtdb_genome_objs (genome_ids, genome_id_to_upa_map, new_obj_name_prefix
 
     return genome_refs
 
-            
+
 # save_genome_obj ()
 #
 def save_genome_obj (primary_wsid, genome_name, genome_obj_data, clients):
@@ -1145,7 +1145,7 @@ def update_and_save_assembly (primary_wsid, assembly_obj, std_lineages, clients)
     assembly_name = assembly_obj['info'][NAME_I]
 
     assembly_obj['data'] = fix_unowned_shock_handles ('assembly', assembly_obj['data'], clients)
-    
+
     updated_assembly_obj_info = clients.dfu().save_objects({ 'id': primary_wsid,
                                                              'objects': [{ 'type': 'KBaseGenomeAnnotations.Assembly',
                                                                            'name': assembly_name,
@@ -1184,7 +1184,7 @@ def update_and_save_genomeset (primary_wsid, genomeset_obj, updated_genome_refs,
             new_genomeset_data['description'] = genomeset_obj['data']['description']
         else:
             new_genomeset_data['description'] = ''
-            
+
         elements = dict()
         old_elements = genomeset_obj['data']['elements']
         for genome_id in old_elements.keys():
@@ -1274,7 +1274,7 @@ def get_query_assembly_to_genome_name (top_obj, clients):
     query_assembly_to_genome_name = dict()
 
     obj_type = top_obj['info'][TYPE_I].split('-')[0]
-    
+
     if check_obj_type_genome (obj_type):
         upas = get_upas_from_set (top_obj)
 
@@ -1299,7 +1299,7 @@ def _copy_genome_obj(src_upa,
                      clients):
 
     (src_wsid_str, src_objid_str, src_ver) = src_upa.split('/')
-    
+
     dst_genome_obj_info = clients.ws().copy_object({'from':{'wsid':int(src_wsid_str), 'objid':int(src_objid_str)}, 'to':{'wsid':dst_ws_id,'name':dst_obj_name}})
 
     return dst_genome_obj_info
@@ -1325,7 +1325,7 @@ def copy_gtdb_species_reps (primary_wsid, top_upa, genome_upas_map_file, summary
     # get species reps by query id
     (all_sp_reps, sp_reps_by_query) = get_sp_rep_hits(summary_tables, query_assembly_to_genome_name)
 
-    
+
     # copy over genome objs
     sp_rep_dst_upa = dict()
     for sp_rep_id in sorted(all_sp_reps.keys()):
@@ -1370,20 +1370,20 @@ def copy_gtdb_species_reps (primary_wsid, top_upa, genome_upas_map_file, summary
         genome_upa = upa_from_info (genome_obj_info)
         #query_names[genome_upa] = genome_name
         #query_upas[genome_name] = genome_upa
-            
+
         all_genomeset_elements[genome_name] = {'ref':genome_upa}
         per_query_genomeset_elements[genome_name] = dict()
         per_query_genomeset_elements[genome_name][genome_name] = {'ref':genome_upa}
 
         if genome_name not in sp_reps_by_query:
             raise ValueError ("missing sp_rep_hts for query {}".format(genome_name))
-            
+
         #print ("LOOKING FOR SP REP LIST for query {}".format(genome_name))  # DEBUG
 
         for sp_rep_id in sp_reps_by_query[genome_name]:
             all_genomeset_elements[sp_rep_id] = {'ref':sp_rep_dst_upa[sp_rep_id]}
             per_query_genomeset_elements[genome_name][sp_rep_id] = {'ref':sp_rep_dst_upa[sp_rep_id]}
-            
+
     # build genomesets and save them, adding to created objects
     for query_name in sorted(per_query_genomeset_elements.keys()):
         genomeset_desc = 'Proximal GTDB species reps for '+query_name
@@ -1417,7 +1417,7 @@ def copy_gtdb_species_reps (primary_wsid, top_upa, genome_upas_map_file, summary
           }]})[0]
     new_ref = upa_from_info(updated_obj_info)
     obj_desc = genomeset_desc
-    new_objects_created.append({'ref': new_ref, 'description': obj_desc})            
+    new_objects_created.append({'ref': new_ref, 'description': obj_desc})
 
     return new_objects_created
 

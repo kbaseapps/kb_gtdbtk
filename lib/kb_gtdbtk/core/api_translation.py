@@ -2,7 +2,12 @@
 Functions to translate values between the SDK API and core app logic.
 '''
 
-from typing import Dict, NamedTuple as _NamedTuple, cast as _cast
+from typing import (
+    Dict,
+    Union,
+    NamedTuple as _NamedTuple,
+    cast as _cast
+)
 
 
 class GTDBTKParams(_NamedTuple):
@@ -21,19 +26,19 @@ class GTDBTKParams(_NamedTuple):
 
     copy_proximals: int
     ''' Boolean copy proximal hit GTDB genome objects '''
-    
+
     save_trees: int
     ''' Boolean save trees as objects and copy GTDB sp rep genomes in trees '''
-    
+
     min_perc_aa: float
     ''' The mimimum sequence alignment in percent. '''
 
     db_ver: int
     ''' version of GTDB db, either 207 or 214 '''
-    
+
     keep_intermediates: int
     ''' Boolean retain intermediate files in classify_wf '''
-    
+
     overwrite_tax: int
     ''' Boolean overwrite an existing Taxonomy field in input Genome. '''
 
@@ -41,7 +46,7 @@ class GTDBTKParams(_NamedTuple):
     ''' Boolean use ultrametric tree in html report. '''
 
 
-def get_gtdbtk_params(input_params: Dict[str, object]) -> GTDBTKParams:
+def get_gtdbtk_params(input_params: Dict[str, Union[str, int, float]]) -> GTDBTKParams:
     '''
     Process input parameters supplied to the GTDB-tk run method and parse them into
     a named tuple. The expected fields are:
@@ -74,11 +79,11 @@ def get_gtdbtk_params(input_params: Dict[str, object]) -> GTDBTKParams:
     copy_proximals = int(input_params.get('copy_proximals', 0))
     if type(copy_proximals) != int or (copy_proximals != 0 and copy_proximals != 1):
         raise ValueError('copy_proximals is required and must be an integer [0,1]')
-    
+
     save_trees = int(input_params.get('save_trees', 0))
     if type(save_trees) != int or (save_trees != 0 and save_trees != 1):
         raise ValueError('save_trees is required and must be an integer [0,1]')
-    
+
     min_perc_aa = input_params.get('min_perc_aa', 10)
     if type(min_perc_aa) != float and type(min_perc_aa) != int:
         raise ValueError('min_perc_aa must be a float')
@@ -88,11 +93,11 @@ def get_gtdbtk_params(input_params: Dict[str, object]) -> GTDBTKParams:
     db_ver = int(input_params.get('db_ver', 0))
     if type(db_ver) != int or (db_ver != 207 and db_ver != 214):
         raise ValueError('db_ver is required and must be an integer 207 or 214')
-    
+
     keep_intermediates = int(input_params.get('keep_intermediates', 0))
     if type(keep_intermediates) != int or (keep_intermediates != 0 and keep_intermediates != 1):
         raise ValueError('keep_intermediates is required and must be an integer [0,1]')
-    
+
     overwrite_tax = int(input_params.get('overwrite_tax', 0))
     if type(overwrite_tax) != int or (overwrite_tax != 0 and overwrite_tax != 1):
         raise ValueError('overwrite_tax is required and must be an integer [0,1]')
@@ -101,7 +106,7 @@ def get_gtdbtk_params(input_params: Dict[str, object]) -> GTDBTKParams:
     if type(dendrogram_report) != int or (dendrogram_report != 0 and dendrogram_report != 1):
         raise ValueError('dendrogram_report is required and must be an integer [0,1]')
 
-    
+
     return GTDBTKParams(_cast(str, ref),
                         _cast(int, wsid),
                         _cast(str, output_tree_basename),
