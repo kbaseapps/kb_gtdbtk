@@ -142,7 +142,7 @@ def run_gtdbtk(
 
 # _all_ids_in_trees ()
 #
-def _all_ids_in_trees(temp_output: Path, id_to_name: dict[str, str]) -> bool:
+def _all_ids_in_trees(temp_output: Path, id_to_name: Dict[str, str]) -> bool:
     all_ids_found = True
 
     ids_found = dict()
@@ -173,7 +173,7 @@ def _process_output_files(
         temp_output: Path,
         temp_trees_output: Path,
         out_dir: Path,
-        id_to_name: dict[str, str]) -> Tuple[dict, dict]:
+        id_to_name: Dict[str, str]) -> Tuple[dict, dict]:
 
     classification = dict()
     summary_tables = dict()
