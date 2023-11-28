@@ -18,7 +18,8 @@ from shutil import (
 from typing import (
     Callable,
     Dict,
-    List
+    List,
+    Tuple
 )
 
 
@@ -42,7 +43,7 @@ def run_gtdbtk(
         min_perc_aa: float,
         db_ver: int,
         keep_intermediates: int,
-        cpus: int) -> tuple[dict, dict]:
+        cpus: int) -> Tuple[dict, dict]:
     '''
     Run GTDB-tk on a set of sequences in FASTA format. Expects the 'gtdbtk' command to be on the
     system path.
@@ -172,7 +173,7 @@ def _process_output_files(
         temp_output: Path,
         temp_trees_output: Path,
         out_dir: Path,
-        id_to_name: dict[str, str]) -> tuple[dict, dict]:
+        id_to_name: dict[str, str]) -> Tuple[dict, dict]:
 
     classification = dict()
     summary_tables = dict()
