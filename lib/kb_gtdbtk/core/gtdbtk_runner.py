@@ -261,7 +261,7 @@ def _process_output_files(
                     row = info_line.rstrip().split("\t")
                     tmp_buf[row[0]] = row
                     id_order.append(row[0])
-                    num_tmp_cols = len(row)
+                    num_tmp_cols = max(len(row), num_tmp_cols)
         tree_buf = dict()
         if treepath.is_file():
             found_file = True
@@ -271,7 +271,7 @@ def _process_output_files(
                     row = info_line.rstrip().split("\t")
                     tree_buf[row[0]] = row
                     id_order.append(row[0])
-                    num_tree_cols = len(row)
+                    num_tree_cols = max(len(row), num_tree_cols)
 
         num_cols = max(num_tmp_cols, num_tree_cols)
 
