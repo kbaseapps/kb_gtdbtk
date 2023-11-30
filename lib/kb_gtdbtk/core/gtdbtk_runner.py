@@ -341,6 +341,3 @@ def _process_output_files(
             summary_tables[file_] = sj
 
     return (classification, summary_tables)
-
-
-def _load_summary_file(filename: Path) -> :
