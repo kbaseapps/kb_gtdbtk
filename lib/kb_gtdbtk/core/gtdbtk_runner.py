@@ -248,11 +248,12 @@ def _process_output_files(
         tmppath = temp_output / file_folder[file_] / file_
         path = out_dir / file_
         found_file = False
-        num_cols = 0
 
         id_order = []
         tmp_buf = dict()
         # TODO: decompose, avoid duplications, overlap
+        num_tmp_cols = 0
+        num_tree_cols = 0
         if tmppath.is_file():
             found_file = True
             with open(tmppath, 'r') as tmppath_h:
@@ -260,7 +261,7 @@ def _process_output_files(
                     row = info_line.rstrip().split("\t")
                     tmp_buf[row[0]] = row
                     id_order.append(row[0])
-                    num_cols = len(row)
+                    num_tmp_cols = len(row)
         tree_buf = dict()
         if treepath.is_file():
             found_file = True
@@ -270,15 +271,15 @@ def _process_output_files(
                     row = info_line.rstrip().split("\t")
                     tree_buf[row[0]] = row
                     id_order.append(row[0])
-                    num_cols = len(row)
+                    num_tree_cols = len(row)
+
+        num_cols = max(num_tmp_cols, num_tree_cols)
 
         if not found_file:
             continue
         out_buf = []
         for qid in id_order:
-            row = []
-            for field_i in range(num_cols):
-                row.append('N/A')
+            row = ["N/A"] * num_cols
             if qid in tmp_buf:
                 row = tmp_buf[qid]
             if qid in tree_buf:
@@ -340,3 +341,6 @@ def _process_output_files(
             summary_tables[file_] = sj
 
     return (classification, summary_tables)
+
+
+def _load_summary_file(filename: Path) -> :
