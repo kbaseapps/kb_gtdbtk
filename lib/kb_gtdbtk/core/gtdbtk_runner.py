@@ -5,22 +5,31 @@ Run GTDB-tk against a set of sequence files.
 import logging
 import json
 import os
-import sys
-import shutil
 import pandas as pd
 import tempfile
 
 from datetime import datetime
 from pathlib import Path
-from shutil import copyfile,copytree,rmtree
-from typing import Dict, List, Callable
+from shutil import (
+    copyfile,
+    copytree,
+    rmtree
+)
+from typing import (
+    Callable,
+    Dict,
+    List,
+    Tuple
+)
 
 
 # timestamp
-def now_ISOish():
+def now_ISOish() -> str:
+    """
+    Returns a timestamp that's roughly close to now, in ISO.
+    """
     now_timestamp = datetime.now()
     now_secs_from_epoch = (now_timestamp - datetime(1970,1,1)).total_seconds()
-    #now_timestamp_in_iso = datetime.fromtimestamp(int(now_secs_from_epoch)).strftime('%Y-%m-%d_%T')
     now_timestamp_in_isoish = datetime.fromtimestamp(int(now_secs_from_epoch)).strftime('%Y%m%d_%H%M%S')
     return now_timestamp_in_isoish
 
@@ -34,7 +43,7 @@ def run_gtdbtk(
         min_perc_aa: float,
         db_ver: int,
         keep_intermediates: int,
-        cpus: int) -> None:
+        cpus: int) -> Tuple[dict, dict]:
     '''
     Run GTDB-tk on a set of sequences in FASTA format. Expects the 'gtdbtk' command to be on the
     system path.
@@ -102,7 +111,7 @@ def run_gtdbtk(
     if not os.path.exists (mash_db_path):
         raise ValueError ('GTDB REF Genomes MASH DB not found.  Must generate during refdata initialization')
     gtdbtk_cmd += ['--mash_db', mash_db_path]
-    
+
     # run first pass
     logging.info('Starting Command:\n' + ' '.join(gtdbtk_cmd))
     gtdbtk_runner(gtdbtk_cmd)
@@ -127,13 +136,13 @@ def run_gtdbtk(
         # run first pass
         logging.info('Starting Command:\n' + ' '.join(gtdbtk_cmd))
         gtdbtk_runner(gtdbtk_cmd)
-        
+
     return _process_output_files(temp_output, temp_trees_output, output_dir, id_to_name)
 
 
 # _all_ids_in_trees ()
 #
-def _all_ids_in_trees (temp_output, id_to_name):
+def _all_ids_in_trees(temp_output: Path, id_to_name: Dict[str, str]) -> bool:
     all_ids_found = True
 
     ids_found = dict()
@@ -160,12 +169,15 @@ def _all_ids_in_trees (temp_output, id_to_name):
 
 # _process_output_files()
 #
-def _process_output_files(temp_output, temp_trees_output, out_dir, id_to_name):
+def _process_output_files(
+        temp_output: Path,
+        temp_trees_output: Path,
+        out_dir: Path,
+        id_to_name: Dict[str, str]) -> Tuple[dict, dict]:
 
     classification = dict()
     summary_tables = dict()
-    trimmed_tree_files = dict()
-    
+
     # copy over all created output
     """
     for file_ in os.listdir (temp_output):
@@ -173,7 +185,7 @@ def _process_output_files(temp_output, temp_trees_output, out_dir, id_to_name):
         if not tmppath.is_file():
             continue
         path = out_dir / file_
-        copyfile(tmppath, path)        
+        copyfile(tmppath, path)
     """
     sub_out_dir = Path(out_dir / 'runtime_output')
     if os.path.isdir(sub_out_dir):  # only occurs during unit tests
@@ -181,68 +193,75 @@ def _process_output_files(temp_output, temp_trees_output, out_dir, id_to_name):
     copytree(temp_output, sub_out_dir, symlinks=True)
 
     # save id to name mapping as a file
-    id_map_buf = []
-    for id_ in sorted(id_to_name.keys()):
-        id_map_buf.append("\t".join([id_,id_to_name[id_]]))
-    id_map_path = os.path.join(out_dir, 'id_to_name.map')
-    with open (id_map_path, 'w') as file_h:
+    id_map_buf = [f"{id_}\t{id_to_name[id_]}" for id_ in sorted(id_to_name)]
+    with open (out_dir / "id_to_name.map", 'w') as file_h:
         file_h.write("\n".join(id_map_buf)+"\n")
-    
+
     # make json files for html tables
-    tree_files = ['gtdbtk.ar53.classify.tree',
-                  'gtdbtk.bac120.classify.tree']
+    tree_files = [
+        'gtdbtk.ar53.classify.tree',
+        'gtdbtk.bac120.classify.tree'
+    ]
     bb_tree_file = ['gtdbtk.backbone.bac120.classify.tree']
-
-    base_files = ['gtdbtk.ar53.summary.tsv',
-                  'gtdbtk.bac120.summary.tsv',
-                  'gtdbtk.ar53.markers_summary.tsv',
-                  'gtdbtk.bac120.markers_summary.tsv',
-                  'gtdbtk.bac120.tree.mapping.tsv'
-                  ]
-    file_folder = {'gtdbtk.ar53.summary.tsv': 'classify',
-                   'gtdbtk.bac120.summary.tsv': 'classify',
-                   'gtdbtk.ar53.markers_summary.tsv': 'identify',
-                   'gtdbtk.bac120.markers_summary.tsv': 'identify',
-                   'gtdbtk.bac120.tree.mapping.tsv': 'classify',
-                   'gtdbtk.ar53.classify.tree': 'classify',
-                   'gtdbtk.bac120.classify.tree': 'classify',
-                   'gtdbtk.backbone.bac120.classify.tree': 'classify'
-                  }
-
-    # copy tree files to output
     extra_bac_tree_files = ['gtdbtk.backbone.bac120.classify.tree']
+
+    base_files = [
+        'gtdbtk.ar53.summary.tsv',
+        'gtdbtk.bac120.summary.tsv',
+        'gtdbtk.ar53.markers_summary.tsv',
+        'gtdbtk.bac120.markers_summary.tsv',
+        'gtdbtk.bac120.tree.mapping.tsv'
+    ]
+    file_folder = {
+        'gtdbtk.ar53.summary.tsv': 'classify',
+        'gtdbtk.bac120.summary.tsv': 'classify',
+        'gtdbtk.ar53.markers_summary.tsv': 'identify',
+        'gtdbtk.bac120.markers_summary.tsv': 'identify',
+        'gtdbtk.bac120.tree.mapping.tsv': 'classify',
+        'gtdbtk.ar53.classify.tree': 'classify',
+        'gtdbtk.bac120.classify.tree': 'classify',
+        'gtdbtk.backbone.bac120.classify.tree': 'classify'
+    }
+
+    # TODO: rewrite to sift through available files on the filesystem instead of
+    # assuming an upper limit
+    # make up a set of possible extra subtree files.
     for i in range(10000):
         subtree_file = 'gtdbtk.bac120.classify.tree.'+str(i)+'.tree'
         extra_bac_tree_files.append(subtree_file)
         file_folder[subtree_file] = 'classify'
 
+    # copy all tree files to the output directory
+    # these may be in the temp_trees_output or the temp_output directory
     for file_ in tree_files + bb_tree_file + extra_bac_tree_files:
         treepath = temp_trees_output / file_folder[file_] / file_
         tmppath = temp_output / file_folder[file_] / file_
-        path = out_dir / file_
+        out_path = out_dir / file_
         if treepath.is_file():
-            copyfile(treepath, path)
+            copyfile(treepath, out_path)
         elif tmppath.is_file():
-            copyfile(tmppath, path)
+            copyfile(tmppath, out_path)
 
-    # merge summary tsv files            
+    # merge summary tsv files
     for file_ in base_files:
         treepath = temp_trees_output / file_folder[file_] / file_
         tmppath = temp_output / file_folder[file_] / file_
         path = out_dir / file_
         found_file = False
-        num_cols = 0
-        
+
         id_order = []
         tmp_buf = dict()
+        # TODO: decompose, avoid duplications, overlap
+        num_tmp_cols = 0
+        num_tree_cols = 0
         if tmppath.is_file():
             found_file = True
-            with open (tmppath, 'r') as tmppath_h:
+            with open(tmppath, 'r') as tmppath_h:
                 for info_line in tmppath_h:
                     row = info_line.rstrip().split("\t")
                     tmp_buf[row[0]] = row
                     id_order.append(row[0])
-                    num_cols = len(row)
+                    num_tmp_cols = len(row)
         tree_buf = dict()
         if treepath.is_file():
             found_file = True
@@ -252,25 +271,25 @@ def _process_output_files(temp_output, temp_trees_output, out_dir, id_to_name):
                     row = info_line.rstrip().split("\t")
                     tree_buf[row[0]] = row
                     id_order.append(row[0])
-                    num_cols = len(row)
+                    num_tree_cols = len(row)
+
+        num_cols = max(num_tmp_cols, num_tree_cols)
 
         if not found_file:
             continue
         out_buf = []
         for qid in id_order:
-            row = []
-            for field_i in range(num_cols):
-                row.append('N/A')
+            row = ["N/A"] * num_cols
             if qid in tmp_buf:
                 row = tmp_buf[qid]
             if qid in tree_buf:
-                for field_i,val in enumerate(tree_buf[qid]):
+                for field_i, _ in enumerate(tree_buf[qid]):
                     if row[field_i] == 'N/A':
                         row[field_i] = tree_buf[qid][field_i]
             out_buf.append("\t".join(row))
-                        
+
         # write merged summaries
-        with open (path, 'w') as summary_h:
+        with open(path, 'w') as summary_h:
             summary_h.write("\n".join(out_buf)+"\n")
 
     # load results
@@ -313,7 +332,7 @@ def _process_output_files(temp_output, temp_trees_output, out_dir, id_to_name):
                 # store classification by assembly name
                 if 'classification' in item:
                     classification[id_to_name[this_id]] = item['classification']
-                
+
             # rewrite with updated vals
             with open(outfile, 'w') as out:
                 out.write(json.dumps(sj))
