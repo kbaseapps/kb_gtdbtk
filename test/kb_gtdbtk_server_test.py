@@ -77,7 +77,7 @@ class kb_gtdbtkTest(unittest.TestCase):
         cls.handles_to_delete = []
         cls.nodes_to_delete = []
         cls.prepare_data()
-        
+
     @classmethod
     def tearDownClass(cls):
         if hasattr(cls, 'wsName'):
@@ -109,7 +109,7 @@ class kb_gtdbtkTest(unittest.TestCase):
                 print ("Error: not UPA element: "+upa_element)
                 legit_upa = False
         return legit_upa
-        
+
     @classmethod
     def prepare_data(cls):
         tempdir = cls.scratch / 'tempstuff'
@@ -118,11 +118,11 @@ class kb_gtdbtkTest(unittest.TestCase):
         # bacterial assemblies
         cls.bac_assy = []
         for this_filename in [ 'Rhodo_contigs.fa.gz',
-                               'Bin.001.fa.gz', 
-                               'Bin.046.fa.gz', 
-                               'Bin.047.fa.gz', 
+                               'Bin.001.fa.gz',
+                               'Bin.046.fa.gz',
+                               'Bin.047.fa.gz',
                                'Bin.049.fa.gz'
-                              ]:  
+                              ]:
             bac_assyfile = tempdir / this_filename
             copyfile(Path(__file__).parent / 'data' / this_filename, bac_assyfile)
             bac_assy_ref = cls.au.save_assembly_from_fasta(
@@ -169,7 +169,7 @@ class kb_gtdbtkTest(unittest.TestCase):
             # DEBUG
             #if this_genome_id == 'GCF_000008665.1':
             #    break
-            
+
             this_gff_filename = this_genome_id + '_genes.gff'
             this_assy_filename = this_genome_id + '_assembly.fa.gz'
 
@@ -194,11 +194,11 @@ class kb_gtdbtkTest(unittest.TestCase):
                   "gff_file": {"path": str(gfffile)},
                   "source": "GFF",
                   "scientific_name": "Genus_foo species_bar",
-                  "generate_missing_genes": "True"                
+                  "generate_missing_genes": "True"
                 })['genome_ref']
             cls.arch_genomes.append(genome_ref)
             genome_elements[this_genome_id] = { 'ref': genome_ref }
-            
+
         # archaeal assemblySet
         assemblySet_name = 'Archaea_3.AssemblySet'
         assemblySet_obj = { 'description': 'AssemblySet for archaeal genomes',
@@ -227,6 +227,54 @@ class kb_gtdbtkTest(unittest.TestCase):
         except Exception as e:
             raise ValueError ("ABORT: unable to save Arc GenomeSet object.\n"+str(e))
         cls.arch_genomeSet = cls.ref_from_info(genomeSet_info)
+
+        # problematic genome
+        prob_genome_id = "problematic_genome"
+        prob_gff_filename = f"{prob_genome_id}_genes.gff"
+        prob_assy_filename = f"{prob_genome_id}_assembly.fa"
+        assyfile = tempdir / prob_assy_filename
+        copyfile(Path(__file__).parent / 'data' / prob_assy_filename, assyfile)
+        assembly_ref = cls.au.save_assembly_from_fasta(
+            {'file': {'path': str(assyfile)},
+                'workspace_name': cls.wsName,
+                'assembly_name': prob_assy_filename
+            })
+        cls.arch_assemblies.append(assembly_ref)
+        assembly_items.append({'ref': assembly_ref, 'label': prob_genome_id})
+
+        # genome
+        gfffile = tempdir / prob_gff_filename
+        copyfile(Path(__file__).parent / 'data' / prob_gff_filename, gfffile)
+        genome_ref = cls.gfu.fasta_gff_to_genome (
+            {
+                "workspace_name": cls.wsName,
+                "genome_name": prob_genome_id,
+                "fasta_file": {"path": str(assyfile)},
+                "gff_file": {"path": str(gfffile)},
+                "source": "GFF",
+                "scientific_name": "Genus_unknown species_unknown",
+                "generate_missing_genes": "True"
+            })['genome_ref']
+        cls.arch_genomes.append(genome_ref)
+        prob_genome_elements = {
+            prob_genome_id:{ 'ref': genome_ref }
+        }
+
+        # problematic genome in set
+        prob_genome_set_name = 'Problematic.GenomeSet'
+        prob_genome_set_obj = {'description': 'Test GS', 'elements': prob_genome_elements }
+        try:
+            prob_genome_set_info = cls.ws.save_objects(
+                {'workspace': cls.wsName,
+                 'objects': [{
+                     'type': 'KBaseSearch.GenomeSet',
+                     'data': prob_genome_set_obj,
+                     'name': prob_genome_set_name
+                     }]})[0]
+        except Exception as e:
+            raise ValueError ("ABORT: unable to save Arc GenomeSet object.\n"+str(e))
+        cls.prob_genomeSet = cls.ref_from_info(prob_genome_set_info)
+
 
         # challenging bac assemblySet
         assembly_items = []
@@ -274,15 +322,37 @@ class kb_gtdbtkTest(unittest.TestCase):
             else:
                 os.remove (path)
 
-                
+
     ##############
     # UNIT TESTS #
     ##############
-        
+
     # test bacterial assembly input against order-level subtrees (takes about 1 hr)
     #  Note: single assembly not available from narrative widget, only direct call by power user
     #
-    # HIDE @unittest.skip("skipped test_classify_wf_assembly()")  # uncomment to skip
+    # HIDE @unittest.skip("skipped test_classify_wf_assembly_with_problem_genome()")  # uncomment to skip
+    def test_classify_wf_assy_with_problem_genome(self):
+        self.clean_scratch_dir()
+        report = self.serviceImpl.run_kb_gtdbtk_classify_wf(
+            self.ctx, {
+                'workspace_id': self.wsid,
+                'input_object_ref': self.prob_genomeSet,
+                'output_tree_basename': 'GTDB_Tree',
+                'copy_proximals': 0,
+                'save_trees': 0,
+                'min_perc_aa': 10,
+                'db_ver': 214,
+                'keep_intermediates': 0,
+                'overwrite_tax': 0,
+                'dendrogram_report': 1
+            })[0]
+        assert self.isUpa(report['report_ref'])
+
+        # can't easily maintain md5s through repeated updates.  don't require
+        md5s = {}
+        zipsize = 0
+        self.check_gtdbtk_output(report, zipsize, md5s)
+
     def test_classify_wf_assembly(self):
         self.clean_scratch_dir()
         report = self.serviceImpl.run_kb_gtdbtk_classify_wf(self.ctx, { \
@@ -294,7 +364,7 @@ class kb_gtdbtkTest(unittest.TestCase):
                                                                 'db_ver': 214,
                                                                 'keep_intermediates': 0,
                                                                 'dendrogram_report': 0
-                                                                        
+
                                                             })[0]
         assert self.isUpa (report['report_ref'])
 
@@ -332,7 +402,7 @@ class kb_gtdbtkTest(unittest.TestCase):
                                                             })[0]
         # TODO: after shrinking data to fit on dev1, test report content
         assert self.isUpa (report['report_ref'])
-        
+
 
     # test archaeal assemblySet input (takes a few minutes)
     #
@@ -352,7 +422,7 @@ class kb_gtdbtkTest(unittest.TestCase):
                                                             })[0]
         # TODO: test report content
         assert self.isUpa (report['report_ref'])
-        
+
 
     # test archaeal genome input (takes a few minutes) against r207
     #  Note; single genome not available from narrative widget, only direct call by power user
@@ -374,7 +444,7 @@ class kb_gtdbtkTest(unittest.TestCase):
         # TODO: test report content
         assert self.isUpa (report['report_ref'])
 
-        
+
     # test archaeal genome input (takes a few minutes) against r214
     #  Note; single genome not available from narrative widget, only direct call by power user
     #
@@ -395,7 +465,7 @@ class kb_gtdbtkTest(unittest.TestCase):
         # TODO: test report content
         assert self.isUpa (report['report_ref'])
 
-        
+
     # test archaeal genomeSet input (takes a few minutes)
     #  Note: this is where we test copy_proximals and save_trees!!!
     #
@@ -478,11 +548,11 @@ class kb_gtdbtkTest(unittest.TestCase):
         # TODO: test report content
         assert self.isUpa (report['report_ref'])
 
-        
+
     ################
     # HELPER FUNCS #
     ################
-    
+
     def check_gtdbtk_output(self, report, zipsize, filename_to_md5, tolerance=15):
         print(report)
         minsize = zipsize - tolerance
@@ -501,7 +571,7 @@ class kb_gtdbtkTest(unittest.TestCase):
 
         objects_created = d['objects_created']  # can't predict dynamic objects created
         file_links = d['file_links']  # can't predict dynamic handle
-        
+
         assert objname == obj['info'][1]
         assert d == {'direct_html': None,
                      'direct_html_link_index': 0,
@@ -514,7 +584,7 @@ class kb_gtdbtkTest(unittest.TestCase):
                      'summary_window_height': None,
                      'text_message': None,
                      'warnings': []}
-        
+
         # Shock is no longer being used
         """
         shocknode = shock_url.split('/')[-1]
