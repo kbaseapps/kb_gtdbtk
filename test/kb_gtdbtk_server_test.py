@@ -231,7 +231,7 @@ class kb_gtdbtkTest(unittest.TestCase):
         # problematic genome
         prob_genome_id = "problematic_genome"
         prob_gff_filename = f"{prob_genome_id}_genes.gff"
-        prob_assy_filename = f"{prob_genome_id}_assembly.fa"
+        prob_assy_filename = f"{prob_genome_id}_assembly.fa.gz"
         assyfile = tempdir / prob_assy_filename
         copyfile(Path(__file__).parent / 'data' / prob_assy_filename, assyfile)
         assembly_ref = cls.au.save_assembly_from_fasta(
