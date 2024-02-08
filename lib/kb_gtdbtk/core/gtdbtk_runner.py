@@ -34,6 +34,18 @@ def now_ISOish() -> str:
     return now_timestamp_in_isoish
 
 
+def get_mash_db_path(root_dir: Path, db_ver: int) -> Path:
+    """
+    Returns the expected path to the MASH database, based on the GTDB-tk database version
+    and the root refdata path. If this DB doesn't exist, this raises a RuntimeError.
+    """
+    # refdata mounted mash db.  Must be generated during docker image registration init as /data is read-only at app runtime
+    mash_db_path = root_dir / f"r{db_ver}" / "mash" / "gtdb_ref_sketch.msh"
+    if not mash_db_path.exists():
+        raise RuntimeError(f"GTDB ref genomes MASH DB not found in expected file {mash_db_path}. This must be generated during refdata initialization.")
+    return mash_db_path
+
+
 # main func
 def run_gtdbtk(
         gtdbtk_runner: Callable[[List[str]], None],
@@ -42,6 +54,7 @@ def run_gtdbtk(
         temp_dir: Path,
         min_perc_aa: float,
         db_ver: int,
+        data_root_dir: Path,
         keep_intermediates: int,
         cpus: int) -> Tuple[dict, dict]:
     '''
@@ -60,13 +73,17 @@ def run_gtdbtk(
     :param temp_dir: an extant temporary directory to use for processing. Any files or
         directories in this directory may be deleted or overwritten.
     :param min_perc_aa: The mimimum sequence alignment in percent.
+    :param db_ver: The version of the GTDB-tk reference data.
+    :param data_root_dir: The filesystem path where ref data is stored. This will typically be
+        /data , but might be somewhere else for testing with mocked files.
+    :param keep_intermediates: If 1, passes the --keep_intermediates flag to gtdbtk
     :param cpus: the number of CPUs GTDB-tk should use.
     '''
     # TODO input checking
     # TODO test logging, need to install an interceptor. Tested manually for now
 
     # all this complication is due to GTDB-tk choking on many legal, but uncommon, file name
-    # characters such as |. Essentially here we provide safe file names and identitifers
+    # characters such as |. Essentially here we provide safe file names and identifiers
     # (which GTDB-tk will use to create temporary files) and then remap to the original,
     # potentially unsafe names.
     timestamp = now_ISOish()
@@ -105,12 +122,8 @@ def run_gtdbtk(
         gtdbtk_cmd += ['--keep_intermediates']
 
     # refdata mounted mash db.  Must be generated during docker image registration init as /data is read-only at app runtime
-    mash_db_dir = os.path.join (os.sep, 'data' , 'r'+str(db_ver), 'mash')
-    mash_db_file = 'gtdb_ref_sketch.msh'
-    mash_db_path = os.path.join (mash_db_dir, mash_db_file)
-    if not os.path.exists (mash_db_path):
-        raise ValueError ('GTDB REF Genomes MASH DB not found.  Must generate during refdata initialization')
-    gtdbtk_cmd += ['--mash_db', mash_db_path]
+    mash_db_path = get_mash_db_path(data_root_dir, db_ver)
+    gtdbtk_cmd += ['--mash_db', str(mash_db_path)]
 
     # run first pass
     logging.info('Starting Command:\n' + ' '.join(gtdbtk_cmd))
@@ -261,7 +274,7 @@ def _process_output_files(
                     row = info_line.rstrip().split("\t")
                     tmp_buf[row[0]] = row
                     id_order.append(row[0])
-                    num_tmp_cols = len(row)
+                    num_tmp_cols = max(len(row), num_tmp_cols)
         tree_buf = dict()
         if treepath.is_file():
             found_file = True
@@ -271,7 +284,7 @@ def _process_output_files(
                     row = info_line.rstrip().split("\t")
                     tree_buf[row[0]] = row
                     id_order.append(row[0])
-                    num_tree_cols = len(row)
+                    num_tree_cols = max(len(row), num_tree_cols)
 
         num_cols = max(num_tmp_cols, num_tree_cols)
 

@@ -11,6 +11,7 @@ logging.basicConfig(format='%(created)s %(levelname)s: %(message)s', level=loggi
 
 
 def test_gtdbtk_run():
+    db_ver = 214
 
     with tempfile.TemporaryDirectory(prefix='test_gtdbtk_run') as test_dir_str:
         test_dir = Path(test_dir_str)
@@ -18,6 +19,12 @@ def test_gtdbtk_run():
         out_dir.mkdir(parents=True, exist_ok=True)
         temp_dir = test_dir / 'temp'
         temp_dir.mkdir(parents=True, exist_ok=True)
+        data_dir = test_dir / 'data'
+        data_dir.mkdir(parents=True, exist_ok=True)
+        db_dir = data_dir / f"r{db_ver}" / "mash"
+        db_dir.mkdir(parents=True, exist_ok=True)
+        with(open(db_dir / "gtdb_ref_sketch.msh", "w")) as mash_db:
+            mash_db.write("The fakest of fake data ever to be faked.")
 
         tf = []
 
@@ -34,29 +41,31 @@ def test_gtdbtk_run():
             temp_identify = Path(os.path.join(temp_out, 'identify'))
             temp_identify.mkdir(parents=True, exist_ok=True)
 
-            if '--skip_ani_screen' not in command:
-                assert command == [
-                    'gtdbtk',
-                    'classify_wf',
-                    '--out_dir', str(temp_out),
-                    '--batchfile',  # arg popped
-                    '--cpus', '16',
-                    '--min_perc_aa', '50.2',
-                    '--mash_db', '/data/r214/mash/gtdb_ref_sketch.msh' ]
+            expected_cmd = [
+                "gtdbtk",
+                "classify_wf",
+                "--out_dir", str(temp_out),
+                "--batchfile",
+                "--cpus", "16",
+                "--min_perc_aa", "50.2"
+            ]
+
+            if "--skip_ani_screen" in command:
+                expected_cmd += [
+                    "--skip_ani_screen",
+                    "--no_mash"
+                ]
             else:
-                assert command == [
-                    'gtdbtk',
-                    'classify_wf',
-                    '--out_dir', str(temp_out),
-                    '--batchfile',  # arg popped
-                    '--cpus', '16',
-                    '--min_perc_aa', '50.2',
-                    '--skip_ani_screen',
-                    '--no_mash' ]
-                
+                expected_cmd += [
+                    "--mash_db",
+                    str(data_dir / f"r{db_ver}" / "mash" / "gtdb_ref_sketch.msh")
+                ]
+
+            assert command == expected_cmd
+
             # arbitrary TSV files, these do not match what GTDB-tk produces
             # summary must have the correct number of fields
-            
+
             with open(os.path.join(temp_classify, 'gtdbtk.ar53.summary.tsv'), 'w') as t:
                 t.writelines(['\t'.join(['user_genome', 'classification', 'fastani_reference', 'fastani_reference_radius', 'fastani_taxonomy', 'fastani_ani', 'fastani_af', 'closest_placement_reference', 'closest_placement_radius', 'closest_placement_taxonomy', 'closest_placement_ani', 'closest_placement_af', 'pplacer_taxonomy', 'classification_method', 'note', 'other_related_references', 'msa_percent', 'translation_table', 'red_value', 'warnings']) + '\n',
                               '\t'.join(['id0', 'foo', 'foo', 'foo', 'foo', 'foo', 'foo', 'foo', 'foo', 'foo', 'foo', 'foo', 'foo', 'foo', 'foo', 'foo', 'foo', 'foo', 'foo', 'foo']) + '\n',
@@ -81,16 +90,18 @@ def test_gtdbtk_run():
 
         run_gtdbtk(
             runner,
-            {Path('/somepath1'): 'somefile1.fasta',
-             Path('/somepath2'): 'somefile2.fasta',
-             },
+            {
+                Path('/somepath1'): 'somefile1.fasta',
+                Path('/somepath2'): 'somefile2.fasta',
+            },
             out_dir,
             temp_dir,
             50.2,
-            214,
+            db_ver,
+            data_dir,
             0,
             16
-            )
+        )
 
         with open(tf[0]) as bf:
             lines = bf.readlines()
@@ -99,7 +110,7 @@ def test_gtdbtk_run():
             #assert lines[1] == f'{temp_dir}/links/id1\tid1\n'
             id0_path = lines[0].split("\t")[0]
             id1_path = lines[1].split("\t")[0]
-            
+
         assert os.readlink(id0_path) == '/somepath1'
         assert os.readlink(id1_path) == '/somepath2'
 
