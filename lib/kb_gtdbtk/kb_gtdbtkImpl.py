@@ -8,6 +8,8 @@ import subprocess
 from datetime import datetime
 from pprint import pprint, pformat
 from pathlib import Path
+from kb_gtdbtk.utils.merge_utils import merge_tsvs_safe
+
 
 from kb_gtdbtk.core.api_translation import get_gtdbtk_params
 from kb_gtdbtk.core.sequence_downloader import download_sequence
@@ -245,6 +247,26 @@ class kb_gtdbtk:
                                  file_links)
 
         #END run_kb_gtdbtk_classify_wf
+
+        # … after GTDB-Tk run …
+        results_dir = out_dir  # wherever GTDB-Tk wrote outputs
+
+        # Pick the TSVs you currently merge. Example patterns (adapt to your app):
+        tsv_patterns = [
+            os.path.join(results_dir, "gtdbtk.*.summary.tsv"),
+            os.path.join(results_dir, "taxonomy", "*.tsv"),
+            os.path.join(results_dir, "markers", "*.tsv"),
+        ]
+        tsv_files = []
+        for pat in tsv_patterns:
+            tsv_files.extend(glob.glob(pat))
+
+        merged_path = os.path.join(results_dir, "kbase_summary.tsv")
+        manifest = merge_tsvs_safe(tsv_files, merged_path, min_nonempty=1, fill_value="")
+
+        # Optionally bubble manifest notes into your KBase report/log:
+        self.log(f"GTDB merge manifest: {manifest}")
+
 
         # At some point might do deeper type checking...
         if not isinstance(output, dict):
