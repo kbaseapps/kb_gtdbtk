@@ -41,7 +41,7 @@ class GTDBTKParams(_NamedTuple):
     ''' Boolean use ultrametric tree in html report. '''
 
 
-def get_gtdbtk_params(input_params: Dict[str, object]) -> GTDBTKParams:
+def get_gtdbtk_params(input_params: Dict[str, Union[str, int, float]]) -> GTDBTKParams:
     '''
     Process input parameters supplied to the GTDB-tk run method and parse them into
     a named tuple. The expected fields are:
