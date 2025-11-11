@@ -2,6 +2,8 @@ import json
 import logging
 import os
 import tempfile
+from unittest.mock import Mock
+import pytest
 
 from pathlib import Path
 
@@ -23,8 +25,8 @@ def test_gtdbtk_run():
         data_dir.mkdir(parents=True, exist_ok=True)
         db_dir = data_dir / f"r{db_ver}" / "mash"
         db_dir.mkdir(parents=True, exist_ok=True)
-        with(open(db_dir / "gtdb_ref_sketch.msh", "w")) as mash_db:
-            mash_db.write("The fakest of fake data ever to be faked.")
+        refdata_file = db_dir / 'gtdb_ref_sketch.msh'
+        refdata_file.touch(exist_ok=True)
 
         tf = []
 
@@ -98,9 +100,9 @@ def test_gtdbtk_run():
             temp_dir,
             50.2,
             db_ver,
-            data_dir,
             0,
-            16
+            16,
+            data_root_dir=data_dir
         )
 
         with open(tf[0]) as bf:
@@ -146,3 +148,21 @@ def test_gtdbtk_run():
                 {'user_genome': 'somefile1.fasta', 'field1': 'fee', 'field2': 'fie'},
                 {'user_genome': 'somefile2.fasta', 'field1': 'fo', 'field2': 'fum'},
             ]}
+
+def test_gtdbtk_run_fail_no_refdata(tmp_path):
+    db_ver = 214
+    expected_db_path = f"/data/r{db_ver}/mash/gtdb_ref_sketch.msh"
+    with pytest.raises(RuntimeError, match=f"GTDB ref genomes MASH DB not found in expected path {expected_db_path}. This must be generated during refdata initialization."):
+        run_gtdbtk(
+            Mock(),
+            {
+                Path('/somepath1'): 'somefile1.fasta',
+                Path('/somepath2'): 'somefile2.fasta',
+            },
+            tmp_path / "out_dir",
+            tmp_path / "temp_dir",
+            50.2,
+            db_ver,
+            0,
+            16,
+        )

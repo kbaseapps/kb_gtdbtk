@@ -19,6 +19,7 @@ from typing import (
     Callable,
     Dict,
     List,
+    Optional,
     Tuple
 )
 
@@ -42,7 +43,7 @@ def get_mash_db_path(root_dir: Path, db_ver: int) -> Path:
     # refdata mounted mash db.  Must be generated during docker image registration init as /data is read-only at app runtime
     mash_db_path = root_dir / f"r{db_ver}" / "mash" / "gtdb_ref_sketch.msh"
     if not mash_db_path.exists():
-        raise RuntimeError(f"GTDB ref genomes MASH DB not found in expected file {mash_db_path}. This must be generated during refdata initialization.")
+        raise RuntimeError(f"GTDB ref genomes MASH DB not found in expected path {mash_db_path}. This must be generated during refdata initialization.")
     return mash_db_path
 
 
@@ -54,9 +55,9 @@ def run_gtdbtk(
         temp_dir: Path,
         min_perc_aa: float,
         db_ver: int,
-        data_root_dir: Path,
         keep_intermediates: int,
-        cpus: int) -> Tuple[dict, dict]:
+        cpus: int,
+        data_root_dir: Optional[Path]=None) -> Tuple[dict, dict]:
     '''
     Run GTDB-tk on a set of sequences in FASTA format. Expects the 'gtdbtk' command to be on the
     system path.
@@ -74,10 +75,10 @@ def run_gtdbtk(
         directories in this directory may be deleted or overwritten.
     :param min_perc_aa: The mimimum sequence alignment in percent.
     :param db_ver: The version of the GTDB-tk reference data.
-    :param data_root_dir: The filesystem path where ref data is stored. This will typically be
-        /data , but might be somewhere else for testing with mocked files.
     :param keep_intermediates: If 1, passes the --keep_intermediates flag to gtdbtk
     :param cpus: the number of CPUs GTDB-tk should use.
+    :param data_root_dir: The filesystem path where ref data is stored. This will typically be
+        /data , but might be somewhere else for testing with mocked files.
     '''
     # TODO input checking
     # TODO test logging, need to install an interceptor. Tested manually for now
@@ -102,8 +103,11 @@ def run_gtdbtk(
             os.symlink(path, temp_links / id_)
             tf.write(str(temp_links / id_) + '\t' + id_ + '\n')
 
+    if data_root_dir is None:
+        data_root_dir = Path("/data")
+
     # set refdata location
-    os.environ['GTDBTK_DATA_PATH'] = os.path.join(os.sep, 'data','r'+str(db_ver))
+    os.environ['GTDBTK_DATA_PATH'] = os.path.join(data_root_dir,'r'+str(db_ver))
 
     # set output dirs
     temp_output = temp_dir / 'output' / timestamp
@@ -261,6 +265,7 @@ def _process_output_files(
         tmppath = temp_output / file_folder[file_] / file_
         path = out_dir / file_
         found_file = False
+        num_cols = 0
 
         id_order = []
         tmp_buf = dict()
