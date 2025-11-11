@@ -19,6 +19,7 @@ from typing import (
     Callable,
     Dict,
     List,
+    Optional,
     Tuple
 )
 
@@ -43,7 +44,8 @@ def run_gtdbtk(
         min_perc_aa: float,
         db_ver: int,
         keep_intermediates: int,
-        cpus: int) -> Tuple[dict, dict]:
+        cpus: int,
+        refdata_root_dir: Optional[str]=None) -> None:
     '''
     Run GTDB-tk on a set of sequences in FASTA format. Expects the 'gtdbtk' command to be on the
     system path.
@@ -61,6 +63,7 @@ def run_gtdbtk(
         directories in this directory may be deleted or overwritten.
     :param min_perc_aa: The mimimum sequence alignment in percent.
     :param cpus: the number of CPUs GTDB-tk should use.
+    :param refdata_root_dir: the root directory where refdata is stored. Defaults to /data
     '''
     # TODO input checking
     # TODO test logging, need to install an interceptor. Tested manually for now
@@ -85,8 +88,11 @@ def run_gtdbtk(
             os.symlink(path, temp_links / id_)
             tf.write(str(temp_links / id_) + '\t' + id_ + '\n')
 
+    if refdata_root_dir is None:
+        refdata_root_dir = os.path.join(os.sep, 'data')
+
     # set refdata location
-    os.environ['GTDBTK_DATA_PATH'] = os.path.join(os.sep, 'data','r'+str(db_ver))
+    os.environ['GTDBTK_DATA_PATH'] = os.path.join(refdata_root_dir,'r'+str(db_ver))
 
     # set output dirs
     temp_output = temp_dir / 'output' / timestamp
@@ -105,11 +111,11 @@ def run_gtdbtk(
         gtdbtk_cmd += ['--keep_intermediates']
 
     # refdata mounted mash db.  Must be generated during docker image registration init as /data is read-only at app runtime
-    mash_db_dir = os.path.join (os.sep, 'data' , 'r'+str(db_ver), 'mash')
+    mash_db_dir = os.path.join (refdata_root_dir, 'r'+str(db_ver), 'mash')
     mash_db_file = 'gtdb_ref_sketch.msh'
     mash_db_path = os.path.join (mash_db_dir, mash_db_file)
     if not os.path.exists (mash_db_path):
-        raise ValueError ('GTDB REF Genomes MASH DB not found.  Must generate during refdata initialization')
+        raise ValueError (f'GTDB REF Genomes MASH DB not found in {mash_db_path}. Must generate during refdata initialization.')
     gtdbtk_cmd += ['--mash_db', mash_db_path]
 
     # run first pass
@@ -177,6 +183,7 @@ def _process_output_files(
 
     classification = dict()
     summary_tables = dict()
+    trimmed_tree_files = dict()
 
     # copy over all created output
     """
@@ -248,6 +255,7 @@ def _process_output_files(
         tmppath = temp_output / file_folder[file_] / file_
         path = out_dir / file_
         found_file = False
+        num_cols = 0
 
         id_order = []
         tmp_buf = dict()
