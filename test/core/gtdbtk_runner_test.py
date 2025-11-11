@@ -2,6 +2,8 @@ import json
 import logging
 import os
 import tempfile
+from unittest.mock import Mock
+import pytest
 
 from pathlib import Path
 
@@ -18,6 +20,14 @@ def test_gtdbtk_run():
         out_dir.mkdir(parents=True, exist_ok=True)
         temp_dir = test_dir / 'temp'
         temp_dir.mkdir(parents=True, exist_ok=True)
+
+        db_ver = 'r214'
+        data_dir = test_dir / 'data'
+        data_dir.mkdir(parents=True, exist_ok=True)
+        refdb_dir = data_dir / db_ver / 'mash'
+        refdb_dir.mkdir(parents=True, exist_ok=True)
+        refdata_file = refdb_dir / 'gtdb_ref_sketch.msh'
+        refdata_file.touch(exist_ok=True)
 
         tf = []
 
@@ -42,7 +52,7 @@ def test_gtdbtk_run():
                     '--batchfile',  # arg popped
                     '--cpus', '16',
                     '--min_perc_aa', '50.2',
-                    '--mash_db', '/data/r214/mash/gtdb_ref_sketch.msh' ]
+                    '--mash_db', str(refdata_file) ]
             else:
                 assert command == [
                     'gtdbtk',
@@ -53,10 +63,10 @@ def test_gtdbtk_run():
                     '--min_perc_aa', '50.2',
                     '--skip_ani_screen',
                     '--no_mash' ]
-                
+
             # arbitrary TSV files, these do not match what GTDB-tk produces
             # summary must have the correct number of fields
-            
+
             with open(os.path.join(temp_classify, 'gtdbtk.ar53.summary.tsv'), 'w') as t:
                 t.writelines(['\t'.join(['user_genome', 'classification', 'fastani_reference', 'fastani_reference_radius', 'fastani_taxonomy', 'fastani_ani', 'fastani_af', 'closest_placement_reference', 'closest_placement_radius', 'closest_placement_taxonomy', 'closest_placement_ani', 'closest_placement_af', 'pplacer_taxonomy', 'classification_method', 'note', 'other_related_references', 'msa_percent', 'translation_table', 'red_value', 'warnings']) + '\n',
                               '\t'.join(['id0', 'foo', 'foo', 'foo', 'foo', 'foo', 'foo', 'foo', 'foo', 'foo', 'foo', 'foo', 'foo', 'foo', 'foo', 'foo', 'foo', 'foo', 'foo', 'foo']) + '\n',
@@ -89,8 +99,9 @@ def test_gtdbtk_run():
             50.2,
             214,
             0,
-            16
-            )
+            16,
+            refdata_root_dir=data_dir
+        )
 
         with open(tf[0]) as bf:
             lines = bf.readlines()
@@ -99,7 +110,7 @@ def test_gtdbtk_run():
             #assert lines[1] == f'{temp_dir}/links/id1\tid1\n'
             id0_path = lines[0].split("\t")[0]
             id1_path = lines[1].split("\t")[0]
-            
+
         assert os.readlink(id0_path) == '/somepath1'
         assert os.readlink(id1_path) == '/somepath2'
 
@@ -135,3 +146,21 @@ def test_gtdbtk_run():
                 {'user_genome': 'somefile1.fasta', 'field1': 'fee', 'field2': 'fie'},
                 {'user_genome': 'somefile2.fasta', 'field1': 'fo', 'field2': 'fum'},
             ]}
+
+def test_gtdbtk_run_fail_no_refdata(tmp_path):
+    db_ver = 214
+    expected_db_path = f"/data/r{db_ver}/mash/gtdb_ref_sketch.msh"
+    with pytest.raises(ValueError, match=f"GTDB REF Genomes MASH DB not found in {expected_db_path}. Must generate during refdata initialization."):
+        run_gtdbtk(
+            Mock(),
+            {
+                Path('/somepath1'): 'somefile1.fasta',
+                Path('/somepath2'): 'somefile2.fasta',
+            },
+            tmp_path / "out_dir",
+            tmp_path / "temp_dir",
+            50.2,
+            db_ver,
+            0,
+            16,
+        )

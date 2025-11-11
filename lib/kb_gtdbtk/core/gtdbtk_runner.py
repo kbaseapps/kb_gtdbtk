@@ -13,7 +13,7 @@ import tempfile
 from datetime import datetime
 from pathlib import Path
 from shutil import copyfile,copytree,rmtree
-from typing import Dict, List, Callable
+from typing import Dict, List, Callable, Optional
 
 
 # timestamp
@@ -34,7 +34,8 @@ def run_gtdbtk(
         min_perc_aa: float,
         db_ver: int,
         keep_intermediates: int,
-        cpus: int) -> None:
+        cpus: int,
+        refdata_root_dir: Optional[str]=None) -> None:
     '''
     Run GTDB-tk on a set of sequences in FASTA format. Expects the 'gtdbtk' command to be on the
     system path.
@@ -52,6 +53,7 @@ def run_gtdbtk(
         directories in this directory may be deleted or overwritten.
     :param min_perc_aa: The mimimum sequence alignment in percent.
     :param cpus: the number of CPUs GTDB-tk should use.
+    :param refdata_root_dir: the root directory where refdata is stored. Defaults to /data
     '''
     # TODO input checking
     # TODO test logging, need to install an interceptor. Tested manually for now
@@ -76,8 +78,11 @@ def run_gtdbtk(
             os.symlink(path, temp_links / id_)
             tf.write(str(temp_links / id_) + '\t' + id_ + '\n')
 
+    if refdata_root_dir is None:
+        refdata_root_dir = os.path.join(os.sep, 'data')
+
     # set refdata location
-    os.environ['GTDBTK_DATA_PATH'] = os.path.join(os.sep, 'data','r'+str(db_ver))
+    os.environ['GTDBTK_DATA_PATH'] = os.path.join(refdata_root_dir,'r'+str(db_ver))
 
     # set output dirs
     temp_output = temp_dir / 'output' / timestamp
@@ -96,13 +101,13 @@ def run_gtdbtk(
         gtdbtk_cmd += ['--keep_intermediates']
 
     # refdata mounted mash db.  Must be generated during docker image registration init as /data is read-only at app runtime
-    mash_db_dir = os.path.join (os.sep, 'data' , 'r'+str(db_ver), 'mash')
+    mash_db_dir = os.path.join (refdata_root_dir, 'r'+str(db_ver), 'mash')
     mash_db_file = 'gtdb_ref_sketch.msh'
     mash_db_path = os.path.join (mash_db_dir, mash_db_file)
     if not os.path.exists (mash_db_path):
-        raise ValueError ('GTDB REF Genomes MASH DB not found.  Must generate during refdata initialization')
+        raise ValueError (f'GTDB REF Genomes MASH DB not found in {mash_db_path}. Must generate during refdata initialization.')
     gtdbtk_cmd += ['--mash_db', mash_db_path]
-    
+
     # run first pass
     logging.info('Starting Command:\n' + ' '.join(gtdbtk_cmd))
     gtdbtk_runner(gtdbtk_cmd)
@@ -127,7 +132,7 @@ def run_gtdbtk(
         # run first pass
         logging.info('Starting Command:\n' + ' '.join(gtdbtk_cmd))
         gtdbtk_runner(gtdbtk_cmd)
-        
+
     return _process_output_files(temp_output, temp_trees_output, output_dir, id_to_name)
 
 
@@ -165,7 +170,7 @@ def _process_output_files(temp_output, temp_trees_output, out_dir, id_to_name):
     classification = dict()
     summary_tables = dict()
     trimmed_tree_files = dict()
-    
+
     # copy over all created output
     """
     for file_ in os.listdir (temp_output):
@@ -173,7 +178,7 @@ def _process_output_files(temp_output, temp_trees_output, out_dir, id_to_name):
         if not tmppath.is_file():
             continue
         path = out_dir / file_
-        copyfile(tmppath, path)        
+        copyfile(tmppath, path)
     """
     sub_out_dir = Path(out_dir / 'runtime_output')
     if os.path.isdir(sub_out_dir):  # only occurs during unit tests
@@ -187,7 +192,7 @@ def _process_output_files(temp_output, temp_trees_output, out_dir, id_to_name):
     id_map_path = os.path.join(out_dir, 'id_to_name.map')
     with open (id_map_path, 'w') as file_h:
         file_h.write("\n".join(id_map_buf)+"\n")
-    
+
     # make json files for html tables
     tree_files = ['gtdbtk.ar53.classify.tree',
                   'gtdbtk.bac120.classify.tree']
@@ -225,14 +230,14 @@ def _process_output_files(temp_output, temp_trees_output, out_dir, id_to_name):
         elif tmppath.is_file():
             copyfile(tmppath, path)
 
-    # merge summary tsv files            
+    # merge summary tsv files
     for file_ in base_files:
         treepath = temp_trees_output / file_folder[file_] / file_
         tmppath = temp_output / file_folder[file_] / file_
         path = out_dir / file_
         found_file = False
         num_cols = 0
-        
+
         id_order = []
         tmp_buf = dict()
         if tmppath.is_file():
@@ -268,7 +273,7 @@ def _process_output_files(temp_output, temp_trees_output, out_dir, id_to_name):
                     if row[field_i] == 'N/A':
                         row[field_i] = tree_buf[qid][field_i]
             out_buf.append("\t".join(row))
-                        
+
         # write merged summaries
         with open (path, 'w') as summary_h:
             summary_h.write("\n".join(out_buf)+"\n")
@@ -313,7 +318,7 @@ def _process_output_files(temp_output, temp_trees_output, out_dir, id_to_name):
                 # store classification by assembly name
                 if 'classification' in item:
                     classification[id_to_name[this_id]] = item['classification']
-                
+
             # rewrite with updated vals
             with open(outfile, 'w') as out:
                 out.write(json.dumps(sj))
