@@ -1,6 +1,11 @@
 name: SDK-less unit tests
 
-on: [push, pull_request, fork, workflow_dispatch]
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - ready_for_review
 
 jobs:
   sdkless_test:
