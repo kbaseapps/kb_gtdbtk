@@ -22,18 +22,7 @@ from typing import (
     Optional,
     Tuple
 )
-
-
-# timestamp
-def now_ISOish() -> str:
-    """
-    Returns a timestamp that's roughly close to now, in ISO.
-    """
-    now_timestamp = datetime.now()
-    now_secs_from_epoch = (now_timestamp - datetime(1970,1,1)).total_seconds()
-    now_timestamp_in_isoish = datetime.fromtimestamp(int(now_secs_from_epoch)).strftime('%Y%m%d_%H%M%S')
-    return now_timestamp_in_isoish
-
+from kb_gtdbtk.core.string_util import now_ISOish
 
 def get_mash_db_path(root_dir: Path, db_ver: int) -> Path:
     """
@@ -107,7 +96,7 @@ def run_gtdbtk(
         data_root_dir = Path("/data")
 
     # set refdata location
-    os.environ['GTDBTK_DATA_PATH'] = os.path.join(data_root_dir,'r'+str(db_ver))
+    os.environ['GTDBTK_DATA_PATH'] = str(data_root_dir / f"r{db_ver}")
 
     # set output dirs
     temp_output = temp_dir / 'output' / timestamp

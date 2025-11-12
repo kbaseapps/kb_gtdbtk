@@ -149,7 +149,7 @@ def test_gtdbtk_run():
                 {'user_genome': 'somefile2.fasta', 'field1': 'fo', 'field2': 'fum'},
             ]}
 
-def test_gtdbtk_run_fail_no_refdata(tmp_path):
+def test_gtdbtk_run_fail_no_default_refdata(tmp_path):
     db_ver = 214
     expected_db_path = f"/data/r{db_ver}/mash/gtdb_ref_sketch.msh"
     with pytest.raises(RuntimeError, match=f"GTDB ref genomes MASH DB not found in expected path {expected_db_path}. This must be generated during refdata initialization."):
