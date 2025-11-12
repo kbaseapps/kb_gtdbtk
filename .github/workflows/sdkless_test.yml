@@ -21,7 +21,7 @@ jobs:
           python-version: '3.10'
 
       - name: Install Pipenv
-        run: pip install pipenv
+        run: pip install pipenv mypy
 
       - name: Run sdkless tests
         run: pipenv run make test-sdkless
