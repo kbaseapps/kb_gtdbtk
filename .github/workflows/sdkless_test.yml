@@ -9,20 +9,20 @@ on:
 
 jobs:
   sdkless_test:
-  runs-on: ubuntu-latest
+    runs-on: ubuntu-latest
 
-  steps:
-  - name: Checkout GitHub repo
-    uses: actions/checkout@v4
+    steps:
+      - name: Checkout GitHub repo
+        uses: actions/checkout@v4
 
-  - name: Install Python
-    uses: actions/setup-python@v4
-    with:
-      python-version: '3.10'
+      - name: Install Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
 
-  - name: Install Pipenv
-    run: pip install pipenv
+      - name: Install Pipenv
+        run: pip install pipenv
 
-  - name: Run sdkless tests
-    run: pipenv run make test-sdkless
+      - name: Run sdkless tests
+        run: pipenv run make test-sdkless
 
