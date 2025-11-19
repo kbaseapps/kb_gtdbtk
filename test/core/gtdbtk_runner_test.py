@@ -245,6 +245,34 @@ class TestMergeSummaryTsvFiles:
         assert result["data"]["genome2"][1] == "value1"  # From std
         assert result["data"]["genome2"][2] == "value2_tree"  # Was N/A in std
 
+    def test_merge_both_files_exist_whitespace(self, tmp_path):
+        """Test merging when both std and tree files exist"""
+        std_file = tmp_path / "std.tsv"
+        tree_file = tmp_path / "tree.tsv"
+        out_file = tmp_path / "merged.tsv"
+
+        # Standard file with some N/A values
+        std_file.write_text("user_genome\tfield1\tfield2\tfield3\tfield4\n"
+                           "genome1\tN/A\tvalue2\tvalue3\t\n"
+                           "genome2\tvalue1\tN/A\tvalue3\tvalue4\n")
+
+        # Tree file with values where std has N/A
+        tree_file.write_text("user_genome\tfield1\tfield2\tfield3\tfield4\n"
+                            "genome1\tvalue1_tree\tN/A\tvalue3\t\n"
+                            "genome2\tvalue1_tree\tvalue2_tree\tN/A\t\n")
+
+        _merge_summary_tsv_files(std_file, tree_file, out_file)
+
+        result = _load_summary_tsv_file(out_file)
+
+        # Tree values should override N/A in std
+        assert result["data"]["genome1"] == [
+            "genome1", "value1_tree", "value2", "value3", ""
+        ]
+        assert result["data"]["genome2"] == [
+            "genome2", "value1", "value2_tree", "value3", "value4"
+        ]
+
     def test_merge_only_std_file(self, tmp_path):
         """Test when only standard file exists"""
         std_file = tmp_path / "std.tsv"
