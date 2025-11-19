@@ -20,7 +20,8 @@ from typing import (
     Dict,
     List,
     Optional,
-    Tuple
+    Tuple,
+    Union
 )
 from kb_gtdbtk.core.string_util import now_ISOish
 
@@ -408,7 +409,7 @@ def _merge_summary_tsv_files(std_path: Path, tree_path: Path, output_path: Path)
         summary_file.write("\n".join(out_buf)+"\n")
 
 
-def _load_summary_tsv_file(filepath: Path) -> dict[str, list|dict]:
+def _load_summary_tsv_file(filepath: Path) -> Dict[str, Union[List, Dict]]:
     """
     Loads a TSV file, includes the header (assumes that each summary file from GTDBtk has
     a header) and all lines.
