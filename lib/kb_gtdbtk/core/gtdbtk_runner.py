@@ -2,7 +2,6 @@
 Run GTDB-tk against a set of sequence files.
 '''
 
-from dataclasses import dataclass
 import logging
 import json
 import os
@@ -10,7 +9,6 @@ import shutil
 import pandas as pd
 import tempfile
 
-from datetime import datetime
 from pathlib import Path
 from shutil import (
     copyfile,
