@@ -205,14 +205,16 @@ class TestLoadSummaryTsvFile:
     def test_load_summary_tsv_preserves_trailing_tabs(self, tmp_path):
         """Test that trailing empty fields are preserved"""
         tsv_file = tmp_path / "test.tsv"
-        tsv_file.write_text("user_genome\tfield1\tfield2\tfield3\n"
-                           "genome1\tvalue1\tvalue2\t\n")
+        tsv_file.write_text("user_genome\tfield1\tfield2\tfield3\tfield4\n"
+                           "genome1\tvalue1\tvalue2\t\t\n")
 
         result = _load_summary_tsv_file(tsv_file)
 
         # The last element should be empty string, not removed
-        assert len(result["data"]["genome1"]) == 4
-        assert result["data"]["genome1"][3] == ""
+        assert len(result["data"]["genome1"]) == 5
+        assert result["data"]["genome1"] == [
+            "genome1", "value1", "value2", "", ""
+        ]
 
 class TestMergeSummaryTsvFiles:
     """Tests for _merge_summary_tsv_files function"""
