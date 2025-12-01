@@ -20,9 +20,15 @@ jobs:
         with:
           python-version: '3.10'
 
+      - name: Cache pip install
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+
       - name: Install pip packages
-        run: pip install pipenv mypy pytest pytest-cov coverall flake8 jsonrpcbase requests pandas
+        run: pip install mypy pytest pytest-cov coverall flake8 jsonrpcbase requests pandas
 
       - name: Run sdkless tests
-        run: pipenv run make test-sdkless
+        run: make test-sdkless
 
