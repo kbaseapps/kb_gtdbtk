@@ -1,7 +1,7 @@
-flake8==6.1.0
-jsonrpcbase==0.2.0
-mypy==1.5.1
-pandas==2.0.3
-pytest==7.4.2
-pytest-cov==4.1.0
-requests==2.31.0
+flake8
+jsonrpcbase
+mypy
+pandas
+pytest
+pytest-cov
+requests
