@@ -24,10 +24,10 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements-gha.txt') }}
 
       - name: Install pip packages
-        run: pip install mypy pytest pytest-cov coverall flake8 jsonrpcbase requests pandas
+        run: pip install -r requirements-gha.txt
 
       - name: Run sdkless tests
         run: make test-sdkless
