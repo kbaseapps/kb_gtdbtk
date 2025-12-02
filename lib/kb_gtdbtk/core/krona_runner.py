@@ -22,9 +22,9 @@ def run_krona_import_text(
     input_file = _create_input_file(output_dir, temp_dir)
 
     chart_file_name = 'krona_chart.html'  # if updated, the index.html file should also be updated accordingly
-    output_file = os.path.join(output_dir, chart_file_name)
+    output_file = output_dir / chart_file_name
 
-    import_text_cmd = ['ktImportText', input_file, '-o', output_file]
+    import_text_cmd = ['ktImportText', str(input_file), '-o', str(output_file)]
 
     logging.info('Starting Command:\n' + ' '.join(import_text_cmd))
     runner(import_text_cmd)
@@ -39,7 +39,7 @@ def _create_input_file(output_dir: Path, temp_dir: Path) -> Path:
     taxonomies = list()
     for summary_file in summary_files:
 
-        summary_file_path = os.path.join(output_dir, summary_file)
+        summary_file_path = output_dir / summary_file
 
         if os.path.exists(summary_file_path):
 
@@ -54,7 +54,7 @@ def _create_input_file(output_dir: Path, temp_dir: Path) -> Path:
 
     taxo_counter = Counter(taxonomies)
     krona_input_file = 'krona_input.txt'
-    krona_input_path = os.path.join(temp_dir, krona_input_file)
+    krona_input_path = temp_dir / krona_input_file
 
     with open(krona_input_path, 'w') as krona_file:
         for taxonomy, count in taxo_counter.items():
