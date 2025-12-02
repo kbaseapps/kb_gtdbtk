@@ -46,7 +46,7 @@ class kb_gtdbtk:
     ### log()
     #
     def log(self, target, message):
-        message = '['+self.now_ISOish()+'] '+message
+        message = '['+now_ISOish()+'] '+message
         if target is not None:
             target.append(message)
         print(message)
