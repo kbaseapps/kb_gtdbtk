@@ -6,7 +6,7 @@ import sys
 import subprocess
 
 from datetime import datetime
-from pprint import pprint, pformat
+from pprint import pformat
 from pathlib import Path
 
 from kb_gtdbtk.core.api_translation import get_gtdbtk_params
@@ -16,6 +16,7 @@ from kb_gtdbtk.core.gtdbtk_runner import run_gtdbtk
 from kb_gtdbtk.core.krona_runner import run_krona_import_text
 from kb_gtdbtk.core.kb_report_generation import generate_report
 from kb_gtdbtk.core.genome_obj_update import copy_gtdb_species_reps, get_obj_type, check_obj_type_genome, check_obj_type_assembly, update_genome_assembly_objs_class, process_tree_files, save_gtdb_tree_objs
+from kb_gtdbtk.core.string_util import now_ISOish
 #END_HEADER
 
 
@@ -40,19 +41,12 @@ class kb_gtdbtk:
 
     #BEGIN_CLASS_HEADER
 
-    ### now_ISOish()
-    #
-    def now_ISOish(self):
-        now_timestamp = datetime.now()
-        now_secs_from_epoch = (now_timestamp - datetime(1970,1,1)).total_seconds()
-        now_timestamp_in_iso = datetime.fromtimestamp(int(now_secs_from_epoch)).strftime('%Y-%m-%d_%T')
-        return now_timestamp_in_iso
+    REFDATA_DIR: Path = Path("/data")
 
-    
     ### log()
     #
     def log(self, target, message):
-        message = '['+self.now_ISOish()+'] '+message
+        message = '['+now_ISOish()+'] '+message
         if target is not None:
             target.append(message)
         print(message)
@@ -70,7 +64,7 @@ class kb_gtdbtk:
         self.hs_url = config['handle-service-url']
         self.cpus = config['cpus']  # bigmem 32 cpus & 251 GB RAM.  new gtdb-tk needs less mem.
         self.genome_upas_map_file = config['genome_upas_map_file']
-        
+
         logging.basicConfig(format='%(created)s %(levelname)s: %(message)s',
                             level=logging.INFO)
         #END_CONSTRUCTOR
@@ -101,7 +95,7 @@ class kb_gtdbtk:
         # ctx is the context object
         # return variables are: output
         #BEGIN run_kb_gtdbtk
-        logging.info("run_kb_gtdbtk() is deprecated.  Use run_kb_gtdbtk_classify_wf() instead.\n")
+        logging.info("run_kb_gtdbtk() is obsolete.  Use run_kb_gtdbtk_classify_wf() instead.\n")
         output = dict()
         #END run_kb_gtdbtk
 
@@ -144,8 +138,8 @@ class kb_gtdbtk:
         self.log(console, 'Running ' + method_name + ' with params='
 )
         self.log(console, "\n" + pformat(params))
-        
-        
+
+
         self.log(console, "Get Genome Seqs\n")
         fasta_path = self.shared_folder / 'fastas'
         fasta_path.mkdir(parents=True, exist_ok=True)
@@ -161,7 +155,7 @@ class kb_gtdbtk:
         output_path.mkdir(parents=True, exist_ok=True)
         temp_output.mkdir(parents=True, exist_ok=True)
 
-        
+
         ### Step 01: run GTDB-Tk Classify WF
         def runner(args):
             self.log(console, "Run gtdbtk classify_wf\n")
@@ -178,14 +172,15 @@ class kb_gtdbtk:
                                                        params.min_perc_aa,
                                                        params.db_ver,
                                                        params.keep_intermediates,
-                                                       self.cpus)
+                                                       self.cpus,
+                                                       data_root_dir=self.REFDATA_DIR)
 
 
         ### Step 02: Make Krona plot
         self.log(console, "Format Krona plot")
         run_krona_import_text(runner, output_path, temp_output)
 
-        
+
         ### Step 03: Save Genome and/or Assembly objects with updated lineage
         objects_created = None
         top_query_obj_type = get_obj_type (params.ref, cli)
@@ -203,7 +198,7 @@ class kb_gtdbtk:
                                                                  taxon_assignment_field,
                                                                  cli)
 
-        
+
         ### Step 04: copy over GTDB Species Rep Genomes to calling WS and make GenomeSets
         if params.copy_proximals and check_obj_type_genome (top_query_obj_type):
             self.log(console, "Create Proximal GenomeSets and copy Species Representative Genomes")
@@ -212,7 +207,7 @@ class kb_gtdbtk:
                                                             self.genome_upas_map_file,
                                                             summary_tables,
                                                             cli))
-        
+
 
         ### Step 05: process trees
         self.log(console, "Process Trees")
@@ -234,8 +229,8 @@ class kb_gtdbtk:
                                                          params.output_tree_basename,
                                                          self.genome_upas_map_file,
                                                          cli))
-        
-        
+
+
         ### Step 07: make report
         self.log(console, "Generate Report")
         output = generate_report(cli,

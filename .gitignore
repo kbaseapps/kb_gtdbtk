@@ -10,3 +10,4 @@ lib/kb_gtdbtk/utils/test.py
 .pytest_cache
 *.bak*
 .vscode/settings.json
+__pycache__
