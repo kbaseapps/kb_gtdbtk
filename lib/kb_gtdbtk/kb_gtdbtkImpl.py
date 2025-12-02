@@ -16,6 +16,7 @@ from kb_gtdbtk.core.gtdbtk_runner import run_gtdbtk
 from kb_gtdbtk.core.krona_runner import run_krona_import_text
 from kb_gtdbtk.core.kb_report_generation import generate_report
 from kb_gtdbtk.core.genome_obj_update import copy_gtdb_species_reps, get_obj_type, check_obj_type_genome, check_obj_type_assembly, update_genome_assembly_objs_class, process_tree_files, save_gtdb_tree_objs
+from kb_gtdbtk.core.string_util import now_ISOish
 #END_HEADER
 
 
@@ -40,20 +41,12 @@ class kb_gtdbtk:
 
     #BEGIN_CLASS_HEADER
 
-    ### now_ISOish()
-    #
-    def now_ISOish(self):
-        now_timestamp = datetime.now()
-        now_secs_from_epoch = (now_timestamp - datetime(1970,1,1)).total_seconds()
-        now_timestamp_in_iso = datetime.fromtimestamp(int(now_secs_from_epoch)).strftime('%Y-%m-%d_%T')
-        return now_timestamp_in_iso
-
     REFDATA_DIR: Path = Path("/data")
 
     ### log()
     #
     def log(self, target, message):
-        message = '['+self.now_ISOish()+'] '+message
+        message = '['+now_ISOish()+'] '+message
         if target is not None:
             target.append(message)
         print(message)
@@ -178,9 +171,9 @@ class kb_gtdbtk:
                                                        temp_output,
                                                        params.min_perc_aa,
                                                        params.db_ver,
-                                                       self.REFDATA_DIR,
                                                        params.keep_intermediates,
-                                                       self.cpus)
+                                                       self.cpus,
+                                                       data_root_dir=self.REFDATA_DIR)
 
 
         ### Step 02: Make Krona plot
