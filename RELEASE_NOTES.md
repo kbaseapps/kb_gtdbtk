@@ -1,5 +1,8 @@
 # kb_gtdbtk release notes
 =========================
+1.4.2
+_____
+* Update FastANI to v1.34
 
 1.4.1
 _____
