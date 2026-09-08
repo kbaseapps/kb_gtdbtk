@@ -21,7 +21,7 @@ ENV GTDBTK_VERSION='2.3.2'
 RUN pip install gtdbtk==${GTDBTK_VERSION}
 
 # GTDB-Tk dependencies: FastANI
-ENV FASTANI_VERSION='v1.33'
+ENV FASTANI_VERSION='v1.34'
 RUN curl -LJO https://github.com/ParBLiSS/FastANI/releases/download/${FASTANI_VERSION}/fastANI-Linux64-${FASTANI_VERSION}.zip \
     && unzip fastANI-Linux64-${FASTANI_VERSION}.zip \
     && mv fastANI /usr/local/bin/
